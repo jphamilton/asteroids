@@ -66,7 +66,7 @@
 	        bulletCounter -= step;
 	    }
 	    if (keys_1.Key.isDown(keys_1.Key.CTRL) && bulletCounter <= 0) {
-	        bulletCounter = .1;
+	        bulletCounter = .2;
 	        if (bullets.length < 4) {
 	            bullets.push(new bullet_1.Bullet(ship));
 	        }

@@ -28,7 +28,7 @@ const update = (step: number) => {
     }
 
     if (Key.isDown(Key.CTRL) && bulletCounter <= 0) {
-        bulletCounter = .1;
+        bulletCounter = .2;
         if (bullets.length < 4) {
             bullets.push(new Bullet(ship));
         }
