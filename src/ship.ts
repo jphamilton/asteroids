@@ -1,26 +1,24 @@
 import { Key } from './keys';
-import { RAD, COS, SIN } from './lut';
 import screen from './screen';
+import { Object2D } from './object2d';
+import World from './world';
 
 const ACCELERATION: number = 0.2;
 const FRICTION: number = 0.007;
 const ROTATION: number = 5;
 const MAX_SPEED: number = 15;
 
-export class Ship implements Polygon {
+export class Ship extends Object2D {
 
-    color: string;
-    points: Point[];
-    flame: Point[];
-
-    angle: number = 360; 
-    vx: number = 0;
-    vy: number = 0;
-    
+    private points: Point[];
+    private flame: Point[];
     private moving: boolean = false;
+    private bulletTimer: number = 0;
 
-    constructor(public origin: Point) {
-        //this.color = 'rgba(255,255,255,.6)';
+    constructor(x: number, y: number) {
+        super(x, y);
+
+        this.angle = 360;
         this.color = '#ffffff';
 
         this.points = [
@@ -28,7 +26,8 @@ export class Ship implements Polygon {
             {x: 10, y: 10},
             {x: 5, y: 5},
             {x: -5, y: 5},
-            {x: -10, y: 10}
+            {x: -10, y: 10},
+            {x: 0, y: -15}
         ];
 
         this.flame = [
@@ -38,32 +37,19 @@ export class Ship implements Polygon {
         ];
     }
 
-    draw() {
-        screen.draw.shape(this.origin, this.points, this.color, true);
+    get geometry() {
+        return [...this.points, ...this.flame];
+    }
+
+    render() {
+        screen.draw.shape(this.points, this.x, this.y, this.color);
         if (this.moving && (Math.floor(Math.random() * 10) + 1) % 2 === 0) {
-            screen.draw.shape(this.origin, this.flame, this.color, false);
+            screen.draw.shape(this.flame, this.x, this.y, this.color);
         }
     }
 
-    update() {
-        this.origin.x += this.vx;
-        this.origin.y += this.vy;
-    
-        if (this.origin.x > screen.width) {
-            this.origin.x -= screen.width;
-        }
-
-        if (this.origin.x < 0) {
-            this.origin.x += screen.width;
-        }
-
-        if (this.origin.y > screen.height) {
-            this.origin.y -= screen.height;
-        }
-
-        if (this.origin.y < 0) {
-            this.origin.y += screen.height;
-        }
+    update(step: number) {
+        this.move();
 
         if (Key.isDown(Key.UP)) {
             this.moving = true;
@@ -81,7 +67,7 @@ export class Ship implements Polygon {
         }
 
         if (Key.isDown(Key.CTRL)) {
-            // fire
+            this.fire();
         }
 
         if (Key.isDown(Key.SHIFT)) {
@@ -90,31 +76,10 @@ export class Ship implements Polygon {
 
         this.vx -= this.vx * FRICTION;
         this.vy -= this.vy * FRICTION;
-    }
 
-    private rotate(angle: number) {
-        this.angle += angle;
-        
-        if (this.angle < 1) {
-            this.angle += 360;
+        if (this.bulletTimer > 0) {
+            this.bulletTimer -= step;
         }
-
-        if (this.angle > 360) {
-            this.angle -= 360;
-        }
-
-        let c = COS[angle]
-        let s = SIN[angle];
-
-        let points = [...this.points, ...this.flame];
-
-        points.forEach(p => {
-            let newX = (c * p.x) - (s * p.y);
-            let newY = (s * p.x) + (c * p.y);
-            p.x = newX;
-            p.y = newY;
-        });
-
     }
 
     private thrust() {
@@ -131,7 +96,11 @@ export class Ship implements Polygon {
         }
     }
 
-    get speed() {
-        return Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2));
+    private fire() {
+        if (this.bulletTimer <= 0) {
+            this.bulletTimer = .2;
+            World.bullet();
+        }
     }
+
 }

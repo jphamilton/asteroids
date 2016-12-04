@@ -46,23 +46,12 @@
 
 	"use strict";
 	var loop_1 = __webpack_require__(1);
-	var keys_1 = __webpack_require__(2);
-	var ship_1 = __webpack_require__(4);
-	var bullets_1 = __webpack_require__(8);
-	var screen_1 = __webpack_require__(6);
-	var ship = new ship_1.Ship({ x: screen_1.default.width / 2, y: screen_1.default.height / 2 });
-	var bullets = new bullets_1.Bullets(ship);
+	var world_1 = __webpack_require__(10);
 	var update = function (step) {
-	    ship.update();
-	    bullets.update(step);
-	    if (keys_1.Key.isDown(keys_1.Key.CTRL)) {
-	        bullets.fire();
-	    }
+	    world_1.default.update(step);
 	};
 	var render = function (delta) {
-	    screen_1.default.draw.background();
-	    ship.draw();
-	    bullets.draw();
+	    world_1.default.render(delta);
 	};
 	loop_1.loop(update, render);
 
@@ -144,16 +133,12 @@
 	        ctx.stroke();
 	        ctx.closePath();
 	    };
-	    Draw.prototype.shape = function (origin, points, color, closed) {
-	        if (closed === void 0) { closed = true; }
+	    Draw.prototype.shape = function (points, x, y, color) {
 	        var p1, p2;
 	        for (var i = 0; i < points.length - 1; i++) {
-	            p1 = { x: origin.x + points[i].x, y: origin.y + points[i].y };
-	            p2 = { x: origin.x + points[i + 1].x, y: origin.y + points[i + 1].y };
+	            p1 = { x: x + points[i].x, y: y + points[i].y };
+	            p2 = { x: x + points[i + 1].x, y: y + points[i + 1].y };
 	            this.line(p1, p2, color, 2);
-	        }
-	        if (closed) {
-	            this.line(p2, { x: origin.x + points[0].x, y: origin.y + points[0].y }, color, 2);
 	        }
 	    };
 	    Draw.prototype.rect = function (p1, p2, fillStyle) {
@@ -181,55 +166,57 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
 	var keys_1 = __webpack_require__(2);
-	var lut_1 = __webpack_require__(5);
 	var screen_1 = __webpack_require__(6);
+	var object2d_1 = __webpack_require__(9);
+	var world_1 = __webpack_require__(10);
 	var ACCELERATION = 0.2;
 	var FRICTION = 0.007;
 	var ROTATION = 5;
 	var MAX_SPEED = 15;
-	var Ship = (function () {
-	    function Ship(origin) {
-	        this.origin = origin;
-	        this.angle = 360;
-	        this.vx = 0;
-	        this.vy = 0;
-	        this.moving = false;
-	        this.color = '#ffffff';
-	        this.points = [
+	var Ship = (function (_super) {
+	    __extends(Ship, _super);
+	    function Ship(x, y) {
+	        var _this = _super.call(this, x, y) || this;
+	        _this.moving = false;
+	        _this.bulletTimer = 0;
+	        _this.angle = 360;
+	        _this.color = '#ffffff';
+	        _this.points = [
 	            { x: 0, y: -15 },
 	            { x: 10, y: 10 },
 	            { x: 5, y: 5 },
 	            { x: -5, y: 5 },
-	            { x: -10, y: 10 }
+	            { x: -10, y: 10 },
+	            { x: 0, y: -15 }
 	        ];
-	        this.flame = [
+	        _this.flame = [
 	            { x: 5, y: 8 },
 	            { x: 0, y: 20 },
 	            { x: -5, y: 8 },
 	        ];
+	        return _this;
 	    }
-	    Ship.prototype.draw = function () {
-	        screen_1.default.draw.shape(this.origin, this.points, this.color, true);
+	    Object.defineProperty(Ship.prototype, "geometry", {
+	        get: function () {
+	            return this.points.concat(this.flame);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Ship.prototype.render = function () {
+	        screen_1.default.draw.shape(this.points, this.x, this.y, this.color);
 	        if (this.moving && (Math.floor(Math.random() * 10) + 1) % 2 === 0) {
-	            screen_1.default.draw.shape(this.origin, this.flame, this.color, false);
+	            screen_1.default.draw.shape(this.flame, this.x, this.y, this.color);
 	        }
 	    };
-	    Ship.prototype.update = function () {
-	        this.origin.x += this.vx;
-	        this.origin.y += this.vy;
-	        if (this.origin.x > screen_1.default.width) {
-	            this.origin.x -= screen_1.default.width;
-	        }
-	        if (this.origin.x < 0) {
-	            this.origin.x += screen_1.default.width;
-	        }
-	        if (this.origin.y > screen_1.default.height) {
-	            this.origin.y -= screen_1.default.height;
-	        }
-	        if (this.origin.y < 0) {
-	            this.origin.y += screen_1.default.height;
-	        }
+	    Ship.prototype.update = function (step) {
+	        this.move();
 	        if (keys_1.Key.isDown(keys_1.Key.UP)) {
 	            this.moving = true;
 	            this.thrust();
@@ -244,29 +231,15 @@
 	            this.rotate(ROTATION);
 	        }
 	        if (keys_1.Key.isDown(keys_1.Key.CTRL)) {
+	            this.fire();
 	        }
 	        if (keys_1.Key.isDown(keys_1.Key.SHIFT)) {
 	        }
 	        this.vx -= this.vx * FRICTION;
 	        this.vy -= this.vy * FRICTION;
-	    };
-	    Ship.prototype.rotate = function (angle) {
-	        this.angle += angle;
-	        if (this.angle < 1) {
-	            this.angle += 360;
+	        if (this.bulletTimer > 0) {
+	            this.bulletTimer -= step;
 	        }
-	        if (this.angle > 360) {
-	            this.angle -= 360;
-	        }
-	        var c = lut_1.COS[angle];
-	        var s = lut_1.SIN[angle];
-	        var points = this.points.concat(this.flame);
-	        points.forEach(function (p) {
-	            var newX = (c * p.x) - (s * p.y);
-	            var newY = (s * p.x) + (c * p.y);
-	            p.x = newX;
-	            p.y = newY;
-	        });
 	    };
 	    Ship.prototype.thrust = function () {
 	        var t = 2 * Math.PI * (this.angle / 360);
@@ -279,15 +252,14 @@
 	            this.vy -= y * ACCELERATION;
 	        }
 	    };
-	    Object.defineProperty(Ship.prototype, "speed", {
-	        get: function () {
-	            return Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2));
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
+	    Ship.prototype.fire = function () {
+	        if (this.bulletTimer <= 0) {
+	            this.bulletTimer = .2;
+	            world_1.default.bullet();
+	        }
+	    };
 	    return Ship;
-	}());
+	}(object2d_1.Object2D));
 	exports.Ship = Ship;
 
 
@@ -348,98 +320,165 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
 	var screen_1 = __webpack_require__(6);
 	var lut_1 = __webpack_require__(5);
+	var object2d_1 = __webpack_require__(9);
 	var BulletSpeed = 10;
-	var Bullet = (function () {
+	var Bullet = (function (_super) {
+	    __extends(Bullet, _super);
 	    function Bullet(ship) {
-	        this.ship = ship;
-	        this.life = 1;
-	        this.visible = true;
+	        var _this = _super.call(this, ship.x, ship.y) || this;
+	        _this.ship = ship;
+	        _this.life = 1.25;
+	        _this.visible = true;
 	        var angle = ship.angle;
-	        this.vx = lut_1.SIN[angle];
-	        this.vy = -lut_1.COS[angle];
-	        this.origin = {
-	            x: ship.origin.x,
-	            y: ship.origin.y
-	        };
-	        this.origin.x += this.vx * 20;
-	        this.origin.y += this.vy * 20;
+	        _this.vx = lut_1.SIN[angle];
+	        _this.vy = -lut_1.COS[angle];
+	        _this.x += _this.vx * 20;
+	        _this.y += _this.vy * 20;
 	        var speed = 0;
-	        var dot = (ship.vx * this.vx) + (ship.vy * this.vy);
+	        var dot = (ship.vx * _this.vx) + (ship.vy * _this.vy);
 	        if (dot > 0) {
 	            speed = ship.speed;
 	        }
-	        this.vx *= (BulletSpeed + speed);
-	        this.vy *= (BulletSpeed + speed);
+	        _this.vx *= (BulletSpeed + speed);
+	        _this.vy *= (BulletSpeed + speed);
+	        return _this;
 	    }
-	    Bullet.prototype.draw = function () {
+	    Object.defineProperty(Bullet.prototype, "geometry", {
+	        get: function () {
+	            return [{ x: this.x, y: this.y }];
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Bullet.prototype.render = function () {
 	        if (this.visible) {
-	            screen_1.default.draw.point(this.origin);
+	            screen_1.default.draw.point({ x: this.x, y: this.y });
 	        }
 	    };
 	    Bullet.prototype.update = function (step) {
-	        this.origin.x += this.vx;
-	        this.origin.y += this.vy;
-	        if (this.origin.x > screen_1.default.width) {
-	            this.origin.x -= screen_1.default.width;
-	        }
-	        if (this.origin.x < 0) {
-	            this.origin.x += screen_1.default.width;
-	        }
-	        if (this.origin.y > screen_1.default.height) {
-	            this.origin.y -= screen_1.default.height;
-	        }
-	        if (this.origin.y < 0) {
-	            this.origin.y += screen_1.default.height;
-	        }
+	        this.move();
 	        this.life -= step;
 	        if (this.life <= 0) {
 	            this.visible = false;
 	        }
 	    };
+	    Object.defineProperty(Bullet.prototype, "speed", {
+	        get: function () {
+	            return Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    return Bullet;
-	}());
+	}(object2d_1.Object2D));
 	exports.Bullet = Bullet;
 
 
 /***/ },
-/* 8 */
+/* 8 */,
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var bullet_1 = __webpack_require__(7);
-	var Bullets = (function () {
-	    function Bullets(ship) {
-	        this.ship = ship;
-	        this.bullets = [];
-	        this.bulletCounter = 0;
+	var lut_1 = __webpack_require__(5);
+	var Object2D = (function () {
+	    function Object2D(x, y) {
+	        this.angle = 360;
+	        this.vx = 0;
+	        this.vy = 0;
+	        this.x = x;
+	        this.y = y;
 	    }
-	    Bullets.prototype.update = function (step) {
+	    Object2D.prototype.rotate = function (angle) {
+	        this.angle += angle;
+	        if (this.angle < 1) {
+	            this.angle += 360;
+	        }
+	        if (this.angle > 360) {
+	            this.angle -= 360;
+	        }
+	        var c = lut_1.COS[angle];
+	        var s = lut_1.SIN[angle];
+	        var points = this.geometry;
+	        points.forEach(function (p) {
+	            var newX = (c * p.x) - (s * p.y);
+	            var newY = (s * p.x) + (c * p.y);
+	            p.x = newX;
+	            p.y = newY;
+	        });
+	    };
+	    Object2D.prototype.move = function () {
+	        this.x += this.vx;
+	        this.y += this.vy;
+	        if (this.x > screen.width) {
+	            this.x -= screen.width;
+	        }
+	        if (this.x < 0) {
+	            this.x += screen.width;
+	        }
+	        if (this.y > screen.height) {
+	            this.y -= screen.height;
+	        }
+	        if (this.y < 0) {
+	            this.y += screen.height;
+	        }
+	    };
+	    Object.defineProperty(Object2D.prototype, "speed", {
+	        get: function () {
+	            return Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    return Object2D;
+	}());
+	exports.Object2D = Object2D;
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var ship_1 = __webpack_require__(4);
+	var bullet_1 = __webpack_require__(7);
+	var screen_1 = __webpack_require__(6);
+	var World = (function () {
+	    function World() {
+	        this.ship = new ship_1.Ship(screen_1.default.width / 2, screen_1.default.height / 2);
+	        this.bullets = [];
+	    }
+	    World.prototype.update = function (step) {
+	        this.ship.update(step);
 	        for (var i = 0; i < this.bullets.length; i++) {
 	            this.bullets[i].update(step);
 	        }
 	        this.bullets = this.bullets.filter(function (x) { return x.life > 0; });
-	        if (this.bulletCounter > 0) {
-	            this.bulletCounter -= step;
-	        }
 	    };
-	    Bullets.prototype.draw = function () {
+	    World.prototype.render = function (delta) {
+	        screen_1.default.draw.background();
+	        this.ship.render(delta);
 	        for (var i = 0; i < this.bullets.length; i++) {
-	            this.bullets[i].draw();
+	            this.bullets[i].render();
 	        }
 	    };
-	    Bullets.prototype.fire = function () {
-	        if (this.bulletCounter <= 0) {
-	            this.bulletCounter = .2;
-	            if (this.bullets.length < 4) {
-	                this.bullets.push(new bullet_1.Bullet(this.ship));
-	            }
+	    World.prototype.bullet = function () {
+	        if (this.bullets.length < 4) {
+	            this.bullets.push(new bullet_1.Bullet(this.ship));
 	        }
 	    };
-	    return Bullets;
+	    return World;
 	}());
-	exports.Bullets = Bullets;
+	exports.World = World;
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = new World();
 
 
 /***/ }

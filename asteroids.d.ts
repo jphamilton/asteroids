@@ -3,12 +3,12 @@ interface Point {
     y: number
 }
 
-interface Polygon {
-    points: Point[];
-    origin?: Point;
+interface IObject2D {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number; 
     color?: string;
     angle: number; 
-    vx: number;
-    vy: number;
-    speed: number;
 }
+

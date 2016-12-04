@@ -1,30 +1,24 @@
 import screen from './screen';
 import { SIN, COS } from './lut';
+import { Object2D } from './object2d';
 
 const BulletSpeed = 10;
 
-export class Bullet {
+export class Bullet extends Object2D { 
 
-    origin: Point;
-    vx: number;
-    vy: number;
-    life: number = 1;   // in seconds
+    life: number = 1.25;   // in seconds
     visible: boolean = true;
 
-    constructor(public ship: Polygon) {
+    constructor(public ship: Object2D) {
+        super(ship.x, ship.y);
+
         let angle = ship.angle;
         this.vx = SIN[angle];
         this.vy = -COS[angle];
 
-        // set bullet to origin of ship
-        this.origin = {
-            x: ship.origin.x,
-            y: ship.origin.y
-        }
-        
         // move bullet to nose of ship
-        this.origin.x += this.vx * 20;
-        this.origin.y += this.vy * 20;
+        this.x += this.vx * 20;
+        this.y += this.vy * 20;
 
         // adjust for speed of ship if bullets and ship are moving in same general direction
         let speed = 0; 
@@ -39,31 +33,18 @@ export class Bullet {
 
     }
 
-    draw() {
+    get geometry() {
+        return [{ x: this.x, y: this.y }];
+    }
+
+    render() {
         if (this.visible) {
-            screen.draw.point(this.origin);
+            screen.draw.point({x: this.x, y: this.y});
         }
     }
 
     update(step?: number) {
-        this.origin.x += this.vx;
-        this.origin.y += this.vy;
-    
-        if (this.origin.x > screen.width) {
-            this.origin.x -= screen.width;
-        }
-
-        if (this.origin.x < 0) {
-            this.origin.x += screen.width;
-        }
-
-        if (this.origin.y > screen.height) {
-            this.origin.y -= screen.height;
-        }
-
-        if (this.origin.y < 0) {
-            this.origin.y += screen.height;
-        }
+        this.move();
 
         this.life -= step;
 
@@ -72,4 +53,7 @@ export class Bullet {
         }
     }
 
+    get speed() {
+        return Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2));
+    }
 }

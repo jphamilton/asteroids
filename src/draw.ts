@@ -15,18 +15,13 @@ export class Draw {
         ctx.closePath();
     }
 
-    shape(origin: Point, points: Point[], color: string, closed: boolean = true) {
+    shape(points: Point[], x: number, y: number, color: string) {
         let p1, p2;
 
         for(let i = 0; i < points.length - 1; i++) {
-            p1 = {x: origin.x + points[i].x, y: origin.y + points[i].y};
-            p2 = {x: origin.x + points[i + 1].x, y: origin.y + points[i + 1].y};
-            
+            p1 = {x: x + points[i].x, y: y + points[i].y};
+            p2 = {x: x + points[i + 1].x, y: y + points[i + 1].y};
             this.line(p1, p2, color, 2);
-        }
-
-        if (closed) {
-            this.line(p2, {x: origin.x + points[0].x, y: origin.y + points[0].y}, color, 2);
         }
     }
 

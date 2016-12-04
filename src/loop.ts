@@ -16,7 +16,6 @@ const init = (update, render) => {
         while(delta > step) {
             delta -= step;
             update(step);
-            //update(delta);
         }
 
         render(delta);
