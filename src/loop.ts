@@ -7,7 +7,7 @@ let delta = 0;
 let last = timestamp();
 let step = 1/60;
 
-const init = (update, render) => {
+const init = (state: IGameState) => {
 
     const frame = () => {
         now = timestamp();
@@ -15,10 +15,10 @@ const init = (update, render) => {
         
         while(delta > step) {
             delta -= step;
-            update(step);
+            state.update(step);
         }
 
-        render(delta);
+        state.render(delta);
 
         last = now;
         
@@ -28,8 +28,8 @@ const init = (update, render) => {
     frame();
 }
 
-export const loop = (update: (step: number)=> void, render: (delta: number) => void) => {
-    init(update, render);
+export const loop = (state: IGameState) => {
+    init(state);
 }
 
 

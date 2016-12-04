@@ -1,7 +1,6 @@
 import { Key } from './keys';
 import screen from './screen';
 import { Object2D } from './object2d';
-import World from './world';
 
 const ACCELERATION: number = 0.2;
 const FRICTION: number = 0.007;
@@ -13,8 +12,7 @@ export class Ship extends Object2D {
     private points: Point[];
     private flame: Point[];
     private moving: boolean = false;
-    private bulletTimer: number = 0;
-
+    
     constructor(x: number, y: number) {
         super(x, y);
 
@@ -66,22 +64,9 @@ export class Ship extends Object2D {
             this.rotate(ROTATION);
         }
 
-        if (Key.isDown(Key.CTRL)) {
-            this.fire();
-        }
-
-        if (Key.isDown(Key.SHIFT)) {
-            // hyperspace
-        }
-
         // slow down ship over time
         this.vx -= this.vx * FRICTION;
         this.vy -= this.vy * FRICTION;
-
-        // can only fire bullets so fast
-        if (this.bulletTimer > 0) {
-            this.bulletTimer -= step;
-        }
     }
 
     private thrust() {
@@ -89,20 +74,13 @@ export class Ship extends Object2D {
         let x = Math.sin(t);
         let y = Math.cos(t);
         
-        if (this.vx >= -MAX_SPEED && this.vx <= MAX_SPEED) {
+        //if (this.vx >= -MAX_SPEED && this.vx <= MAX_SPEED) {
             this.vx += x * ACCELERATION;
-        }
+        //}
 
-        if (this.vy >= -MAX_SPEED && this.vy <= MAX_SPEED) {
+        //if (this.vy >= -MAX_SPEED && this.vy <= MAX_SPEED) {
             this.vy -= y * ACCELERATION;
-        }
-    }
-
-    private fire() {
-        if (this.bulletTimer <= 0) {
-            this.bulletTimer = .2;
-            World.bullet();
-        }
+        //}
     }
 
 }

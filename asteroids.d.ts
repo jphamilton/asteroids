@@ -1,3 +1,8 @@
+interface IGameState {
+    update: (step: number) => void;
+    render: (step: number) => void;
+}
+
 interface Point {
     x: number,
     y: number

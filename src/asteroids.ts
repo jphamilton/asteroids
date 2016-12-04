@@ -1,12 +1,42 @@
 import { loop } from './loop';
-import World from './world';
+import { StartState } from './startstate';
+import { GameState } from './gamestate';
+import { Key } from './keys';
 
-const update = (step: number) => {
-    World.update(step);
+let state: 'start' | 'game' = 'start';
+let startState = new StartState();
+let gameState = new GameState();
+
+export class Asteroids {
+    
+    update(step) {
+        switch(state) {
+            case 'start':
+                startState.update(step);
+                if (Key.isDown(Key.ONE)) {
+                    state = 'game';
+                }
+                break;
+            case 'game':
+                gameState.update(step);
+            break;
+        }
+
+    }
+
+    render(step) {
+        switch(state) {
+            case 'start':
+                startState.render(step);
+                break;
+            case 'game':
+                gameState.render(step);
+                break;
+        }
+    }
+
 }
 
-const render = (delta: number) => {
-    World.render(delta);
-}
+let game = new Asteroids();
 
-loop(update, render);
+loop(game)

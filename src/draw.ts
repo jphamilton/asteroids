@@ -41,4 +41,23 @@ export class Draw {
     background() {
         this.rect({ x: 0, y: 0}, { x: screen.width, y: screen.height }, '#000000');
     }
+
+    text(text: string, x: number, y: number, size: string) {
+        let { ctx } = this;
+        ctx.save();
+        ctx.font = `${size} hyperspace`;
+        //ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#ffffff';
+        ctx.strokeText(text, x, y);
+        ctx.restore();
+    }
+
+    scorePlayer1(score) {
+        let text = score.toString();
+        while (text.length < 2) text = '0' + text;
+        this.text(text, 100, 50, '24pt');
+    }
+
 }

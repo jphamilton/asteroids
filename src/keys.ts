@@ -6,6 +6,7 @@ export const Key = {
   RIGHT: 39,
   SHIFT: 16,  // special weapon / hyperspace
   CTRL: 17,   // fire
+  ONE: 49,    // 1 player start
   
   isDown: function(keyCode) {
     return this._pressed[keyCode];
