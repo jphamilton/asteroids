@@ -65,12 +65,9 @@ export class Ship implements Polygon {
             this.origin.y += screen.height;
         }
 
-        this.vx -= this.vx * FRICTION;
-        this.vy -= this.vy * FRICTION;
-        
         if (Key.isDown(Key.UP)) {
             this.moving = true;
-            this.move();
+            this.thrust();
         } else {
             this.moving = false;
         }
@@ -91,13 +88,14 @@ export class Ship implements Polygon {
             // hyperspace
         }
 
-       
+        this.vx -= this.vx * FRICTION;
+        this.vy -= this.vy * FRICTION;
     }
 
     private rotate(angle: number) {
         this.angle += angle;
         
-        if (this.angle < 0) {
+        if (this.angle < 1) {
             this.angle += 360;
         }
 
@@ -119,7 +117,7 @@ export class Ship implements Polygon {
 
     }
 
-    private move() {
+    private thrust() {
         let t = 2 * Math.PI * (this.angle / 360);
         let x = Math.sin(t);
         let y = Math.cos(t);
@@ -131,29 +129,6 @@ export class Ship implements Polygon {
         if (this.vy >= -MAX_SPEED && this.vy <= MAX_SPEED) {
             this.vy -= y * ACCELERATION;
         }
-
-        // if (this.vx < -MAX_SPEED) {
-        //     this.vx = -MAX_SPEED;
-        // }
-
-        // if (this.vx > MAX_SPEED) {
-        //     this.vx = MAX_SPEED;
-        // }
-
-        // if (this.vy < -MAX_SPEED) {
-        //     this.vy = -MAX_SPEED;
-        // }
-
-        // if (this.vy > MAX_SPEED) {
-        //     this.vy = MAX_SPEED;
-        // }
-
-        //let speed = Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2))
-        //console.clear();
-        //console.log(speed);
-        //console.log(this.vx, this.vy);
-
-        // |V| = sqrt(42+32) = sqrt(25) = 5
     }
 
     get speed() {

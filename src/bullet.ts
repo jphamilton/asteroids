@@ -1,14 +1,14 @@
 import screen from './screen';
 import { SIN, COS } from './lut';
 
-const BulletSpeed = 8;
+const BulletSpeed = 10;
 
 export class Bullet {
 
     origin: Point;
     vx: number;
     vy: number;
-    life: number = 1.5;   // in seconds
+    life: number = 1;   // in seconds
     visible: boolean = true;
 
     constructor(public ship: Polygon) {

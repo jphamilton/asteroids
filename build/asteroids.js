@@ -48,36 +48,21 @@
 	var loop_1 = __webpack_require__(1);
 	var keys_1 = __webpack_require__(2);
 	var ship_1 = __webpack_require__(4);
-	var bullet_1 = __webpack_require__(7);
+	var bullets_1 = __webpack_require__(8);
 	var screen_1 = __webpack_require__(6);
 	var ship = new ship_1.Ship({ x: screen_1.default.width / 2, y: screen_1.default.height / 2 });
-	var bullets = [];
-	var bulletCounter = 0;
-	var drawBackground = function () {
-	    screen_1.default.draw.rect({ x: 0, y: 0 }, { x: screen_1.default.width, y: screen_1.default.height }, '#000000');
-	};
+	var bullets = new bullets_1.Bullets(ship);
 	var update = function (step) {
 	    ship.update();
-	    for (var i = 0; i < bullets.length; i++) {
-	        bullets[i].update(step);
-	    }
-	    bullets = bullets.filter(function (x) { return x.life > 0; });
-	    if (bulletCounter > 0) {
-	        bulletCounter -= step;
-	    }
-	    if (keys_1.Key.isDown(keys_1.Key.CTRL) && bulletCounter <= 0) {
-	        bulletCounter = .2;
-	        if (bullets.length < 4) {
-	            bullets.push(new bullet_1.Bullet(ship));
-	        }
+	    bullets.update(step);
+	    if (keys_1.Key.isDown(keys_1.Key.CTRL)) {
+	        bullets.fire();
 	    }
 	};
 	var render = function (delta) {
-	    drawBackground();
+	    screen_1.default.draw.background();
 	    ship.draw();
-	    for (var i = 0; i < bullets.length; i++) {
-	        bullets[i].draw();
-	    }
+	    bullets.draw();
 	};
 	loop_1.loop(update, render);
 
@@ -183,6 +168,9 @@
 	        if (fillStyle === void 0) { fillStyle = '#ffffff'; }
 	        this.rect(p, { x: 2, y: 2 }, fillStyle);
 	    };
+	    Draw.prototype.background = function () {
+	        this.rect({ x: 0, y: 0 }, { x: screen.width, y: screen.height }, '#000000');
+	    };
 	    return Draw;
 	}());
 	exports.Draw = Draw;
@@ -242,11 +230,9 @@
 	        if (this.origin.y < 0) {
 	            this.origin.y += screen_1.default.height;
 	        }
-	        this.vx -= this.vx * FRICTION;
-	        this.vy -= this.vy * FRICTION;
 	        if (keys_1.Key.isDown(keys_1.Key.UP)) {
 	            this.moving = true;
-	            this.move();
+	            this.thrust();
 	        }
 	        else {
 	            this.moving = false;
@@ -261,10 +247,12 @@
 	        }
 	        if (keys_1.Key.isDown(keys_1.Key.SHIFT)) {
 	        }
+	        this.vx -= this.vx * FRICTION;
+	        this.vy -= this.vy * FRICTION;
 	    };
 	    Ship.prototype.rotate = function (angle) {
 	        this.angle += angle;
-	        if (this.angle < 0) {
+	        if (this.angle < 1) {
 	            this.angle += 360;
 	        }
 	        if (this.angle > 360) {
@@ -280,7 +268,7 @@
 	            p.y = newY;
 	        });
 	    };
-	    Ship.prototype.move = function () {
+	    Ship.prototype.thrust = function () {
 	        var t = 2 * Math.PI * (this.angle / 360);
 	        var x = Math.sin(t);
 	        var y = Math.cos(t);
@@ -362,11 +350,11 @@
 	"use strict";
 	var screen_1 = __webpack_require__(6);
 	var lut_1 = __webpack_require__(5);
-	var BulletSpeed = 8;
+	var BulletSpeed = 10;
 	var Bullet = (function () {
 	    function Bullet(ship) {
 	        this.ship = ship;
-	        this.life = 1.5;
+	        this.life = 1;
 	        this.visible = true;
 	        var angle = ship.angle;
 	        this.vx = lut_1.SIN[angle];
@@ -413,6 +401,45 @@
 	    return Bullet;
 	}());
 	exports.Bullet = Bullet;
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var bullet_1 = __webpack_require__(7);
+	var Bullets = (function () {
+	    function Bullets(ship) {
+	        this.ship = ship;
+	        this.bullets = [];
+	        this.bulletCounter = 0;
+	    }
+	    Bullets.prototype.update = function (step) {
+	        for (var i = 0; i < this.bullets.length; i++) {
+	            this.bullets[i].update(step);
+	        }
+	        this.bullets = this.bullets.filter(function (x) { return x.life > 0; });
+	        if (this.bulletCounter > 0) {
+	            this.bulletCounter -= step;
+	        }
+	    };
+	    Bullets.prototype.draw = function () {
+	        for (var i = 0; i < this.bullets.length; i++) {
+	            this.bullets[i].draw();
+	        }
+	    };
+	    Bullets.prototype.fire = function () {
+	        if (this.bulletCounter <= 0) {
+	            this.bulletCounter = .2;
+	            if (this.bullets.length < 4) {
+	                this.bullets.push(new bullet_1.Bullet(this.ship));
+	            }
+	        }
+	    };
+	    return Bullets;
+	}());
+	exports.Bullets = Bullets;
 
 
 /***/ }

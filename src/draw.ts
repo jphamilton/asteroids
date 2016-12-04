@@ -43,4 +43,7 @@ export class Draw {
         this.rect(p, { x: 2, y: 2 }, fillStyle);
     }
 
+    background() {
+        this.rect({ x: 0, y: 0}, { x: screen.width, y: screen.height }, '#000000');
+    }
 }
