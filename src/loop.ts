@@ -3,24 +3,23 @@ const timestamp = () => {
 }
 
 let now;
-let dt   = 0;
+let delta = 0;
 let last = timestamp();
 let step = 1/60;
-let u;
-let r;
 
 const init = (update, render) => {
 
     const frame = () => {
         now = timestamp();
-        dt = dt + Math.min(1, (now - last) / 1000);
+        delta = delta + Math.min(1, (now - last) / 1000);
         
-        while(dt > step) {
-            dt = dt - step;
+        while(delta > step) {
+            delta -= step;
             update(step);
+            //update(delta);
         }
 
-        render(dt);
+        render(delta);
 
         last = now;
         

@@ -46,18 +46,38 @@
 
 	"use strict";
 	var loop_1 = __webpack_require__(1);
+	var keys_1 = __webpack_require__(2);
 	var ship_1 = __webpack_require__(4);
+	var bullet_1 = __webpack_require__(7);
 	var screen_1 = __webpack_require__(6);
 	var ship = new ship_1.Ship({ x: screen_1.default.width / 2, y: screen_1.default.height / 2 });
+	var bullets = [];
+	var bulletCounter = 0;
 	var drawBackground = function () {
 	    screen_1.default.draw.rect({ x: 0, y: 0 }, { x: screen_1.default.width, y: screen_1.default.height }, '#000000');
 	};
 	var update = function (step) {
 	    ship.update();
+	    for (var i = 0; i < bullets.length; i++) {
+	        bullets[i].update(step);
+	    }
+	    bullets = bullets.filter(function (x) { return x.life > 0; });
+	    if (bulletCounter > 0) {
+	        bulletCounter -= step;
+	    }
+	    if (keys_1.Key.isDown(keys_1.Key.CTRL) && bulletCounter <= 0) {
+	        bulletCounter = .1;
+	        if (bullets.length < 4) {
+	            bullets.push(new bullet_1.Bullet(ship));
+	        }
+	    }
 	};
 	var render = function (delta) {
 	    drawBackground();
 	    ship.draw();
+	    for (var i = 0; i < bullets.length; i++) {
+	        bullets[i].draw();
+	    }
 	};
 	loop_1.loop(update, render);
 
@@ -71,20 +91,18 @@
 	    return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
 	};
 	var now;
-	var dt = 0;
+	var delta = 0;
 	var last = timestamp();
 	var step = 1 / 60;
-	var u;
-	var r;
 	var init = function (update, render) {
 	    var frame = function () {
 	        now = timestamp();
-	        dt = dt + Math.min(1, (now - last) / 1000);
-	        while (dt > step) {
-	            dt = dt - step;
+	        delta = delta + Math.min(1, (now - last) / 1000);
+	        while (delta > step) {
+	            delta -= step;
 	            update(step);
 	        }
-	        render(dt);
+	        render(delta);
 	        last = now;
 	        requestAnimationFrame(frame);
 	    };
@@ -131,10 +149,11 @@
 	        this.ctx = ctx;
 	    }
 	    Draw.prototype.line = function (p1, p2, strokeStyle, width) {
+	        if (width === void 0) { width = 2; }
 	        var ctx = this.ctx;
 	        ctx.beginPath();
 	        ctx.strokeStyle = strokeStyle;
-	        ctx.lineWidth = 2;
+	        ctx.lineWidth = width;
 	        ctx.moveTo(p1.x, p1.y);
 	        ctx.lineTo(p2.x, p2.y);
 	        ctx.stroke();
@@ -160,6 +179,10 @@
 	        ctx.stroke();
 	        ctx.closePath();
 	    };
+	    Draw.prototype.point = function (p, fillStyle) {
+	        if (fillStyle === void 0) { fillStyle = '#ffffff'; }
+	        this.rect(p, { x: 2, y: 2 }, fillStyle);
+	    };
 	    return Draw;
 	}());
 	exports.Draw = Draw;
@@ -176,10 +199,11 @@
 	var ACCELERATION = 0.2;
 	var FRICTION = 0.007;
 	var ROTATION = 5;
+	var MAX_SPEED = 15;
 	var Ship = (function () {
 	    function Ship(origin) {
 	        this.origin = origin;
-	        this.angle = 0;
+	        this.angle = 360;
 	        this.vx = 0;
 	        this.vy = 0;
 	        this.moving = false;
@@ -239,6 +263,13 @@
 	        }
 	    };
 	    Ship.prototype.rotate = function (angle) {
+	        this.angle += angle;
+	        if (this.angle < 0) {
+	            this.angle += 360;
+	        }
+	        if (this.angle > 360) {
+	            this.angle -= 360;
+	        }
 	        var c = lut_1.COS[angle];
 	        var s = lut_1.SIN[angle];
 	        var points = this.points.concat(this.flame);
@@ -248,21 +279,25 @@
 	            p.x = newX;
 	            p.y = newY;
 	        });
-	        this.angle += angle;
-	        if (this.angle < 0) {
-	            this.angle += 360;
-	        }
-	        if (this.angle > 360) {
-	            this.angle -= 360;
-	        }
 	    };
 	    Ship.prototype.move = function () {
 	        var t = 2 * Math.PI * (this.angle / 360);
 	        var x = Math.sin(t);
 	        var y = Math.cos(t);
-	        this.vx += x * ACCELERATION;
-	        this.vy -= y * ACCELERATION;
+	        if (this.vx >= -MAX_SPEED && this.vx <= MAX_SPEED) {
+	            this.vx += x * ACCELERATION;
+	        }
+	        if (this.vy >= -MAX_SPEED && this.vy <= MAX_SPEED) {
+	            this.vy -= y * ACCELERATION;
+	        }
 	    };
+	    Object.defineProperty(Ship.prototype, "speed", {
+	        get: function () {
+	            return Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    return Ship;
 	}());
 	exports.Ship = Ship;
@@ -318,6 +353,66 @@
 	exports.Screen = Screen;
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = new Screen();
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var screen_1 = __webpack_require__(6);
+	var lut_1 = __webpack_require__(5);
+	var BulletSpeed = 8;
+	var Bullet = (function () {
+	    function Bullet(ship) {
+	        this.ship = ship;
+	        this.life = 1.5;
+	        this.visible = true;
+	        var angle = ship.angle;
+	        this.vx = lut_1.SIN[angle];
+	        this.vy = -lut_1.COS[angle];
+	        this.origin = {
+	            x: ship.origin.x,
+	            y: ship.origin.y
+	        };
+	        this.origin.x += this.vx * 20;
+	        this.origin.y += this.vy * 20;
+	        var speed = 0;
+	        var dot = (ship.vx * this.vx) + (ship.vy * this.vy);
+	        if (dot > 0) {
+	            speed = ship.speed;
+	        }
+	        this.vx *= (BulletSpeed + speed);
+	        this.vy *= (BulletSpeed + speed);
+	    }
+	    Bullet.prototype.draw = function () {
+	        if (this.visible) {
+	            screen_1.default.draw.point(this.origin);
+	        }
+	    };
+	    Bullet.prototype.update = function (step) {
+	        this.origin.x += this.vx;
+	        this.origin.y += this.vy;
+	        if (this.origin.x > screen_1.default.width) {
+	            this.origin.x -= screen_1.default.width;
+	        }
+	        if (this.origin.x < 0) {
+	            this.origin.x += screen_1.default.width;
+	        }
+	        if (this.origin.y > screen_1.default.height) {
+	            this.origin.y -= screen_1.default.height;
+	        }
+	        if (this.origin.y < 0) {
+	            this.origin.y += screen_1.default.height;
+	        }
+	        this.life -= step;
+	        if (this.life <= 0) {
+	            this.visible = false;
+	        }
+	    };
+	    return Bullet;
+	}());
+	exports.Bullet = Bullet;
 
 
 /***/ }

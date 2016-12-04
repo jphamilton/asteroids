@@ -4,11 +4,11 @@ export class Draw {
 
     }
 
-    line(p1: Point, p2: Point, strokeStyle: string, width: number) {
+    line(p1: Point, p2: Point, strokeStyle: string, width: number = 2) {
         let { ctx } = this;
         ctx.beginPath();
         ctx.strokeStyle = strokeStyle;
-        ctx.lineWidth = 2; //width;
+        ctx.lineWidth = width; 
         ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(p2.x, p2.y);
         ctx.stroke();
@@ -16,7 +16,6 @@ export class Draw {
     }
 
     shape(origin: Point, points: Point[], color: string, closed: boolean = true) {
-        //let { points, origin, color } = shape;
         let p1, p2;
 
         for(let i = 0; i < points.length - 1; i++) {
@@ -38,6 +37,10 @@ export class Draw {
         ctx.fillRect(p1.x, p1.y, p2.x, p2.y);
         ctx.stroke();
         ctx.closePath();
+    }
+
+    point(p: Point, fillStyle: string = '#ffffff') {
+        this.rect(p, { x: 2, y: 2 }, fillStyle);
     }
 
 }
