@@ -3,6 +3,7 @@ import { Ship } from './ship';
 import { Bullet } from './bullet';
 import screen from './screen';
 
+// manages game objects, score, collisions, etc.
 export class World {
 
     ship: Object2D;

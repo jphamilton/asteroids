@@ -74,9 +74,11 @@ export class Ship extends Object2D {
             // hyperspace
         }
 
+        // slow down ship over time
         this.vx -= this.vx * FRICTION;
         this.vy -= this.vy * FRICTION;
 
+        // can only fire bullets so fast
         if (this.bulletTimer > 0) {
             this.bulletTimer -= step;
         }
