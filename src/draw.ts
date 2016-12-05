@@ -1,3 +1,6 @@
+import { highscores } from './highscores';
+import screen from './screen';
+
 export class Draw {
 
     constructor(private ctx: CanvasRenderingContext2D) {
@@ -54,10 +57,33 @@ export class Draw {
         ctx.restore();
     }
 
+    text2(text: string, size: string, cb: (width: number) => Point) {
+        let { ctx } = this;
+        ctx.save();
+        ctx.font = `${size} hyperspace`;
+        ctx.textBaseline = 'middle';
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#ffffff';
+        let width = ctx.measureText(text).width;
+        let point = cb(width);
+        ctx.strokeText(text, point.x, point.y);
+        ctx.restore();
+    }
+
     scorePlayer1(score) {
         let text = score.toString();
         while (text.length < 2) text = '0' + text;
-        this.text(text, 100, 50, '24pt');
+        this.text(text, 100, 20, '24pt');
     }
 
+    highscore(score: number) {
+        let text = score.toString();
+        while (text.length < 2) text = '0' + text;
+        this.text2(text, '12pt', (width) => {
+            return {
+                x: (screen.width / 2) - (width / 2),
+                y: 20
+            }
+        });
+    }
 }

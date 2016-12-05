@@ -3,8 +3,10 @@ import { Ship } from './ship';
 import { Bullet } from './bullet';
 import { Key } from './keys';
 import screen from './screen';
+import { highscores } from './highscores';
 
 // manages game objects, score, collisions, etc.
+// todo: refactor this to a Player class, leaving common stuff like score
 export class GameState {
 
     score: number;
@@ -13,6 +15,7 @@ export class GameState {
     bullets: Bullet[];
     extraLives: Object2D[];
     bulletTimer: number = 0;
+    highscore: number;
     // asteroids
     // aliens
     // etc.
@@ -25,9 +28,11 @@ export class GameState {
         this.extraLives = [];
 
         for(let i = 0; i < this.lives; i++) {
-            let life = new Ship(80 + (i * 20), 85);
+            let life = new Ship(80 + (i * 20), 55);
             this.extraLives.push(life);
         }
+
+        this.highscore = highscores.length ? highscores[0].score : 0;
     }
 
     update(step: number) {
@@ -67,6 +72,9 @@ export class GameState {
 
         // score
         screen.draw.scorePlayer1(this.score);
+
+        // high score
+        screen.draw.highscore(this.highscore);
 
         // extra lives
         this.drawExtraLives();

@@ -128,6 +128,7 @@
 	    function StartState() {
 	        this.blink = 0;
 	        this.show = true;
+	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
 	    }
 	    StartState.prototype.update = function (step) {
 	        this.blink += step;
@@ -139,31 +140,37 @@
 	    StartState.prototype.render = function (step) {
 	        var ctx = screen_1.default.ctx;
 	        var screenX = screen_1.default.width / 2;
-	        var text = 'PUSH START';
 	        screen_1.default.draw.background();
 	        screen_1.default.draw.scorePlayer1(0);
+	        screen_1.default.draw.highscore(this.highscore);
 	        if (this.show) {
-	            ctx.save();
-	            ctx.font = '30pt hyperspace';
-	            ctx.strokeStyle = '#ffffff';
-	            ctx.lineWidth = 1;
-	            ctx.strokeText(text, screenX - (ctx.measureText(text).width / 2), 120);
-	            ctx.restore();
+	            screen_1.default.draw.text2('PUSH START', '30pt', function (width) {
+	                return {
+	                    x: screenX - (width / 2),
+	                    y: 120
+	                };
+	            });
 	        }
-	        text = 'HIGH SCORES';
-	        ctx.save();
-	        ctx.font = '30pt hyperspace';
-	        ctx.strokeStyle = '#ffffff';
-	        ctx.lineWidth = 1;
-	        ctx.strokeText(text, screenX - (ctx.measureText(text).width / 2), 200);
-	        ctx.restore();
+	        screen_1.default.draw.text2('HIGH SCORES', '30pt', function (width) {
+	            return {
+	                x: screenX - (width / 2),
+	                y: 200
+	            };
+	        });
 	        var width = ctx.measureText('_10._000000_AAA').width / 2;
-	        for (var i = 0; i < highscores_1.highscores.length; i++) {
+	        var _loop_1 = function (i) {
 	            var y = 280 + (i * 40);
-	            ctx.font = '30pt hyperspace';
-	            ctx.strokeStyle = '#ffffff';
-	            ctx.lineWidth = 1;
-	            ctx.strokeText(this.pad(i + 1, ' ', 3) + ". " + this.pad(highscores_1.highscores[i].score, ' ', 6) + " " + highscores_1.highscores[i].initials, screenX - width, y);
+	            var text = this_1.pad(i + 1, ' ', 3) + ". " + this_1.pad(highscores_1.highscores[i].score, ' ', 6) + " " + highscores_1.highscores[i].initials;
+	            screen_1.default.draw.text2(text, '30pt', function (width) {
+	                return {
+	                    x: screenX - (width / 2),
+	                    y: y
+	                };
+	            });
+	        };
+	        var this_1 = this;
+	        for (var i = 0; i < highscores_1.highscores.length; i++) {
+	            _loop_1(i);
 	        }
 	    };
 	    StartState.prototype.pad = function (text, char, count) {
@@ -210,9 +217,10 @@
 
 /***/ },
 /* 5 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var screen_1 = __webpack_require__(4);
 	var Draw = (function () {
 	    function Draw(ctx) {
 	        this.ctx = ctx;
@@ -249,7 +257,7 @@
 	        this.rect(p, { x: 2, y: 2 }, fillStyle);
 	    };
 	    Draw.prototype.background = function () {
-	        this.rect({ x: 0, y: 0 }, { x: screen.width, y: screen.height }, '#000000');
+	        this.rect({ x: 0, y: 0 }, { x: screen_1.default.width, y: screen_1.default.height }, '#000000');
 	    };
 	    Draw.prototype.text = function (text, x, y, size) {
 	        var ctx = this.ctx;
@@ -261,11 +269,34 @@
 	        ctx.strokeText(text, x, y);
 	        ctx.restore();
 	    };
+	    Draw.prototype.text2 = function (text, size, cb) {
+	        var ctx = this.ctx;
+	        ctx.save();
+	        ctx.font = size + " hyperspace";
+	        ctx.textBaseline = 'middle';
+	        ctx.lineWidth = 1;
+	        ctx.strokeStyle = '#ffffff';
+	        var width = ctx.measureText(text).width;
+	        var point = cb(width);
+	        ctx.strokeText(text, point.x, point.y);
+	        ctx.restore();
+	    };
 	    Draw.prototype.scorePlayer1 = function (score) {
 	        var text = score.toString();
 	        while (text.length < 2)
 	            text = '0' + text;
-	        this.text(text, 100, 50, '24pt');
+	        this.text(text, 100, 20, '24pt');
+	    };
+	    Draw.prototype.highscore = function (score) {
+	        var text = score.toString();
+	        while (text.length < 2)
+	            text = '0' + text;
+	        this.text2(text, '12pt', function (width) {
+	            return {
+	                x: (screen_1.default.width / 2) - (width / 2),
+	                y: 20
+	            };
+	        });
 	    };
 	    return Draw;
 	}());
@@ -281,6 +312,7 @@
 	var bullet_1 = __webpack_require__(11);
 	var keys_1 = __webpack_require__(8);
 	var screen_1 = __webpack_require__(4);
+	var highscores_1 = __webpack_require__(12);
 	var GameState = (function () {
 	    function GameState() {
 	        this.bulletTimer = 0;
@@ -290,9 +322,10 @@
 	        this.bullets = [];
 	        this.extraLives = [];
 	        for (var i = 0; i < this.lives; i++) {
-	            var life = new ship_1.Ship(80 + (i * 20), 85);
+	            var life = new ship_1.Ship(80 + (i * 20), 55);
 	            this.extraLives.push(life);
 	        }
+	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
 	    }
 	    GameState.prototype.update = function (step) {
 	        this.ship.update(step);
@@ -317,6 +350,7 @@
 	            this.bullets[i].render();
 	        }
 	        screen_1.default.draw.scorePlayer1(this.score);
+	        screen_1.default.draw.highscore(this.highscore);
 	        this.drawExtraLives();
 	    };
 	    GameState.prototype.bullet = function () {
@@ -599,16 +633,16 @@
 
 	"use strict";
 	exports.highscores = [
-	    { score: '20140', initials: 'J H' },
-	    { score: '20050', initials: 'O A' },
-	    { score: '19930', initials: 'N M' },
-	    { score: '19870', initials: '  I' },
-	    { score: '19840', initials: 'P L' },
-	    { score: '19790', initials: 'A T' },
-	    { score: '19700', initials: 'U O' },
-	    { score: '19660', initials: 'L N' },
-	    { score: '190', initials: 'GAM' },
-	    { score: '70', initials: 'ES ' },
+	    { score: 20140, initials: 'J H' },
+	    { score: 20050, initials: 'O A' },
+	    { score: 19930, initials: 'N M' },
+	    { score: 19870, initials: '  I' },
+	    { score: 19840, initials: 'P L' },
+	    { score: 19790, initials: 'A T' },
+	    { score: 19700, initials: 'U O' },
+	    { score: 19660, initials: 'L N' },
+	    { score: 190, initials: 'GAM' },
+	    { score: 70, initials: 'ES ' },
 	];
 
 
