@@ -38,7 +38,7 @@ export class Draw {
     }
 
     point(p: Point, fillStyle: string = '#ffffff') {
-        this.rect(p, { x: 2, y: 2 }, fillStyle);
+        this.rect(p, { x: 4, y: 4 }, fillStyle);
     }
 
     background() {
@@ -83,6 +83,15 @@ export class Draw {
             return {
                 x: (screen.width / 2) - (width / 2),
                 y: 20
+            }
+        });
+    }
+
+    copyright() {
+        this.text2(String.fromCharCode(169) + ' 1979 Atari INC', '12pt', (width) => {
+            return {
+                x: (screen.width / 2) - (width / 2),
+                y: screen.height - 20
             }
         });
     }

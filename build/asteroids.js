@@ -145,6 +145,7 @@
 	        screen_1.default.draw.background();
 	        screen_1.default.draw.scorePlayer1(0);
 	        screen_1.default.draw.highscore(this.highscore);
+	        screen_1.default.draw.copyright();
 	        if (this.show) {
 	            screen_1.default.draw.text2('PUSH START', '30pt', function (width) {
 	                return {
@@ -256,7 +257,7 @@
 	    };
 	    Draw.prototype.point = function (p, fillStyle) {
 	        if (fillStyle === void 0) { fillStyle = '#ffffff'; }
-	        this.rect(p, { x: 2, y: 2 }, fillStyle);
+	        this.rect(p, { x: 4, y: 4 }, fillStyle);
 	    };
 	    Draw.prototype.background = function () {
 	        this.rect({ x: 0, y: 0 }, { x: screen_1.default.width, y: screen_1.default.height }, '#000000');
@@ -300,6 +301,14 @@
 	            };
 	        });
 	    };
+	    Draw.prototype.copyright = function () {
+	        this.text2(String.fromCharCode(169) + ' 1979 Atari INC', '12pt', function (width) {
+	            return {
+	                x: (screen_1.default.width / 2) - (width / 2),
+	                y: screen_1.default.height - 20
+	            };
+	        });
+	    };
 	    return Draw;
 	}());
 	exports.Draw = Draw;
@@ -340,20 +349,21 @@
 	        }
 	        if (keys_1.Key.isDown(keys_1.Key.CTRL)) {
 	            if (this.bulletTimer <= 0) {
-	                this.bulletTimer = .2;
+	                this.bulletTimer = .1;
 	                this.bullet();
 	            }
 	        }
 	    };
 	    GameState.prototype.render = function (delta) {
 	        screen_1.default.draw.background();
+	        screen_1.default.draw.copyright();
+	        screen_1.default.draw.scorePlayer1(this.score);
+	        screen_1.default.draw.highscore(this.highscore);
+	        this.drawExtraLives();
 	        this.ship.render(delta);
 	        for (var i = 0; i < this.bullets.length; i++) {
 	            this.bullets[i].render();
 	        }
-	        screen_1.default.draw.scorePlayer1(this.score);
-	        screen_1.default.draw.highscore(this.highscore);
-	        this.drawExtraLives();
 	    };
 	    GameState.prototype.bullet = function () {
 	        if (this.bullets.length < 4) {

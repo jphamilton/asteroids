@@ -52,7 +52,7 @@ export class GameState {
 
         if (Key.isDown(Key.CTRL)) {
             if (this.bulletTimer <= 0) {
-                this.bulletTimer = .2;
+                this.bulletTimer = .1;
                 this.bullet();
             }
         }
@@ -62,13 +62,8 @@ export class GameState {
         // black background
         screen.draw.background();
 
-        // ship
-        this.ship.render(delta);
-        
-        // bullets
-        for(let i = 0; i < this.bullets.length; i++) {
-            this.bullets[i].render();
-        }
+        // copyright
+        screen.draw.copyright();
 
         // score
         screen.draw.scorePlayer1(this.score);
@@ -78,6 +73,16 @@ export class GameState {
 
         // extra lives
         this.drawExtraLives();
+
+        // ship
+        this.ship.render(delta);
+        
+        // bullets
+        for(let i = 0; i < this.bullets.length; i++) {
+            this.bullets[i].render();
+        }
+
+        
     }
 
     bullet() {

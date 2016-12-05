@@ -26,6 +26,7 @@ export class StartState {
         screen.draw.background();
         screen.draw.scorePlayer1(0);
         screen.draw.highscore(this.highscore);
+        screen.draw.copyright();
         
         if (this.show) {
             screen.draw.text2('PUSH START', '30pt', (width) => {    
