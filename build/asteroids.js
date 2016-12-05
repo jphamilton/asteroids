@@ -82,7 +82,9 @@
 	}());
 	exports.Asteroids = Asteroids;
 	var game = new Asteroids();
-	loop_1.loop(game);
+	setTimeout(function () {
+	    loop_1.loop(game);
+	}, 1000);
 
 
 /***/ },

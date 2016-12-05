@@ -39,4 +39,6 @@ export class Asteroids {
 
 let game = new Asteroids();
 
-loop(game)
+setTimeout(() => {
+    loop(game);
+}, 1000);
