@@ -20,7 +20,7 @@ export class Draw {
         ctx.closePath();
     }
 
-    shape(points: Point[], x: number, y: number, color: string) {
+    shape(points: Point[], x: number, y: number, color: string = VectorLine) {
         let p1, p2;
 
         for(let i = 0; i < points.length - 1; i++) {

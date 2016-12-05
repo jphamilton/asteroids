@@ -9,11 +9,12 @@ import { highscores } from './highscores';
 // todo: refactor this to a Player class, leaving common stuff like score
 export class GameState {
 
-    score: number;
-    lives: number;
+    level: number = 1;
+    score: number = 0;
+    lives: number = 3;
     ship: Object2D;
-    bullets: Bullet[];
-    extraLives: Object2D[];
+    bullets: Bullet[] = [];
+    extraLives: Object2D[] = [];
     bulletTimer: number = 0;
     highscore: number;
     // asteroids
@@ -21,12 +22,8 @@ export class GameState {
     // etc.
 
     constructor() {
-        this.score = 0;
-        this.lives = 3;
         this.ship = new Ship(screen.width / 2, screen.height / 2);
-        this.bullets = [];
-        this.extraLives = [];
-
+   
         for(let i = 0; i < this.lives; i++) {
             let life = new Ship(80 + (i * 20), 55);
             this.extraLives.push(life);
@@ -52,7 +49,7 @@ export class GameState {
 
         if (Key.isDown(Key.CTRL)) {
             if (this.bulletTimer <= 0) {
-                this.bulletTimer = .1;
+                this.bulletTimer = .3;
                 this.bullet();
             }
         }

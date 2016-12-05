@@ -18,7 +18,7 @@ export abstract class Object2D implements IObject2D {
     abstract render(step: number) : void;
     abstract get geometry(): Point[];
 
-    protected rotate(angle: number) {
+    rotate(angle: number) {
         this.angle += angle;
         
         if (this.angle < 1) {
@@ -43,7 +43,7 @@ export abstract class Object2D implements IObject2D {
 
     }
 
-    protected move() {
+    move() {
         this.x += this.vx;
         this.y += this.vy;
     
@@ -64,6 +64,14 @@ export abstract class Object2D implements IObject2D {
         }
     }
     
+    scale(factor: number) {
+        let points: Point[] = this.geometry;
+        points.forEach(point => {
+            point.x *= factor;
+            point.y *= factor;
+        });
+    }
+
     get speed() {
         return Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2));
     }

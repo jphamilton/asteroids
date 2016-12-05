@@ -1,6 +1,6 @@
 interface IGameState {
     update: (step: number) => void;
-    render: (step: number) => void;
+    render: (delta?: number) => void;
 }
 
 interface Point {
