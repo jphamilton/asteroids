@@ -1,6 +1,8 @@
 import { highscores } from './highscores';
 import screen from './screen';
 
+const VectorLine = 'rgba(255,255,255,.8)';
+
 export class Draw {
 
     constructor(private ctx: CanvasRenderingContext2D) {
@@ -37,7 +39,7 @@ export class Draw {
         ctx.closePath();
     }
 
-    point(p: Point, fillStyle: string = '#ffffff') {
+    point(p: Point, fillStyle: string = VectorLine) {
         this.rect(p, { x: 4, y: 4 }, fillStyle);
     }
 
@@ -52,7 +54,7 @@ export class Draw {
         //ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.lineWidth = 1;
-        ctx.strokeStyle = '#ffffff';
+        ctx.strokeStyle = VectorLine;
         ctx.strokeText(text, x, y);
         ctx.restore();
     }
@@ -63,7 +65,7 @@ export class Draw {
         ctx.font = `${size} hyperspace`;
         ctx.textBaseline = 'middle';
         ctx.lineWidth = 1;
-        ctx.strokeStyle = '#ffffff';
+        ctx.strokeStyle = VectorLine;
         let width = ctx.measureText(text).width;
         let point = cb(width);
         ctx.strokeText(text, point.x, point.y);

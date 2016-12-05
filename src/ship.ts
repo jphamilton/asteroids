@@ -17,7 +17,7 @@ export class Ship extends Object2D {
         super(x, y);
 
         this.angle = 360;
-        this.color = '#ffffff';
+        this.color = 'rgba(255,255,255,.8)';
 
         this.points = [
             {x: 0, y: -15},

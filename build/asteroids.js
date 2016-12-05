@@ -224,6 +224,7 @@
 
 	"use strict";
 	var screen_1 = __webpack_require__(4);
+	var VectorLine = 'rgba(255,255,255,.8)';
 	var Draw = (function () {
 	    function Draw(ctx) {
 	        this.ctx = ctx;
@@ -256,7 +257,7 @@
 	        ctx.closePath();
 	    };
 	    Draw.prototype.point = function (p, fillStyle) {
-	        if (fillStyle === void 0) { fillStyle = '#ffffff'; }
+	        if (fillStyle === void 0) { fillStyle = VectorLine; }
 	        this.rect(p, { x: 4, y: 4 }, fillStyle);
 	    };
 	    Draw.prototype.background = function () {
@@ -268,7 +269,7 @@
 	        ctx.font = size + " hyperspace";
 	        ctx.textBaseline = 'middle';
 	        ctx.lineWidth = 1;
-	        ctx.strokeStyle = '#ffffff';
+	        ctx.strokeStyle = VectorLine;
 	        ctx.strokeText(text, x, y);
 	        ctx.restore();
 	    };
@@ -278,7 +279,7 @@
 	        ctx.font = size + " hyperspace";
 	        ctx.textBaseline = 'middle';
 	        ctx.lineWidth = 1;
-	        ctx.strokeStyle = '#ffffff';
+	        ctx.strokeStyle = VectorLine;
 	        var width = ctx.measureText(text).width;
 	        var point = cb(width);
 	        ctx.strokeText(text, point.x, point.y);
@@ -405,7 +406,7 @@
 	        var _this = _super.call(this, x, y) || this;
 	        _this.moving = false;
 	        _this.angle = 360;
-	        _this.color = '#ffffff';
+	        _this.color = 'rgba(255,255,255,.8)';
 	        _this.points = [
 	            { x: 0, y: -15 },
 	            { x: 10, y: 10 },
