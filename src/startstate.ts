@@ -1,9 +1,9 @@
 import screen from './screen';
 import { highscores } from './highscores';
 import { Object2D } from './object2d';
-
+import { Bullet } from './bullet';
 import { Rock, RockFactory, RockSize } from './rocks';
-
+import { BigAlien } from './alien';
 
 export class StartState {
 
@@ -11,46 +11,77 @@ export class StartState {
     showPushStart: boolean = true;
     highscore: number;
     modeTimer:number = 0;
+    alienTimer: number = 0;
+    alienBullets: Bullet[] = [];
     demo: boolean = false;
-    rocks: Rock[];
+    rocks: Object2D[];
+    demoStarted: boolean = false;
+    alien: BigAlien;
 
     constructor() {
         this.highscore = highscores.length ? highscores[0].score : 0;
         
         let rock1 = RockFactory.create(20, screen.height - 40, RockSize.Large); 
-        rock1.vx = 1;
-        rock1.vy = -1;
+        rock1.vx = 2;
+        rock1.vy = -2;
 
         let rock2 = RockFactory.create(screen.width - 40, 40, RockSize.Large);
-        rock2.vx = -1;
+        rock2.vx = -2;
         rock2.vy = 1;
 
         let rock3 = RockFactory.create(screen.width - 80, screen.height - 80, RockSize.Large);
-        rock3.vx = .5;
-        rock3.vy = -1;
+        rock3.vx = 1;
+        rock3.vy = -1.5;
 
         let rock4 = RockFactory.create(screen.width - 80, screen.height - 120, RockSize.Large);
-        rock4.vx = -.5;
+        rock4.vx = -1;
         rock4.vy = 1.5;
 
         this.rocks = [rock1, rock2, rock3, rock4];
     }
 
     update(step) {
+        //this.demo = true;
+
         this.modeTimer += step;
         
         if (this.modeTimer >= 15) {
             this.modeTimer = 0;
             this.demo = !this.demo;
+            if (this.demo && !this.demoStarted) {
+                this.demoStarted = true;
+            }
         }
- 
+        
+        if (this.demoStarted && !this.alien) {
+            this.alienTimer += step;
+        }
+
+        if (this.alienTimer >= 7) {
+            this.alien = new BigAlien(0, 0);
+            
+            this.alien.onDone = () => {
+                this.alien = null;
+                this.alienBullets = [];
+            };
+
+            this.alien.onFire = (bullet: Bullet) => {
+                bullet.onDone = () => {
+                    this.alienBullets = this.alienBullets.filter(x => x !== bullet);    
+                }
+                this.alienBullets.push(bullet);
+            };
+
+            this.alienTimer = 0;
+        }
+
         this.blink += step;
+
         if (this.blink >= .4) {
             this.blink = 0;
             this.showPushStart = !this.showPushStart;
         }
 
-        // this updates whether its being displayed or not
         this.updateDemo(step);
     }
 
@@ -69,8 +100,17 @@ export class StartState {
     }
 
     private updateDemo(step) {
+        
         this.rocks.forEach(rock => {
             rock.update(step);
+        });
+
+        if (this.alien) {
+            this.alien.update(step);
+        }
+
+        this.alienBullets.forEach(bullet => {
+            bullet.update(step);
         });
     }
 
@@ -80,7 +120,15 @@ export class StartState {
 
         this.rocks.forEach(rock => {
             rock.render();
-        })
+        });
+
+        if (this.alien) {
+            this.alien.render();
+        }
+
+        this.alienBullets.forEach(bullet => {
+            bullet.render();
+        });
     }
 
     private drawBackground() {

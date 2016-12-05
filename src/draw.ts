@@ -9,10 +9,10 @@ export class Draw {
 
     }
 
-    line(p1: Point, p2: Point, strokeStyle: string, width: number = 2) {
+    line(p1: Point, p2: Point, color: string = VectorLine, width: number = 2) {
         let { ctx } = this;
         ctx.beginPath();
-        ctx.strokeStyle = strokeStyle;
+        ctx.strokeStyle = color;
         ctx.lineWidth = width; 
         ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(p2.x, p2.y);

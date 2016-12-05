@@ -14,8 +14,8 @@ export abstract class Object2D implements IObject2D {
         this.y = y;
     }
 
-    abstract update(step: number) : void;
-    abstract render(step: number) : void;
+    abstract update(step?: number) : void;
+    abstract render(step?: number) : void;
     abstract get geometry(): Point[];
 
     rotate(angle: number) {

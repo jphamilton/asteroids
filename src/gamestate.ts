@@ -12,10 +12,10 @@ export class GameState {
     level: number = 1;
     score: number = 0;
     lives: number = 3;
-    ship: Object2D;
-    bullets: Bullet[] = [];
+    ship: Ship;
+    shipBullets: Bullet[] = [];
     extraLives: Object2D[] = [];
-    bulletTimer: number = 0;
+    //bulletTimer: number = 0;
     highscore: number;
     // asteroids
     // aliens
@@ -23,7 +23,16 @@ export class GameState {
 
     constructor() {
         this.ship = new Ship(screen.width / 2, screen.height / 2);
-   
+        
+        this.ship.onFire = (bullet: Bullet) => {
+            
+            bullet.onDone = () => {
+                this.shipBullets = this.shipBullets.filter(x => x !== bullet);
+            }
+
+            this.shipBullets.push(bullet);
+        };
+
         for(let i = 0; i < this.lives; i++) {
             let life = new Ship(80 + (i * 20), 55);
             this.extraLives.push(life);
@@ -35,24 +44,10 @@ export class GameState {
     update(step: number) {
         this.ship.update(step);
 
-        for(let i = 0; i < this.bullets.length; i++) {
-            this.bullets[i].update(step);
+        for(let i = 0; i < this.shipBullets.length; i++) {
+            this.shipBullets[i].update(step);
         }
 
-        // remove old bullets
-        this.bullets = this.bullets.filter(x => x.life > 0);
-
-        // can only fire bullets so fast
-        if (this.bulletTimer > 0) {
-            this.bulletTimer -= step;
-        }
-
-        if (Key.isDown(Key.CTRL)) {
-            if (this.bulletTimer <= 0) {
-                this.bulletTimer = .3;
-                this.bullet();
-            }
-        }
     }
 
     render(delta: number) {
@@ -72,20 +67,13 @@ export class GameState {
         this.drawExtraLives();
 
         // ship
-        this.ship.render(delta);
+        this.ship.render();
         
         // bullets
-        for(let i = 0; i < this.bullets.length; i++) {
-            this.bullets[i].render();
+        for(let i = 0; i < this.shipBullets.length; i++) {
+            this.shipBullets[i].render();
         }
-
         
-    }
-
-    bullet() {
-        if (this.bullets.length < 4) {
-            this.bullets.push(new Bullet(this.ship));
-        }
     }
 
     private drawExtraLives() {
