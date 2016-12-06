@@ -1,8 +1,10 @@
 import { COS, SIN } from './lut';
+import screen from './screen';
 
 export abstract class Object2D implements IObject2D {
 
-    color: string;
+    points: Point[];
+    color: string = '#ffffff';
     angle: number = 360; 
     x: number;
     y: number;
@@ -16,7 +18,6 @@ export abstract class Object2D implements IObject2D {
 
     abstract update(step?: number) : void;
     abstract render(step?: number) : void;
-    abstract get geometry(): Point[];
 
     rotate(angle: number) {
         this.angle += angle;
@@ -32,9 +33,7 @@ export abstract class Object2D implements IObject2D {
         let c = COS[angle]
         let s = SIN[angle];
 
-        let points = this.geometry;
-
-        points.forEach(p => {
+        this.points.forEach(p => {
             let newX = (c * p.x) - (s * p.y);
             let newY = (s * p.x) + (c * p.y);
             p.x = newX;
@@ -65,11 +64,14 @@ export abstract class Object2D implements IObject2D {
     }
     
     scale(factor: number) {
-        let points: Point[] = this.geometry;
-        points.forEach(point => {
+        this.points.forEach(point => {
             point.x *= factor;
             point.y *= factor;
         });
+    }
+
+    draw() {
+        screen.draw.shape(this.points, this.x, this.y, this.color);
     }
 
     get speed() {

@@ -1,5 +1,4 @@
 import { Object2D } from './object2d';
-import screen from './screen';
 
 const rock1 = [
     [ .5, -2 ],
@@ -104,11 +103,7 @@ export class Rock extends Object2D {
     }
 
     render() {
-        screen.draw.shape(this.points, this.x, this.y)
-    }
-
-    get geometry() {
-        return this.points;
+        this.draw();
     }
 
 }

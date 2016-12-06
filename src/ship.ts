@@ -9,13 +9,33 @@ const ROTATION: number = 5;
 const MAX_SPEED: number = 15;
 const MAX_BULLETS: number = 4;
 
+class Flame extends Object2D {
+
+    constructor(x: number, y: number) {
+        super(x, y);
+
+        this.points = [
+            {x: 5, y: 8},
+            {x: 0, y: 20},
+            {x: -5, y: 8},
+        ];
+    }
+
+    update() {
+
+    }
+
+    render() {
+        this.draw();    
+    }
+}
+
 export class Ship extends Object2D {
 
-    private points: Point[];
-    private flame: Point[];
     private moving: boolean = false;
     private bulletTimer: number = 0;
     private bulletCount: number = 0;
+    private flame: Flame;
 
     onFire: (bullet: Bullet) => void;
     
@@ -34,27 +54,20 @@ export class Ship extends Object2D {
             {x: 0, y: -15}
         ];
 
-        this.flame = [
-            {x: 5, y: 8},
-            {x: 0, y: 20},
-            {x: -5, y: 8},
-        ];
-
-    }
-
-    get geometry() {
-        return [...this.points, ...this.flame];
+        this.flame = new Flame(x, y);
     }
 
     render() {
         screen.draw.shape(this.points, this.x, this.y, this.color);
+        
         if (this.moving && (Math.floor(Math.random() * 10) + 1) % 2 === 0) {
-            screen.draw.shape(this.flame, this.x, this.y, this.color);
+            this.flame.draw();
         }
     }
 
     update(step: number) {
         this.move();
+        this.flame.move();
 
         if (Key.isDown(Key.UP)) {
             this.moving = true;
@@ -65,10 +78,12 @@ export class Ship extends Object2D {
 
         if (Key.isDown(Key.LEFT)) {
             this.rotate(-ROTATION);
+            this.flame.rotate(-ROTATION);
         }
 
         if (Key.isDown(Key.RIGHT)) {
             this.rotate(ROTATION);
+            this.flame.rotate(ROTATION);
         }
 
         // can only fire bullets so fast
@@ -86,6 +101,8 @@ export class Ship extends Object2D {
         // slow down ship over time
         this.vx -= this.vx * FRICTION;
         this.vy -= this.vy * FRICTION;
+        this.flame.vx = this.vx;
+        this.flame.vy = this.vy;
     }
 
     private thrust() {
@@ -95,10 +112,12 @@ export class Ship extends Object2D {
         
         if (this.vx >= -MAX_SPEED && this.vx <= MAX_SPEED) {
             this.vx += x * ACCELERATION;
+            this.flame.vx = this.vx;
         }
 
         if (this.vy >= -MAX_SPEED && this.vy <= MAX_SPEED) {
             this.vy -= y * ACCELERATION;
+            this.flame.vy = this.vy;
         }
     }
 

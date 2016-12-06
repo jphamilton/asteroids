@@ -12,10 +12,10 @@ export class StartState {
     highscore: number;
     modeTimer:number = 0;
     alienTimer: number = 0;
-    alienBullets: Bullet[] = [];
     demo: boolean = false;
-    rocks: Object2D[];
     demoStarted: boolean = false;
+    rocks: Object2D[];
+    alienBullets: Bullet[] = [];
     alien: BigAlien;
 
     constructor() {

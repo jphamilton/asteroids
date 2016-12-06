@@ -46,9 +46,8 @@ export class BigAlien extends Object2D {
     }
 
     update(step: number) {
-        this.x += this.vx;
-        this.y += this.vy;
-
+        this.move();
+        
         if (this.x >= screen.width || this.x <= 0) {
             this.onDone();
             return;
@@ -86,14 +85,12 @@ export class BigAlien extends Object2D {
     }
 
     render() {
-        screen.draw.shape(this.points, this.x, this.y);
+        this.draw();
+    }
+    
+    draw() {
+        super.draw();
         screen.draw.shape([this.points[1], this.points[6]], this.x, this.y);
         screen.draw.shape([this.points[2], this.points[5]], this.x, this.y);
     }
-
-    get geometry() {
-        return [...this.points];
-    }
-
-    
 }

@@ -13,12 +13,8 @@ export class Bullet extends Object2D {
         this.vy = -COS[angle];
     }
 
-    get geometry() {
-        return [{ x: this.x, y: this.y }];
-    }
-
     render() {
-        screen.draw.point({x: this.x, y: this.y});
+        this.draw();   
     }
 
     update(step?: number) {
@@ -29,6 +25,10 @@ export class Bullet extends Object2D {
         if (this.life <= 0) {
             this.onDone();
         }
+    }
+
+    draw() {
+        screen.draw.point({x: this.x, y: this.y});
     }
 
 }

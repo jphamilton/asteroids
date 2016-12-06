@@ -12,15 +12,13 @@ export class GameState {
     level: number = 1;
     score: number = 0;
     lives: number = 3;
+    
     ship: Ship;
     shipBullets: Bullet[] = [];
+    
     extraLives: Object2D[] = [];
-    //bulletTimer: number = 0;
     highscore: number;
-    // asteroids
-    // aliens
-    // etc.
-
+    
     constructor() {
         this.ship = new Ship(screen.width / 2, screen.height / 2);
         
