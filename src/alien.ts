@@ -18,18 +18,6 @@ export class BigAlien extends Object2D {
     constructor(x: number, y: number) {
         super(x, y);
 
-        this.points = [
-            { x: .5, y: -2},
-            { x: 1, y: -1},
-            { x: 2.5, y: 0},
-            { x: 1, y: 1},
-            { x: -1, y: 1},
-            { x: -2.5, y: 0},
-            { x: -1, y: -1},
-            { x: -.5, y: -2},
-            { x: .5, y: -2}
-        ];
-        
         this.vy = 0;
 
         this.y = random(100, screen.height - 100);
@@ -43,6 +31,20 @@ export class BigAlien extends Object2D {
         }
 
         this.scale(7);
+    }
+
+    init() {
+        return [
+            { x: .5, y: -2},
+            { x: 1, y: -1},
+            { x: 2.5, y: 0},
+            { x: 1, y: 1},
+            { x: -1, y: 1},
+            { x: -2.5, y: 0},
+            { x: -1, y: -1},
+            { x: -.5, y: -2},
+            { x: .5, y: -2}
+        ];
     }
 
     update(step: number) {

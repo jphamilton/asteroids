@@ -10,11 +10,8 @@ const MAX_SPEED: number = 15;
 const MAX_BULLETS: number = 4;
 
 class Flame extends Object2D {
-
-    constructor(x: number, y: number) {
-        super(x, y);
-
-        this.points = [
+    init() {
+        return [
             {x: 5, y: 8},
             {x: 0, y: 20},
             {x: -5, y: 8},
@@ -41,11 +38,12 @@ export class Ship extends Object2D {
     
     constructor(x: number, y: number) {
         super(x, y);
-
         this.angle = 360;
-        this.color = 'rgba(255,255,255,.8)';
+        this.flame = new Flame(x, y);
+    }
 
-        this.points = [
+    init() {
+        return [
             {x: 0, y: -15},
             {x: 10, y: 10},
             {x: 5, y: 5},
@@ -53,8 +51,6 @@ export class Ship extends Object2D {
             {x: -10, y: 10},
             {x: 0, y: -15}
         ];
-
-        this.flame = new Flame(x, y);
     }
 
     render() {

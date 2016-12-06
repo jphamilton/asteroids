@@ -4,20 +4,28 @@ import screen from './screen';
 export abstract class Object2D implements IObject2D {
 
     points: Point[];
-    color: string = '#ffffff';
+    color: string = 'rgba(255,255,255,.8)'; //'#ffffff';
     angle: number = 360; 
     x: number;
     y: number;
     vx: number = 0;
     vy: number = 0;
 
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
+    private minX: number;
+    private minY: number;
+    private maxX: number;
+    private maxY: number;
 
     abstract update(step?: number) : void;
     abstract render(step?: number) : void;
+    abstract init() : Point[];
+
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+        this.points = this.init();
+        // calc bounds and shit
+    }
 
     rotate(angle: number) {
         this.angle += angle;
@@ -68,6 +76,8 @@ export abstract class Object2D implements IObject2D {
             point.x *= factor;
             point.y *= factor;
         });
+        
+        this.init();
     }
 
     draw() {
