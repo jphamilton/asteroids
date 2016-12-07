@@ -11,11 +11,6 @@ export abstract class Object2D implements IObject2D {
     vx: number = 0;
     vy: number = 0;
 
-    private minX: number = 0;
-    private minY: number = 0;
-    private maxX: number = 0;
-    private maxY: number = 0;
-
     abstract update(step?: number) : void;
     abstract render(step?: number) : void;
     
@@ -83,13 +78,36 @@ export abstract class Object2D implements IObject2D {
         return Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2));
     }
 
-    protected calcRect() {
-        this.points.forEach(p => {
-            if (p.x < this.minX) this.minX = p.x;
-            if (p.x > this.maxX) this.maxX = p.x;
-            if (p.y < this.minY) this.minY = p.y;
-            if (p.y > this.maxY) this.maxY = p.y;
-        });
-    }
+    get rect(): Point[] {
+        let minX = 0;
+        let minY = 0;
+        let maxX = 0;
+        let maxY = 0;
 
+        this.points.forEach(p => {
+            if (p.x < minX) minX = p.x;
+            if (p.x > maxX) maxX = p.x;
+            if (p.y < minY) minY = p.y;
+            if (p.y > maxY) maxY = p.y;
+        });
+
+        
+        //(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
+        let r = [
+            { x: this.x + minX, y: this.y + minY },
+            { x: this.x + minX, y: this.y + maxY },
+            { x: this.x + maxX, y: this.y + maxY },
+            { x: this.x + maxX, y: this.y + minY }                        
+        ];
+
+        return r;
+
+        // return [
+        //     { x: minX, y: minY },
+        //     { x: maxX, y: minY },
+        //     { x: maxX, y: maxY },
+        //     { x: minX, y: maxY },
+        //     { x: minX, y: minY }
+        // ];
+    }
 }

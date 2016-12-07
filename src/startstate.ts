@@ -151,7 +151,7 @@ export class StartState {
         
         for(let i = 0; i < highscores.length; i++) {
             let y = 280 + (i * 40);
-            let text = `${this.pad(i + 1, ' ', 2)}. ${this.pad(highscores[i].score, ' ', 6)} ${highscores[i].initials}`;
+            let text = `${this.pad(i + 1, ' ', 2)}.${this.pad(highscores[i].score, ' ', 6)} ${highscores[i].initials}`;
             
             screen.draw.text2(text, '30pt', (width) => {
                 return {

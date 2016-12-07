@@ -30,10 +30,10 @@ export class Draw {
         }
     }
 
-    rect(p1: Point, p2: Point, fillStyle: string | CanvasGradient) {
+    rect(p1: Point, p2: Point, color: string = VectorLine) {
         let { ctx } = this;
         ctx.beginPath();
-        ctx.fillStyle = fillStyle; 
+        ctx.fillStyle = color; 
         ctx.fillRect(p1.x, p1.y, p2.x, p2.y);
         ctx.stroke();
         ctx.closePath();

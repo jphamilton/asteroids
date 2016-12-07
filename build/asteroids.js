@@ -238,7 +238,7 @@
 	        });
 	        var _loop_1 = function (i) {
 	            var y = 280 + (i * 40);
-	            var text = this_1.pad(i + 1, ' ', 2) + ". " + this_1.pad(highscores_1.highscores[i].score, ' ', 6) + " " + highscores_1.highscores[i].initials;
+	            var text = this_1.pad(i + 1, ' ', 2) + "." + this_1.pad(highscores_1.highscores[i].score, ' ', 6) + " " + highscores_1.highscores[i].initials;
 	            screen_1.default.draw.text2(text, '30pt', function (width) {
 	                return {
 	                    x: screenX - (width / 2),
@@ -336,10 +336,11 @@
 	            this.line(p1, p2, color, 2);
 	        }
 	    };
-	    Draw.prototype.rect = function (p1, p2, fillStyle) {
+	    Draw.prototype.rect = function (p1, p2, color) {
+	        if (color === void 0) { color = VectorLine; }
 	        var ctx = this.ctx;
 	        ctx.beginPath();
-	        ctx.fillStyle = fillStyle;
+	        ctx.fillStyle = color;
 	        ctx.fillRect(p1.x, p1.y, p2.x, p2.y);
 	        ctx.stroke();
 	        ctx.closePath();
@@ -535,10 +536,6 @@
 	        this.angle = 360;
 	        this.vx = 0;
 	        this.vy = 0;
-	        this.minX = 0;
-	        this.minY = 0;
-	        this.maxX = 0;
-	        this.maxY = 0;
 	        this.x = x;
 	        this.y = y;
 	    }
@@ -591,19 +588,33 @@
 	        enumerable: true,
 	        configurable: true
 	    });
-	    Object2D.prototype.calcRect = function () {
-	        var _this = this;
-	        this.points.forEach(function (p) {
-	            if (p.x < _this.minX)
-	                _this.minX = p.x;
-	            if (p.x > _this.maxX)
-	                _this.maxX = p.x;
-	            if (p.y < _this.minY)
-	                _this.minY = p.y;
-	            if (p.y > _this.maxY)
-	                _this.maxY = p.y;
-	        });
-	    };
+	    Object.defineProperty(Object2D.prototype, "rect", {
+	        get: function () {
+	            var minX = 0;
+	            var minY = 0;
+	            var maxX = 0;
+	            var maxY = 0;
+	            this.points.forEach(function (p) {
+	                if (p.x < minX)
+	                    minX = p.x;
+	                if (p.x > maxX)
+	                    maxX = p.x;
+	                if (p.y < minY)
+	                    minY = p.y;
+	                if (p.y > maxY)
+	                    maxY = p.y;
+	            });
+	            var r = [
+	                { x: this.x + minX, y: this.y + minY },
+	                { x: this.x + minX, y: this.y + maxY },
+	                { x: this.x + maxX, y: this.y + maxY },
+	                { x: this.x + maxX, y: this.y + minY }
+	            ];
+	            return r;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    return Object2D;
 	}());
 	exports.Object2D = Object2D;

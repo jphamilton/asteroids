@@ -61,6 +61,10 @@ export class Ship extends Object2D {
         if (this.moving && (Math.floor(Math.random() * 10) + 1) % 2 === 0) {
             this.flame.draw();
         }
+
+        //let r = this.rect;
+        //screen.draw.rect(r[0], r[1]);
+        //screen.draw.shape(this.rect, this.x, this.y);
     }
 
     update(step: number) {
