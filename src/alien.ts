@@ -18,18 +18,6 @@ export class BigAlien extends Object2D {
     constructor(x: number, y: number) {
         super(x, y);
 
-        this.points = [
-            { x: .5, y: -2},
-            { x: 1, y: -1},
-            { x: 2.5, y: 0},
-            { x: 1, y: 1},
-            { x: -1, y: 1},
-            { x: -2.5, y: 0},
-            { x: -1, y: -1},
-            { x: -.5, y: -2},
-            { x: .5, y: -2}
-        ];
-        
         this.vy = 0;
 
         this.y = random(100, screen.height - 100);
@@ -45,10 +33,23 @@ export class BigAlien extends Object2D {
         this.scale(7);
     }
 
-    update(step: number) {
-        this.x += this.vx;
-        this.y += this.vy;
+    init() {
+        return [
+            { x: .5, y: -2},
+            { x: 1, y: -1},
+            { x: 2.5, y: 0},
+            { x: 1, y: 1},
+            { x: -1, y: 1},
+            { x: -2.5, y: 0},
+            { x: -1, y: -1},
+            { x: -.5, y: -2},
+            { x: .5, y: -2}
+        ];
+    }
 
+    update(step: number) {
+        this.move();
+        
         if (this.x >= screen.width || this.x <= 0) {
             this.onDone();
             return;
@@ -86,14 +87,12 @@ export class BigAlien extends Object2D {
     }
 
     render() {
-        screen.draw.shape(this.points, this.x, this.y);
+        this.draw();
+    }
+    
+    draw() {
+        super.draw();
         screen.draw.shape([this.points[1], this.points[6]], this.x, this.y);
         screen.draw.shape([this.points[2], this.points[5]], this.x, this.y);
     }
-
-    get geometry() {
-        return [...this.points];
-    }
-
-    
 }

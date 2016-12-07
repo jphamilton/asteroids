@@ -1,22 +1,31 @@
 import { COS, SIN } from './lut';
+import screen from './screen';
 
 export abstract class Object2D implements IObject2D {
 
-    color: string;
+    points: Point[];
+    color: string = 'rgba(255,255,255,.8)'; //'#ffffff';
     angle: number = 360; 
     x: number;
     y: number;
     vx: number = 0;
     vy: number = 0;
 
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
+    private minX: number;
+    private minY: number;
+    private maxX: number;
+    private maxY: number;
 
     abstract update(step?: number) : void;
     abstract render(step?: number) : void;
-    abstract get geometry(): Point[];
+    abstract init() : Point[];
+
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+        this.points = this.init();
+        // calc bounds and shit
+    }
 
     rotate(angle: number) {
         this.angle += angle;
@@ -32,9 +41,7 @@ export abstract class Object2D implements IObject2D {
         let c = COS[angle]
         let s = SIN[angle];
 
-        let points = this.geometry;
-
-        points.forEach(p => {
+        this.points.forEach(p => {
             let newX = (c * p.x) - (s * p.y);
             let newY = (s * p.x) + (c * p.y);
             p.x = newX;
@@ -65,11 +72,16 @@ export abstract class Object2D implements IObject2D {
     }
     
     scale(factor: number) {
-        let points: Point[] = this.geometry;
-        points.forEach(point => {
+        this.points.forEach(point => {
             point.x *= factor;
             point.y *= factor;
         });
+        
+        this.init();
+    }
+
+    draw() {
+        screen.draw.shape(this.points, this.x, this.y, this.color);
     }
 
     get speed() {

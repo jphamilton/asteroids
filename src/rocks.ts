@@ -1,5 +1,5 @@
 import { Object2D } from './object2d';
-import screen from './screen';
+import { random } from './util';
 
 const rock1 = [
     [ .5, -2 ],
@@ -58,20 +58,17 @@ export enum RockSize {
 export class _RockFactory {
     
     create(x: number, y: number, size: RockSize): Rock {
-        let type = Math.floor(Math.random() * 3);
+        let type = random(0, 2);
         let def = rocks[type];
-        let rock = new Rock(x, y, size);
-
-        rock.points = def.map(p => {
+        
+        let points = def.map(p => {
             return {
-                x: p[0] * size,
-                y: p[1] * size
+                x: p[0],
+                y: p[1]
             }
         });
 
-        let rot = Math.floor(Math.random() * 90) + 1;
-
-        rock.rotate(rot);
+        let rock = new Rock(points, x, y, size);
 
         return rock;
     }
@@ -83,14 +80,20 @@ export const RockFactory = new _RockFactory();
 
 export class Rock extends Object2D {
 
-    points: Point[];
     rot: number;
     rotTimer: number = 0;
 
-    constructor(x: number, y: number, scale: number = 1) {
+    constructor(points: Point[], x: number, y: number, scale: number = 1) {
         super(x, y);
         this.rot = Math.floor(Math.random() * 2) + 1;
-        this.rot = this.rot % 2 === 0 ? this.rot : -this.rot;
+        this.rotate(random(1, 90));
+        this.rot = random(1, 10) % 2 === 0 ? 1 : -1;
+        this.points = points;
+        this.scale(scale);
+    }
+
+    init() {
+        return this.points;
     }
 
     update(step: number) {
@@ -104,11 +107,7 @@ export class Rock extends Object2D {
     }
 
     render() {
-        screen.draw.shape(this.points, this.x, this.y)
-    }
-
-    get geometry() {
-        return this.points;
+        this.draw();
     }
 
 }
