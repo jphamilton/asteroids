@@ -11,19 +11,17 @@ export abstract class Object2D implements IObject2D {
     vx: number = 0;
     vy: number = 0;
 
-    private minX: number;
-    private minY: number;
-    private maxX: number;
-    private maxY: number;
+    private minX: number = 0;
+    private minY: number = 0;
+    private maxX: number = 0;
+    private maxY: number = 0;
 
     abstract update(step?: number) : void;
     abstract render(step?: number) : void;
-    abstract init() : Point[];
-
-    constructor(x: number, y: number) {
+    
+    constructor(x: number, y: number, ...args: any[]) {
         this.x = x;
         this.y = y;
-        this.points = this.init();
         // calc bounds and shit
     }
 
@@ -47,7 +45,6 @@ export abstract class Object2D implements IObject2D {
             p.x = newX;
             p.y = newY;
         });
-
     }
 
     move() {
@@ -76,8 +73,6 @@ export abstract class Object2D implements IObject2D {
             point.x *= factor;
             point.y *= factor;
         });
-        
-        this.init();
     }
 
     draw() {
@@ -87,4 +82,14 @@ export abstract class Object2D implements IObject2D {
     get speed() {
         return Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2));
     }
+
+    protected calcRect() {
+        this.points.forEach(p => {
+            if (p.x < this.minX) this.minX = p.x;
+            if (p.x > this.maxX) this.maxX = p.x;
+            if (p.y < this.minY) this.minY = p.y;
+            if (p.y > this.maxY) this.maxY = p.y;
+        });
+    }
+
 }

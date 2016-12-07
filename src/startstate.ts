@@ -2,7 +2,7 @@ import screen from './screen';
 import { highscores } from './highscores';
 import { Object2D } from './object2d';
 import { Bullet } from './bullet';
-import { Rock, RockFactory, RockSize } from './rocks';
+import { Rock, RockSize } from './rocks';
 import { BigAlien } from './alien';
 
 export class StartState {
@@ -21,19 +21,20 @@ export class StartState {
     constructor() {
         this.highscore = highscores.length ? highscores[0].score : 0;
         
-        let rock1 = RockFactory.create(20, screen.height - 40, RockSize.Large); 
+        // rocks in demo mode always start out at the same place
+        let rock1 = new Rock(20, screen.height - 40, RockSize.Large); 
         rock1.vx = 2;
         rock1.vy = -2;
 
-        let rock2 = RockFactory.create(screen.width - 40, 40, RockSize.Large);
+        let rock2 = new Rock(screen.width - 40, 40, RockSize.Large);
         rock2.vx = -2;
         rock2.vy = 1;
 
-        let rock3 = RockFactory.create(screen.width - 80, screen.height - 80, RockSize.Large);
+        let rock3 = new Rock(screen.width - 80, screen.height - 80, RockSize.Large);
         rock3.vx = 1;
         rock3.vy = -1.5;
 
-        let rock4 = RockFactory.create(screen.width - 80, screen.height - 120, RockSize.Large);
+        let rock4 = new Rock(screen.width - 80, screen.height - 120, RockSize.Large);
         rock4.vx = -1;
         rock4.vy = 1.5;
 

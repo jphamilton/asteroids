@@ -7,7 +7,6 @@ const MAX_BULLETS: number = 3;
 
 export class BigAlien extends Object2D {
 
-    points: Point[];
     moveTimer: number = 0;
     bulletTimer: number = 1;
     bulletCount: number = 0;
@@ -30,11 +29,7 @@ export class BigAlien extends Object2D {
             this.vx = -3;
         }
 
-        this.scale(7);
-    }
-
-    init() {
-        return [
+        this.points = [
             { x: .5, y: -2},
             { x: 1, y: -1},
             { x: 2.5, y: 0},
@@ -45,6 +40,8 @@ export class BigAlien extends Object2D {
             { x: -.5, y: -2},
             { x: .5, y: -2}
         ];
+
+        this.scale(7);
     }
 
     update(step: number) {

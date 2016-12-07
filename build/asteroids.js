@@ -1,1 +1,989 @@
-!function(t){function e(r){if(i[r])return i[r].exports;var n=i[r]={exports:{},id:r,loaded:!1};return t[r].call(n.exports,n,n.exports,e),n.loaded=!0,n.exports}var i={};return e.m=t,e.c=i,e.p="",e(0)}([function(t,e,i){"use strict";var r=i(1),n=i(2),o=i(12),s=i(14),h="start",a=new n.StartState,u=new o.GameState,c=function(){function t(){}return t.prototype.update=function(t){switch(h){case"start":a.update(t),s.Key.isDown(s.Key.ONE)&&(h="game");break;case"game":u.update(t)}},t.prototype.render=function(t){switch(h){case"start":a.render(t);break;case"game":u.render(t)}},t}();e.Asteroids=c;var l=new c;setTimeout(function(){r.loop(l)},1e3)},function(t,e){"use strict";var i,r=function(){return window.performance&&window.performance.now?window.performance.now():(new Date).getTime()},n=0,o=r(),s=1/60,h=function(t){var e=function(){for(i=r(),n+=Math.min(1,(i-o)/1e3);n>s;)n-=s,t.update(s);t.render(n),o=i,requestAnimationFrame(e)};e()};e.loop=function(t){h(t)}},function(t,e,i){"use strict";var r=i(3),n=i(5),o=i(6),s=i(10),h=function(){function t(){this.blink=0,this.showPushStart=!0,this.modeTimer=0,this.alienTimer=0,this.demo=!1,this.demoStarted=!1,this.alienBullets=[],this.highscore=n.highscores.length?n.highscores[0].score:0;var t=o.RockFactory.create(20,r.default.height-40,o.RockSize.Large);t.vx=2,t.vy=-2;var e=o.RockFactory.create(r.default.width-40,40,o.RockSize.Large);e.vx=-2,e.vy=1;var i=o.RockFactory.create(r.default.width-80,r.default.height-80,o.RockSize.Large);i.vx=1,i.vy=-1.5;var s=o.RockFactory.create(r.default.width-80,r.default.height-120,o.RockSize.Large);s.vx=-1,s.vy=1.5,this.rocks=[t,e,i,s]}return t.prototype.update=function(t){var e=this;this.modeTimer+=t,this.modeTimer>=15&&(this.modeTimer=t,this.demo=!this.demo,this.demo&&!this.demoStarted&&(this.demoStarted=!0)),this.demoStarted&&!this.alien&&(this.alienTimer+=t),this.alienTimer>=7&&(this.alien=new s.BigAlien(0,0),this.alien.onDone=function(){e.alien=null,e.alienBullets=[]},this.alien.onFire=function(t){t.onDone=function(){e.alienBullets=e.alienBullets.filter(function(e){return e!==t})},e.alienBullets.push(t)},this.alienTimer=0),this.blink+=t,this.blink>=.4&&(this.blink=0,this.showPushStart=!this.showPushStart),this.updateDemo(t)},t.prototype.render=function(t){this.demo?this.renderDemo():this.renderStart()},t.prototype.renderStart=function(){this.drawBackground(),this.drawPushStart(),this.drawHighScores()},t.prototype.updateDemo=function(t){this.rocks.forEach(function(e){e.update(t)}),this.alien&&this.alien.update(t),this.alienBullets.forEach(function(e){e.update(t)})},t.prototype.renderDemo=function(){this.drawBackground(),this.drawPushStart(),this.rocks.forEach(function(t){t.render()}),this.alien&&this.alien.render(),this.alienBullets.forEach(function(t){t.render()})},t.prototype.drawBackground=function(){r.default.draw.background(),r.default.draw.scorePlayer1(0),r.default.draw.highscore(this.highscore),r.default.draw.copyright()},t.prototype.drawHighScores=function(){var t=r.default.width/2;r.default.draw.text2("high scores","30pt",function(e){return{x:t-e/2,y:200}});for(var e=function(e){var o=280+40*e,s=i.pad(e+1," ",2)+". "+i.pad(n.highscores[e].score," ",6)+" "+n.highscores[e].initials;r.default.draw.text2(s,"30pt",function(e){return{x:t-e/2,y:o}})},i=this,o=0;o<n.highscores.length;o++)e(o)},t.prototype.drawPushStart=function(){var t=r.default.width/2;this.showPushStart&&r.default.draw.text2("push start","30pt",function(e){return{x:t-e/2,y:120}})},t.prototype.pad=function(t,e,i){for(t=t.toString();t.length<i;)t=e+t;return t},t}();e.StartState=h},function(t,e,i){"use strict";var r=i(4),n=function(){function t(){var t=this;this.canvas=document.getElementById("canvas"),this.ctx=this.canvas.getContext("2d"),this.draw=new r.Draw(this.ctx),this.init(),window.addEventListener("resize",function(){t.init()})}return t.prototype.init=function(){this.canvas.width=document.body.clientWidth,this.canvas.height=document.body.clientHeight,this.width=this.canvas.width,this.height=this.canvas.height},t}();e.Screen=n,Object.defineProperty(e,"__esModule",{value:!0}),e.default=new n},function(t,e,i){"use strict";var r=i(3),n="rgba(255,255,255,.8)",o=function(){function t(t){this.ctx=t}return t.prototype.line=function(t,e,i,r){void 0===i&&(i=n),void 0===r&&(r=2);var o=this.ctx;o.beginPath(),o.strokeStyle=i,o.lineWidth=r,o.moveTo(t.x,t.y),o.lineTo(e.x,e.y),o.stroke(),o.closePath()},t.prototype.shape=function(t,e,i,r){void 0===r&&(r=n);for(var o,s,h=0;h<t.length-1;h++)o={x:e+t[h].x,y:i+t[h].y},s={x:e+t[h+1].x,y:i+t[h+1].y},this.line(o,s,r,2)},t.prototype.rect=function(t,e,i){var r=this.ctx;r.beginPath(),r.fillStyle=i,r.fillRect(t.x,t.y,e.x,e.y),r.stroke(),r.closePath()},t.prototype.point=function(t,e){void 0===e&&(e=n),this.rect(t,{x:4,y:4},e)},t.prototype.background=function(){this.rect({x:0,y:0},{x:r.default.width,y:r.default.height},"#000000")},t.prototype.text=function(t,e,i,r){var o=this.ctx;o.save(),o.font=r+" hyperspace",o.textBaseline="middle",o.lineWidth=1,o.strokeStyle=n,o.strokeText(t,e,i),o.restore()},t.prototype.text2=function(t,e,i){var r=this.ctx;r.save(),r.font=e+" hyperspace",r.textBaseline="middle",r.lineWidth=1,r.strokeStyle=n;var o=r.measureText(t).width,s=i(o);r.strokeText(t,s.x,s.y),r.restore()},t.prototype.scorePlayer1=function(t){for(var e=t.toString();e.length<2;)e="0"+e;this.text(e,100,20,"24pt")},t.prototype.highscore=function(t){for(var e=t.toString();e.length<2;)e="0"+e;this.text2(e,"12pt",function(t){return{x:r.default.width/2-t/2,y:20}})},t.prototype.copyright=function(){this.text2(String.fromCharCode(169)+" 1979 Atari INC","12pt",function(t){return{x:r.default.width/2-t/2,y:r.default.height-20}})},t}();e.Draw=o},function(t,e){"use strict";e.highscores=[{score:20140,initials:"J H"},{score:20050,initials:"O A"},{score:19930,initials:"N M"},{score:19870,initials:"  I"},{score:19840,initials:"P L"},{score:19790,initials:"A T"},{score:19700,initials:"U O"},{score:19660,initials:"L N"},{score:190,initials:"GAM"},{score:70,initials:"ES "}]},function(t,e,i){"use strict";var r=this&&this.__extends||function(t,e){function i(){this.constructor=t}for(var r in e)e.hasOwnProperty(r)&&(t[r]=e[r]);t.prototype=null===e?Object.create(e):(i.prototype=e.prototype,new i)},n=i(7),o=i(9),s=[[.5,-2],[2,-1],[2,-.7],[1.2,0],[2,1],[1,2],[.5,1.5],[-1,2],[-2,.7],[-2,-1],[-.5,-1],[-1,-2],[.5,-2]],h=[[0,-1.5],[1,-2],[2,-1],[1,-.5],[2,.5],[1,2],[-.5,1.5],[-1,2],[-2,1],[-1.5,0],[-2,-1],[-1,-2],[0,-1.5]],a=[[0,-1],[1,-2],[2,-1],[1.5,0],[2,1],[1,2],[-1,2],[-2,1],[-2,-1],[-1,-2],[0,-1]],u=[s,h,a];!function(t){t[t.Small=5]="Small",t[t.Medium=10]="Medium",t[t.Large=20]="Large"}(e.RockSize||(e.RockSize={}));var c=(e.RockSize,function(){function t(){}return t.prototype.create=function(t,e,i){var r=o.random(0,2),n=u[r],s=n.map(function(t){return{x:t[0],y:t[1]}}),h=new l(s,t,e,i);return h},t}());e._RockFactory=c,e.RockFactory=new c;var l=function(t){function e(e,i,r,n){void 0===n&&(n=1);var s=t.call(this,i,r)||this;return s.rotTimer=0,s.rot=Math.floor(2*Math.random())+1,s.rotate(o.random(1,90)),s.rot=o.random(1,10)%2===0?1:-1,s.points=e,s.scale(n),s}return r(e,t),e.prototype.init=function(){return this.points},e.prototype.update=function(t){this.rotTimer+=1,this.move(),5===this.rotTimer&&(this.rotate(this.rot),this.rotTimer=0)},e.prototype.render=function(){this.draw()},e}(n.Object2D);e.Rock=l},function(t,e,i){"use strict";var r=i(8),n=i(3),o=function(){function t(t,e){this.color="rgba(255,255,255,.8)",this.angle=360,this.vx=0,this.vy=0,this.x=t,this.y=e,this.points=this.init()}return t.prototype.rotate=function(t){this.angle+=t,this.angle<1&&(this.angle+=360),this.angle>360&&(this.angle-=360);var e=r.COS[t],i=r.SIN[t];this.points.forEach(function(t){var r=e*t.x-i*t.y,n=i*t.x+e*t.y;t.x=r,t.y=n})},t.prototype.move=function(){this.x+=this.vx,this.y+=this.vy,this.x>n.default.width&&(this.x-=n.default.width),this.x<0&&(this.x+=n.default.width),this.y>n.default.height&&(this.y-=n.default.height),this.y<0&&(this.y+=n.default.height)},t.prototype.scale=function(t){this.points.forEach(function(e){e.x*=t,e.y*=t}),this.init()},t.prototype.draw=function(){n.default.draw.shape(this.points,this.x,this.y,this.color)},Object.defineProperty(t.prototype,"speed",{get:function(){return Math.sqrt(Math.pow(this.vx,2)+Math.pow(this.vy,2))},enumerable:!0,configurable:!0}),t}();e.Object2D=o},function(t,e){"use strict";var i={};e.RAD=i;var r={};e.COS=r;var n={};e.SIN=n;for(var o=Math.PI/180,s=1;s<=360;s++)i[s]=s*o,r[s]=Math.cos(i[s]),n[s]=Math.sin(i[s]),i[-s]=-s*o,r[-s]=Math.cos(i[-s]),n[-s]=Math.sin(i[-s])},function(t,e){"use strict";function i(t,e){return Math.floor(Math.random()*e)+t}e.random=i},function(t,e,i){"use strict";var r=this&&this.__extends||function(t,e){function i(){this.constructor=t}for(var r in e)e.hasOwnProperty(r)&&(t[r]=e[r]);t.prototype=null===e?Object.create(e):(i.prototype=e.prototype,new i)},n=i(3),o=i(7),s=i(11),h=i(9),a=3,u=function(t){function e(e,i){var r=t.call(this,e,i)||this;return r.moveTimer=0,r.bulletTimer=1,r.bulletCount=0,r.moveTime=2,r.vy=0,r.y=h.random(100,n.default.height-100),r.y%2===0?(r.x=40,r.vx=3):(r.x=n.default.width-40,r.vx=-3),r.scale(7),r}return r(e,t),e.prototype.init=function(){return[{x:.5,y:-2},{x:1,y:-1},{x:2.5,y:0},{x:1,y:1},{x:-1,y:1},{x:-2.5,y:0},{x:-1,y:-1},{x:-.5,y:-2},{x:.5,y:-2}]},e.prototype.update=function(t){if(this.move(),this.x>=n.default.width||this.x<=0)return void this.onDone();if(this.moveTimer+=t,this.moveTimer>=1&&0!==this.vy&&(this.vy=0,this.moveTimer=0),this.moveTimer>=this.moveTime){var e=h.random(1,20)%2===0;e&&(this.vy=this.x%2===0?this.vx:-this.vx),this.moveTimer=0,this.moveTime++}if(this.bulletTimer+=t,this.bulletTimer>=1&&this.bulletCount<=a){var i=new s.Bullet(this.x,this.y,h.random(1,360));i.vx*=10,i.vy*=10,this.onFire(i),this.bulletTimer=0}},e.prototype.render=function(){this.draw()},e.prototype.draw=function(){t.prototype.draw.call(this),n.default.draw.shape([this.points[1],this.points[6]],this.x,this.y),n.default.draw.shape([this.points[2],this.points[5]],this.x,this.y)},e}(o.Object2D);e.BigAlien=u},function(t,e,i){"use strict";var r=this&&this.__extends||function(t,e){function i(){this.constructor=t}for(var r in e)e.hasOwnProperty(r)&&(t[r]=e[r]);t.prototype=null===e?Object.create(e):(i.prototype=e.prototype,new i)},n=i(3),o=i(8),s=i(7),h=function(t){function e(e,i,r){var n=t.call(this,e,i)||this;return n.life=1.25,n.vx=o.SIN[r],n.vy=-o.COS[r],n}return r(e,t),e.prototype.init=function(){return[{x:this.x,y:this.y}]},e.prototype.render=function(){this.draw()},e.prototype.update=function(t){this.move(),this.life-=t,this.life<=0&&this.onDone()},e.prototype.draw=function(){n.default.draw.point({x:this.x,y:this.y})},e}(s.Object2D);e.Bullet=h},function(t,e,i){"use strict";var r=i(13),n=i(3),o=i(5),s=function(){function t(){var t=this;this.level=1,this.score=0,this.lives=3,this.shipBullets=[],this.extraLives=[],this.ship=new r.Ship(n.default.width/2,n.default.height/2),this.ship.onFire=function(e){e.onDone=function(){t.shipBullets=t.shipBullets.filter(function(t){return t!==e})},t.shipBullets.push(e)};for(var e=0;e<this.lives;e++){var i=new r.Ship(80+20*e,55);this.extraLives.push(i)}this.highscore=o.highscores.length?o.highscores[0].score:0}return t.prototype.update=function(t){this.ship.update(t);for(var e=0;e<this.shipBullets.length;e++)this.shipBullets[e].update(t)},t.prototype.render=function(t){n.default.draw.background(),n.default.draw.copyright(),n.default.draw.scorePlayer1(this.score),n.default.draw.highscore(this.highscore),this.drawExtraLives(),this.ship.render();for(var e=0;e<this.shipBullets.length;e++)this.shipBullets[e].render()},t.prototype.drawExtraLives=function(){for(var t=Math.min(this.lives,10),e=0;e<t;e++){var i=this.extraLives[e];i.render(0)}},t}();e.GameState=s},function(t,e,i){"use strict";var r=this&&this.__extends||function(t,e){function i(){this.constructor=t}for(var r in e)e.hasOwnProperty(r)&&(t[r]=e[r]);t.prototype=null===e?Object.create(e):(i.prototype=e.prototype,new i)},n=i(14),o=i(3),s=i(7),h=i(11),a=.2,u=.007,c=5,l=15,d=4,f=function(t){function e(){return t.apply(this,arguments)||this}return r(e,t),e.prototype.init=function(){return[{x:5,y:8},{x:0,y:20},{x:-5,y:8}]},e.prototype.update=function(){},e.prototype.render=function(){this.draw()},e}(s.Object2D),p=function(t){function e(e,i){var r=t.call(this,e,i)||this;return r.moving=!1,r.bulletTimer=0,r.bulletCount=0,r.angle=360,r.flame=new f(e,i),r}return r(e,t),e.prototype.init=function(){return[{x:0,y:-15},{x:10,y:10},{x:5,y:5},{x:-5,y:5},{x:-10,y:10},{x:0,y:-15}]},e.prototype.render=function(){o.default.draw.shape(this.points,this.x,this.y,this.color),this.moving&&(Math.floor(10*Math.random())+1)%2===0&&this.flame.draw()},e.prototype.update=function(t){this.move(),this.flame.move(),n.Key.isDown(n.Key.UP)?(this.moving=!0,this.thrust()):this.moving=!1,n.Key.isDown(n.Key.LEFT)&&(this.rotate(-c),this.flame.rotate(-c)),n.Key.isDown(n.Key.RIGHT)&&(this.rotate(c),this.flame.rotate(c)),this.bulletTimer>0&&(this.bulletTimer-=t),n.Key.isDown(n.Key.CTRL)&&this.bulletTimer<=0&&(this.bulletTimer=.3,this.fire()),this.vx-=this.vx*u,this.vy-=this.vy*u,this.flame.vx=this.vx,this.flame.vy=this.vy},e.prototype.thrust=function(){var t=2*Math.PI*(this.angle/360),e=Math.sin(t),i=Math.cos(t);this.vx>=-l&&this.vx<=l&&(this.vx+=e*a,this.flame.vx=this.vx),this.vy>=-l&&this.vy<=l&&(this.vy-=i*a,this.flame.vy=this.vy)},e.prototype.fire=function(){if(this.bulletCount<=d){var t=new h.Bullet(this.x,this.y,this.angle);t.x+=20*t.vx,t.y+=20*t.vy;var e=0,i=this.vx*t.vx+this.vy*t.vy;i>0&&(e=this.speed),t.vx*=10+e,t.vy*=10+e,this.onFire(t)}},e}(s.Object2D);e.Ship=p},function(t,e){"use strict";e.Key={_pressed:{},LEFT:37,UP:38,RIGHT:39,SHIFT:16,CTRL:17,ONE:49,isDown:function(t){return this._pressed[t]},onKeydown:function(t){this._pressed[t.keyCode]=!0},onKeyup:function(t){delete this._pressed[t.keyCode]}},window.addEventListener("keyup",function(t){e.Key.onKeyup(t)},!1),window.addEventListener("keydown",function(t){e.Key.onKeydown(t)},!1)}]);
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+
+
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var loop_1 = __webpack_require__(1);
+	var startstate_1 = __webpack_require__(2);
+	var gamestate_1 = __webpack_require__(12);
+	var keys_1 = __webpack_require__(14);
+	var state = 'start';
+	var startState = new startstate_1.StartState();
+	var gameState = new gamestate_1.GameState();
+	var Asteroids = (function () {
+	    function Asteroids() {
+	    }
+	    Asteroids.prototype.update = function (step) {
+	        switch (state) {
+	            case 'start':
+	                startState.update(step);
+	                if (keys_1.Key.isDown(keys_1.Key.ONE)) {
+	                    state = 'game';
+	                }
+	                break;
+	            case 'game':
+	                gameState.update(step);
+	                break;
+	        }
+	    };
+	    Asteroids.prototype.render = function (step) {
+	        switch (state) {
+	            case 'start':
+	                startState.render(step);
+	                break;
+	            case 'game':
+	                gameState.render(step);
+	                break;
+	        }
+	    };
+	    return Asteroids;
+	}());
+	exports.Asteroids = Asteroids;
+	var game = new Asteroids();
+	setTimeout(function () {
+	    loop_1.loop(game);
+	}, 1000);
+
+
+/***/ },
+/* 1 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var timestamp = function () {
+	    return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+	};
+	var now;
+	var delta = 0;
+	var last = timestamp();
+	var step = 1 / 60;
+	var init = function (state) {
+	    var frame = function () {
+	        now = timestamp();
+	        delta = delta + Math.min(1, (now - last) / 1000);
+	        while (delta > step) {
+	            delta -= step;
+	            state.update(step);
+	        }
+	        state.render(delta);
+	        last = now;
+	        requestAnimationFrame(frame);
+	    };
+	    frame();
+	};
+	exports.loop = function (state) {
+	    init(state);
+	};
+
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var screen_1 = __webpack_require__(3);
+	var highscores_1 = __webpack_require__(5);
+	var rocks_1 = __webpack_require__(6);
+	var alien_1 = __webpack_require__(10);
+	var StartState = (function () {
+	    function StartState() {
+	        this.blink = 0;
+	        this.showPushStart = true;
+	        this.modeTimer = 0;
+	        this.alienTimer = 0;
+	        this.demo = false;
+	        this.demoStarted = false;
+	        this.alienBullets = [];
+	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
+	        var rock1 = new rocks_1.Rock(20, screen_1.default.height - 40, rocks_1.RockSize.Large);
+	        rock1.vx = 2;
+	        rock1.vy = -2;
+	        var rock2 = new rocks_1.Rock(screen_1.default.width - 40, 40, rocks_1.RockSize.Large);
+	        rock2.vx = -2;
+	        rock2.vy = 1;
+	        var rock3 = new rocks_1.Rock(screen_1.default.width - 80, screen_1.default.height - 80, rocks_1.RockSize.Large);
+	        rock3.vx = 1;
+	        rock3.vy = -1.5;
+	        var rock4 = new rocks_1.Rock(screen_1.default.width - 80, screen_1.default.height - 120, rocks_1.RockSize.Large);
+	        rock4.vx = -1;
+	        rock4.vy = 1.5;
+	        this.rocks = [rock1, rock2, rock3, rock4];
+	    }
+	    StartState.prototype.update = function (step) {
+	        var _this = this;
+	        this.modeTimer += step;
+	        if (this.modeTimer >= 15) {
+	            this.modeTimer = step;
+	            this.demo = !this.demo;
+	            if (this.demo && !this.demoStarted) {
+	                this.demoStarted = true;
+	            }
+	        }
+	        if (this.demoStarted && !this.alien) {
+	            this.alienTimer += step;
+	        }
+	        if (this.alienTimer >= 7) {
+	            this.alien = new alien_1.BigAlien(0, 0);
+	            this.alien.onDone = function () {
+	                _this.alien = null;
+	                _this.alienBullets = [];
+	            };
+	            this.alien.onFire = function (bullet) {
+	                bullet.onDone = function () {
+	                    _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
+	                };
+	                _this.alienBullets.push(bullet);
+	            };
+	            this.alienTimer = 0;
+	        }
+	        this.blink += step;
+	        if (this.blink >= .4) {
+	            this.blink = 0;
+	            this.showPushStart = !this.showPushStart;
+	        }
+	        this.updateDemo(step);
+	    };
+	    StartState.prototype.render = function (step) {
+	        if (this.demo) {
+	            this.renderDemo();
+	        }
+	        else {
+	            this.renderStart();
+	        }
+	    };
+	    StartState.prototype.renderStart = function () {
+	        this.drawBackground();
+	        this.drawPushStart();
+	        this.drawHighScores();
+	    };
+	    StartState.prototype.updateDemo = function (step) {
+	        this.rocks.forEach(function (rock) {
+	            rock.update(step);
+	        });
+	        if (this.alien) {
+	            this.alien.update(step);
+	        }
+	        this.alienBullets.forEach(function (bullet) {
+	            bullet.update(step);
+	        });
+	    };
+	    StartState.prototype.renderDemo = function () {
+	        this.drawBackground();
+	        this.drawPushStart();
+	        this.rocks.forEach(function (rock) {
+	            rock.render();
+	        });
+	        if (this.alien) {
+	            this.alien.render();
+	        }
+	        this.alienBullets.forEach(function (bullet) {
+	            bullet.render();
+	        });
+	    };
+	    StartState.prototype.drawBackground = function () {
+	        screen_1.default.draw.background();
+	        screen_1.default.draw.scorePlayer1(0);
+	        screen_1.default.draw.highscore(this.highscore);
+	        screen_1.default.draw.copyright();
+	    };
+	    StartState.prototype.drawHighScores = function () {
+	        var screenX = screen_1.default.width / 2;
+	        screen_1.default.draw.text2('high scores', '30pt', function (width) {
+	            return {
+	                x: screenX - (width / 2),
+	                y: 200
+	            };
+	        });
+	        var _loop_1 = function (i) {
+	            var y = 280 + (i * 40);
+	            var text = this_1.pad(i + 1, ' ', 2) + ". " + this_1.pad(highscores_1.highscores[i].score, ' ', 6) + " " + highscores_1.highscores[i].initials;
+	            screen_1.default.draw.text2(text, '30pt', function (width) {
+	                return {
+	                    x: screenX - (width / 2),
+	                    y: y
+	                };
+	            });
+	        };
+	        var this_1 = this;
+	        for (var i = 0; i < highscores_1.highscores.length; i++) {
+	            _loop_1(i);
+	        }
+	    };
+	    StartState.prototype.drawPushStart = function () {
+	        var screenX = screen_1.default.width / 2;
+	        if (this.showPushStart) {
+	            screen_1.default.draw.text2('push start', '30pt', function (width) {
+	                return {
+	                    x: screenX - (width / 2),
+	                    y: 120
+	                };
+	            });
+	        }
+	    };
+	    StartState.prototype.pad = function (text, char, count) {
+	        text = text.toString();
+	        while (text.length < count) {
+	            text = char + text;
+	        }
+	        return text;
+	    };
+	    return StartState;
+	}());
+	exports.StartState = StartState;
+
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var draw_1 = __webpack_require__(4);
+	var Screen = (function () {
+	    function Screen() {
+	        var _this = this;
+	        this.canvas = document.getElementById('canvas');
+	        this.ctx = this.canvas.getContext('2d');
+	        this.draw = new draw_1.Draw(this.ctx);
+	        this.init();
+	        window.addEventListener('resize', function () {
+	            _this.init();
+	        });
+	    }
+	    Screen.prototype.init = function () {
+	        this.canvas.width = document.body.clientWidth;
+	        this.canvas.height = document.body.clientHeight;
+	        this.width = this.canvas.width;
+	        this.height = this.canvas.height;
+	    };
+	    return Screen;
+	}());
+	exports.Screen = Screen;
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = new Screen();
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var screen_1 = __webpack_require__(3);
+	var VectorLine = 'rgba(255,255,255,.8)';
+	var Draw = (function () {
+	    function Draw(ctx) {
+	        this.ctx = ctx;
+	    }
+	    Draw.prototype.line = function (p1, p2, color, width) {
+	        if (color === void 0) { color = VectorLine; }
+	        if (width === void 0) { width = 2; }
+	        var ctx = this.ctx;
+	        ctx.beginPath();
+	        ctx.strokeStyle = color;
+	        ctx.lineWidth = width;
+	        ctx.moveTo(p1.x, p1.y);
+	        ctx.lineTo(p2.x, p2.y);
+	        ctx.stroke();
+	        ctx.closePath();
+	    };
+	    Draw.prototype.shape = function (points, x, y, color) {
+	        if (color === void 0) { color = VectorLine; }
+	        var p1, p2;
+	        for (var i = 0; i < points.length - 1; i++) {
+	            p1 = { x: x + points[i].x, y: y + points[i].y };
+	            p2 = { x: x + points[i + 1].x, y: y + points[i + 1].y };
+	            this.line(p1, p2, color, 2);
+	        }
+	    };
+	    Draw.prototype.rect = function (p1, p2, fillStyle) {
+	        var ctx = this.ctx;
+	        ctx.beginPath();
+	        ctx.fillStyle = fillStyle;
+	        ctx.fillRect(p1.x, p1.y, p2.x, p2.y);
+	        ctx.stroke();
+	        ctx.closePath();
+	    };
+	    Draw.prototype.point = function (p, fillStyle) {
+	        if (fillStyle === void 0) { fillStyle = VectorLine; }
+	        this.rect(p, { x: 4, y: 4 }, fillStyle);
+	    };
+	    Draw.prototype.background = function () {
+	        this.rect({ x: 0, y: 0 }, { x: screen_1.default.width, y: screen_1.default.height }, '#000000');
+	    };
+	    Draw.prototype.text = function (text, x, y, size) {
+	        var ctx = this.ctx;
+	        ctx.save();
+	        ctx.font = size + " hyperspace";
+	        ctx.textBaseline = 'middle';
+	        ctx.lineWidth = 1;
+	        ctx.strokeStyle = VectorLine;
+	        ctx.strokeText(text, x, y);
+	        ctx.restore();
+	    };
+	    Draw.prototype.text2 = function (text, size, cb) {
+	        var ctx = this.ctx;
+	        ctx.save();
+	        ctx.font = size + " hyperspace";
+	        ctx.textBaseline = 'middle';
+	        ctx.lineWidth = 1;
+	        ctx.strokeStyle = VectorLine;
+	        var width = ctx.measureText(text).width;
+	        var point = cb(width);
+	        ctx.strokeText(text, point.x, point.y);
+	        ctx.restore();
+	    };
+	    Draw.prototype.scorePlayer1 = function (score) {
+	        var text = score.toString();
+	        while (text.length < 2)
+	            text = '0' + text;
+	        this.text(text, 100, 20, '24pt');
+	    };
+	    Draw.prototype.highscore = function (score) {
+	        var text = score.toString();
+	        while (text.length < 2)
+	            text = '0' + text;
+	        this.text2(text, '12pt', function (width) {
+	            return {
+	                x: (screen_1.default.width / 2) - (width / 2),
+	                y: 20
+	            };
+	        });
+	    };
+	    Draw.prototype.copyright = function () {
+	        this.text2(String.fromCharCode(169) + ' 1979 Atari INC', '12pt', function (width) {
+	            return {
+	                x: (screen_1.default.width / 2) - (width / 2),
+	                y: screen_1.default.height - 20
+	            };
+	        });
+	    };
+	    return Draw;
+	}());
+	exports.Draw = Draw;
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	"use strict";
+	exports.highscores = [
+	    { score: 20140, initials: 'J H' },
+	    { score: 20050, initials: 'O A' },
+	    { score: 19930, initials: 'N M' },
+	    { score: 19870, initials: '  I' },
+	    { score: 19840, initials: 'P L' },
+	    { score: 19790, initials: 'A T' },
+	    { score: 19700, initials: 'U O' },
+	    { score: 19660, initials: 'L N' },
+	    { score: 190, initials: 'GAM' },
+	    { score: 70, initials: 'ES ' },
+	];
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var object2d_1 = __webpack_require__(7);
+	var util_1 = __webpack_require__(9);
+	(function (RockSize) {
+	    RockSize[RockSize["Small"] = 5] = "Small";
+	    RockSize[RockSize["Medium"] = 10] = "Medium";
+	    RockSize[RockSize["Large"] = 20] = "Large";
+	})(exports.RockSize || (exports.RockSize = {}));
+	var RockSize = exports.RockSize;
+	var Rock = (function (_super) {
+	    __extends(Rock, _super);
+	    function Rock(x, y, size) {
+	        if (size === void 0) { size = 1; }
+	        var _this = _super.call(this, x, y, size) || this;
+	        _this.rotTimer = 0;
+	        _this.rock1 = [
+	            [.5, -2],
+	            [2, -1],
+	            [2, -.7],
+	            [1.2, 0],
+	            [2, 1],
+	            [1, 2],
+	            [.5, 1.5],
+	            [-1, 2],
+	            [-2, .7],
+	            [-2, -1],
+	            [-.5, -1],
+	            [-1, -2],
+	            [.5, -2]
+	        ];
+	        _this.rock2 = [
+	            [0, -1.5],
+	            [1, -2],
+	            [2, -1],
+	            [1, -.5],
+	            [2, .5],
+	            [1, 2],
+	            [-.5, 1.5],
+	            [-1, 2],
+	            [-2, 1],
+	            [-1.5, 0],
+	            [-2, -1],
+	            [-1, -2],
+	            [0, -1.5]
+	        ];
+	        _this.rock3 = [
+	            [0, -1],
+	            [1, -2],
+	            [2, -1],
+	            [1.5, 0],
+	            [2, 1],
+	            [1, 2],
+	            [-1, 2],
+	            [-2, 1],
+	            [-2, -1],
+	            [-1, -2],
+	            [0, -1]
+	        ];
+	        _this.rocks = [_this.rock1, _this.rock2, _this.rock3];
+	        var type = util_1.random(0, 2);
+	        var def = _this.rocks[type];
+	        _this.points = def.map(function (p) {
+	            return {
+	                x: p[0] * size,
+	                y: p[1] * size
+	            };
+	        });
+	        _this.rotate(util_1.random(1, 90));
+	        _this.rot = util_1.random(1, 10) % 2 === 0 ? 1 : -1;
+	        return _this;
+	    }
+	    Rock.prototype.update = function (step) {
+	        this.rotTimer += 1;
+	        this.move();
+	        if (this.rotTimer === 5) {
+	            this.rotate(this.rot);
+	            this.rotTimer = 0;
+	        }
+	    };
+	    Rock.prototype.render = function () {
+	        this.draw();
+	    };
+	    return Rock;
+	}(object2d_1.Object2D));
+	exports.Rock = Rock;
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var lut_1 = __webpack_require__(8);
+	var screen_1 = __webpack_require__(3);
+	var Object2D = (function () {
+	    function Object2D(x, y) {
+	        var args = [];
+	        for (var _i = 2; _i < arguments.length; _i++) {
+	            args[_i - 2] = arguments[_i];
+	        }
+	        this.color = 'rgba(255,255,255,.8)';
+	        this.angle = 360;
+	        this.vx = 0;
+	        this.vy = 0;
+	        this.minX = 0;
+	        this.minY = 0;
+	        this.maxX = 0;
+	        this.maxY = 0;
+	        this.x = x;
+	        this.y = y;
+	    }
+	    Object2D.prototype.rotate = function (angle) {
+	        this.angle += angle;
+	        if (this.angle < 1) {
+	            this.angle += 360;
+	        }
+	        if (this.angle > 360) {
+	            this.angle -= 360;
+	        }
+	        var c = lut_1.COS[angle];
+	        var s = lut_1.SIN[angle];
+	        this.points.forEach(function (p) {
+	            var newX = (c * p.x) - (s * p.y);
+	            var newY = (s * p.x) + (c * p.y);
+	            p.x = newX;
+	            p.y = newY;
+	        });
+	    };
+	    Object2D.prototype.move = function () {
+	        this.x += this.vx;
+	        this.y += this.vy;
+	        if (this.x > screen_1.default.width) {
+	            this.x -= screen_1.default.width;
+	        }
+	        if (this.x < 0) {
+	            this.x += screen_1.default.width;
+	        }
+	        if (this.y > screen_1.default.height) {
+	            this.y -= screen_1.default.height;
+	        }
+	        if (this.y < 0) {
+	            this.y += screen_1.default.height;
+	        }
+	    };
+	    Object2D.prototype.scale = function (factor) {
+	        this.points.forEach(function (point) {
+	            point.x *= factor;
+	            point.y *= factor;
+	        });
+	    };
+	    Object2D.prototype.draw = function () {
+	        screen_1.default.draw.shape(this.points, this.x, this.y, this.color);
+	    };
+	    Object.defineProperty(Object2D.prototype, "speed", {
+	        get: function () {
+	            return Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object2D.prototype.calcRect = function () {
+	        var _this = this;
+	        this.points.forEach(function (p) {
+	            if (p.x < _this.minX)
+	                _this.minX = p.x;
+	            if (p.x > _this.maxX)
+	                _this.maxX = p.x;
+	            if (p.y < _this.minY)
+	                _this.minY = p.y;
+	            if (p.y > _this.maxY)
+	                _this.maxY = p.y;
+	        });
+	    };
+	    return Object2D;
+	}());
+	exports.Object2D = Object2D;
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var RAD = {};
+	exports.RAD = RAD;
+	var COS = {};
+	exports.COS = COS;
+	var SIN = {};
+	exports.SIN = SIN;
+	var VECTOR = {};
+	exports.VECTOR = VECTOR;
+	var r = Math.PI / 180;
+	var PI2 = 2 * Math.PI;
+	for (var i = 1; i <= 360; i++) {
+	    RAD[i] = i * r;
+	    COS[i] = Math.cos(RAD[i]);
+	    SIN[i] = Math.sin(RAD[i]);
+	    RAD[-i] = -i * r;
+	    COS[-i] = Math.cos(RAD[-i]);
+	    SIN[-i] = Math.sin(RAD[-i]);
+	    var t = PI2 * (i / 360);
+	    VECTOR[i] = {
+	        x: Math.sin(t),
+	        y: Math.cos(t)
+	    };
+	}
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	"use strict";
+	function random(start, end) {
+	    return Math.floor(Math.random() * end) + start;
+	}
+	exports.random = random;
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var screen_1 = __webpack_require__(3);
+	var object2d_1 = __webpack_require__(7);
+	var bullet_1 = __webpack_require__(11);
+	var util_1 = __webpack_require__(9);
+	var MAX_BULLETS = 3;
+	var BigAlien = (function (_super) {
+	    __extends(BigAlien, _super);
+	    function BigAlien(x, y) {
+	        var _this = _super.call(this, x, y) || this;
+	        _this.moveTimer = 0;
+	        _this.bulletTimer = 1;
+	        _this.bulletCount = 0;
+	        _this.moveTime = 2;
+	        _this.vy = 0;
+	        _this.y = util_1.random(100, screen_1.default.height - 100);
+	        if (_this.y % 2 === 0) {
+	            _this.x = 40;
+	            _this.vx = 3;
+	        }
+	        else {
+	            _this.x = screen_1.default.width - 40;
+	            _this.vx = -3;
+	        }
+	        _this.points = [
+	            { x: .5, y: -2 },
+	            { x: 1, y: -1 },
+	            { x: 2.5, y: 0 },
+	            { x: 1, y: 1 },
+	            { x: -1, y: 1 },
+	            { x: -2.5, y: 0 },
+	            { x: -1, y: -1 },
+	            { x: -.5, y: -2 },
+	            { x: .5, y: -2 }
+	        ];
+	        _this.scale(7);
+	        return _this;
+	    }
+	    BigAlien.prototype.update = function (step) {
+	        this.move();
+	        if (this.x >= screen_1.default.width || this.x <= 0) {
+	            this.onDone();
+	            return;
+	        }
+	        this.moveTimer += step;
+	        if (this.moveTimer >= 1 && this.vy !== 0) {
+	            this.vy = 0;
+	            this.moveTimer = 0;
+	        }
+	        if (this.moveTimer >= this.moveTime) {
+	            var move = util_1.random(1, 20) % 2 === 0;
+	            if (move) {
+	                this.vy = this.x % 2 === 0 ? this.vx : -this.vx;
+	            }
+	            this.moveTimer = 0;
+	            this.moveTime++;
+	        }
+	        this.bulletTimer += step;
+	        if (this.bulletTimer >= 1 && this.bulletCount <= MAX_BULLETS) {
+	            var bullet = new bullet_1.Bullet(this.x, this.y, util_1.random(1, 360));
+	            bullet.vx *= 10;
+	            bullet.vy *= 10;
+	            this.onFire(bullet);
+	            this.bulletTimer = 0;
+	        }
+	    };
+	    BigAlien.prototype.render = function () {
+	        this.draw();
+	    };
+	    BigAlien.prototype.draw = function () {
+	        _super.prototype.draw.call(this);
+	        screen_1.default.draw.shape([this.points[1], this.points[6]], this.x, this.y);
+	        screen_1.default.draw.shape([this.points[2], this.points[5]], this.x, this.y);
+	    };
+	    return BigAlien;
+	}(object2d_1.Object2D));
+	exports.BigAlien = BigAlien;
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var screen_1 = __webpack_require__(3);
+	var lut_1 = __webpack_require__(8);
+	var object2d_1 = __webpack_require__(7);
+	var Bullet = (function (_super) {
+	    __extends(Bullet, _super);
+	    function Bullet(x, y, angle) {
+	        var _this = _super.call(this, x, y) || this;
+	        _this.life = 1.25;
+	        _this.vx = lut_1.SIN[angle];
+	        _this.vy = -lut_1.COS[angle];
+	        return _this;
+	    }
+	    Bullet.prototype.render = function () {
+	        this.draw();
+	    };
+	    Bullet.prototype.update = function (step) {
+	        this.move();
+	        this.life -= step;
+	        if (this.life <= 0) {
+	            this.onDone();
+	        }
+	    };
+	    Bullet.prototype.draw = function () {
+	        screen_1.default.draw.point({ x: this.x, y: this.y });
+	    };
+	    return Bullet;
+	}(object2d_1.Object2D));
+	exports.Bullet = Bullet;
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var ship_1 = __webpack_require__(13);
+	var screen_1 = __webpack_require__(3);
+	var highscores_1 = __webpack_require__(5);
+	var GameState = (function () {
+	    function GameState() {
+	        var _this = this;
+	        this.level = 1;
+	        this.score = 0;
+	        this.lives = 3;
+	        this.shipBullets = [];
+	        this.extraLives = [];
+	        this.ship = new ship_1.Ship(screen_1.default.width / 2, screen_1.default.height / 2);
+	        this.ship.onFire = function (bullet) {
+	            bullet.onDone = function () {
+	                _this.shipBullets = _this.shipBullets.filter(function (x) { return x !== bullet; });
+	            };
+	            _this.shipBullets.push(bullet);
+	        };
+	        for (var i = 0; i < this.lives; i++) {
+	            var life = new ship_1.Ship(80 + (i * 20), 55);
+	            this.extraLives.push(life);
+	        }
+	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
+	    }
+	    GameState.prototype.update = function (step) {
+	        this.ship.update(step);
+	        for (var i = 0; i < this.shipBullets.length; i++) {
+	            this.shipBullets[i].update(step);
+	        }
+	    };
+	    GameState.prototype.render = function (delta) {
+	        screen_1.default.draw.background();
+	        screen_1.default.draw.copyright();
+	        screen_1.default.draw.scorePlayer1(this.score);
+	        screen_1.default.draw.highscore(this.highscore);
+	        this.drawExtraLives();
+	        this.ship.render();
+	        for (var i = 0; i < this.shipBullets.length; i++) {
+	            this.shipBullets[i].render();
+	        }
+	    };
+	    GameState.prototype.drawExtraLives = function () {
+	        var lives = Math.min(this.lives, 10);
+	        for (var i = 0; i < lives; i++) {
+	            var life = this.extraLives[i];
+	            life.render(0);
+	        }
+	    };
+	    return GameState;
+	}());
+	exports.GameState = GameState;
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var keys_1 = __webpack_require__(14);
+	var screen_1 = __webpack_require__(3);
+	var object2d_1 = __webpack_require__(7);
+	var bullet_1 = __webpack_require__(11);
+	var lut_1 = __webpack_require__(8);
+	var ACCELERATION = 0.2;
+	var FRICTION = 0.007;
+	var ROTATION = 5;
+	var MAX_SPEED = 15;
+	var MAX_BULLETS = 4;
+	var Flame = (function (_super) {
+	    __extends(Flame, _super);
+	    function Flame(x, y) {
+	        var _this = _super.call(this, x, y) || this;
+	        _this.points = [
+	            { x: 5, y: 8 },
+	            { x: 0, y: 20 },
+	            { x: -5, y: 8 },
+	        ];
+	        return _this;
+	    }
+	    Flame.prototype.update = function () {
+	    };
+	    Flame.prototype.render = function () {
+	        this.draw();
+	    };
+	    return Flame;
+	}(object2d_1.Object2D));
+	var Ship = (function (_super) {
+	    __extends(Ship, _super);
+	    function Ship(x, y) {
+	        var _this = _super.call(this, x, y) || this;
+	        _this.moving = false;
+	        _this.bulletTimer = 0;
+	        _this.bulletCount = 0;
+	        _this.angle = 360;
+	        _this.flame = new Flame(x, y);
+	        _this.points = [
+	            { x: 0, y: -15 },
+	            { x: 10, y: 10 },
+	            { x: 5, y: 5 },
+	            { x: -5, y: 5 },
+	            { x: -10, y: 10 },
+	            { x: 0, y: -15 }
+	        ];
+	        return _this;
+	    }
+	    Ship.prototype.render = function () {
+	        screen_1.default.draw.shape(this.points, this.x, this.y, this.color);
+	        if (this.moving && (Math.floor(Math.random() * 10) + 1) % 2 === 0) {
+	            this.flame.draw();
+	        }
+	    };
+	    Ship.prototype.update = function (step) {
+	        this.move();
+	        this.flame.move();
+	        if (keys_1.Key.isDown(keys_1.Key.UP)) {
+	            this.moving = true;
+	            this.thrust();
+	        }
+	        else {
+	            this.moving = false;
+	        }
+	        if (keys_1.Key.isDown(keys_1.Key.LEFT)) {
+	            this.rotate(-ROTATION);
+	            this.flame.rotate(-ROTATION);
+	        }
+	        if (keys_1.Key.isDown(keys_1.Key.RIGHT)) {
+	            this.rotate(ROTATION);
+	            this.flame.rotate(ROTATION);
+	        }
+	        if (this.bulletTimer > 0) {
+	            this.bulletTimer -= step;
+	        }
+	        if (keys_1.Key.isDown(keys_1.Key.CTRL)) {
+	            if (this.bulletTimer <= 0) {
+	                this.bulletTimer = .3;
+	                this.fire();
+	            }
+	        }
+	        this.vx -= this.vx * FRICTION;
+	        this.vy -= this.vy * FRICTION;
+	        this.flame.vx = this.vx;
+	        this.flame.vy = this.vy;
+	    };
+	    Ship.prototype.thrust = function () {
+	        var t = lut_1.VECTOR[this.angle];
+	        this.vx += t.x * ACCELERATION;
+	        this.flame.vx = this.vx;
+	        this.vy -= t.y * ACCELERATION;
+	        this.flame.vy = this.vy;
+	    };
+	    Ship.prototype.fire = function () {
+	        if (this.bulletCount <= MAX_BULLETS) {
+	            var bullet = new bullet_1.Bullet(this.x, this.y, this.angle);
+	            bullet.x += bullet.vx * 20;
+	            bullet.y += bullet.vy * 20;
+	            var speed = 0;
+	            var dot = (this.vx * bullet.vx) + (this.vy * bullet.vy);
+	            if (dot > 0) {
+	                speed = this.speed;
+	            }
+	            bullet.vx *= (10 + speed);
+	            bullet.vy *= (10 + speed);
+	            this.onFire(bullet);
+	        }
+	    };
+	    return Ship;
+	}(object2d_1.Object2D));
+	exports.Ship = Ship;
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	"use strict";
+	exports.Key = {
+	    _pressed: {},
+	    LEFT: 37,
+	    UP: 38,
+	    RIGHT: 39,
+	    SHIFT: 16,
+	    CTRL: 17,
+	    ONE: 49,
+	    isDown: function (keyCode) {
+	        return this._pressed[keyCode];
+	    },
+	    onKeydown: function (event) {
+	        this._pressed[event.keyCode] = true;
+	    },
+	    onKeyup: function (event) {
+	        delete this._pressed[event.keyCode];
+	    }
+	};
+	window.addEventListener('keyup', function (event) { exports.Key.onKeyup(event); }, false);
+	window.addEventListener('keydown', function (event) { exports.Key.onKeydown(event); }, false);
+
+
+/***/ }
+/******/ ]);

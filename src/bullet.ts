@@ -13,10 +13,6 @@ export class Bullet extends Object2D {
         this.vy = -COS[angle];
     }
 
-    init() {
-        return [{x: this.x, y: this.y}];
-    }
-    
     render() {
         this.draw();   
     }

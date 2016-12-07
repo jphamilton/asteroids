@@ -2,6 +2,7 @@ import { Key } from './keys';
 import screen from './screen';
 import { Object2D } from './object2d';
 import { Bullet } from './bullet';
+import { VECTOR } from './lut';
 
 const ACCELERATION: number = 0.2;
 const FRICTION: number = 0.007;
@@ -10,8 +11,11 @@ const MAX_SPEED: number = 15;
 const MAX_BULLETS: number = 4;
 
 class Flame extends Object2D {
-    init() {
-        return [
+
+    constructor(x: number, y: number) {
+        super(x, y);
+
+        this.points = [
             {x: 5, y: 8},
             {x: 0, y: 20},
             {x: -5, y: 8},
@@ -40,10 +44,8 @@ export class Ship extends Object2D {
         super(x, y);
         this.angle = 360;
         this.flame = new Flame(x, y);
-    }
 
-    init() {
-        return [
+        this.points = [
             {x: 0, y: -15},
             {x: 10, y: 10},
             {x: 5, y: 5},
@@ -102,19 +104,17 @@ export class Ship extends Object2D {
     }
 
     private thrust() {
-        let t = 2 * Math.PI * (this.angle / 360);
-        let x = Math.sin(t);
-        let y = Math.cos(t);
-        
-        if (this.vx >= -MAX_SPEED && this.vx <= MAX_SPEED) {
-            this.vx += x * ACCELERATION;
-            this.flame.vx = this.vx;
-        }
+        let t = VECTOR[this.angle];
 
-        if (this.vy >= -MAX_SPEED && this.vy <= MAX_SPEED) {
-            this.vy -= y * ACCELERATION;
+        //if (this.vx >= -MAX_SPEED && this.vx <= MAX_SPEED) {
+            this.vx += t.x * ACCELERATION;
+            this.flame.vx = this.vx;
+        //}
+
+        //if (this.vy >= -MAX_SPEED && this.vy <= MAX_SPEED) {
+            this.vy -= t.y * ACCELERATION;
             this.flame.vy = this.vy;
-        }
+        //}
     }
 
     private fire() {
