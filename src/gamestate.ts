@@ -1,7 +1,6 @@
 import { Object2D } from './object2d';
 import { Ship } from './ship';
 import { Bullet } from './bullet';
-import { Key } from './keys';
 import screen from './screen';
 import { highscores } from './highscores';
 
@@ -22,14 +21,14 @@ export class GameState {
     constructor() {
         this.ship = new Ship(screen.width / 2, screen.height / 2);
         
-        this.ship.onFire = (bullet: Bullet) => {
-            
-            bullet.onDone = () => {
+        this.ship.on('fire', (ship, bullet) => {
+
+            bullet.on('expired', () => {
                 this.shipBullets = this.shipBullets.filter(x => x !== bullet);
-            }
+            });
 
             this.shipBullets.push(bullet);
-        };
+        });
 
         for(let i = 0; i < this.lives; i++) {
             let life = new Ship(80 + (i * 20), 55);

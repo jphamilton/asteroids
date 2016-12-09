@@ -8,6 +8,13 @@ interface Point {
     y: number
 }
 
+interface Rect {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
 interface IObject2D {
     x: number;
     y: number;
@@ -15,5 +22,6 @@ interface IObject2D {
     vy: number; 
     color?: string;
     angle: number; 
+    rect: Rect;
 }
 

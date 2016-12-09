@@ -1,4 +1,5 @@
 import screen from './screen';
+import { Key } from './keys';
 import { highscores } from './highscores';
 import { Object2D } from './object2d';
 import { Bullet } from './bullet';
@@ -10,19 +11,20 @@ export class StartState {
     blink: number = 0;
     showPushStart: boolean = true;
     highscore: number;
-    modeTimer:number = 0;
+    modeTimer: number = 0;
     alienTimer: number = 0;
     demo: boolean = false;
     demoStarted: boolean = false;
     rocks: Object2D[];
     alienBullets: Bullet[] = [];
     alien: BigAlien;
+    debug: boolean = false;
 
     constructor() {
         this.highscore = highscores.length ? highscores[0].score : 0;
-        
+
         // rocks in demo mode always start out at the same place
-        let rock1 = new Rock(20, screen.height - 40, RockSize.Large); 
+        let rock1 = new Rock(20, screen.height - 40, RockSize.Large);
         rock1.vx = 2;
         rock1.vy = -2;
 
@@ -43,9 +45,12 @@ export class StartState {
 
     update(step) {
         //this.demo = true;
+        if (Key.isPressed(Key.DEBUG)) {
+            this.debug = !this.debug; 
+        }
 
         this.modeTimer += step;
-        
+
         if (this.modeTimer >= 15) {
             this.modeTimer = step;
             this.demo = !this.demo;
@@ -53,23 +58,25 @@ export class StartState {
                 this.demoStarted = true;
             }
         }
-        
+
         if (this.demoStarted && !this.alien) {
             this.alienTimer += step;
         }
 
         if (this.alienTimer >= 7) {
             this.alien = new BigAlien(0, 0);
-            
+
             this.alien.onDone = () => {
                 this.alien = null;
                 this.alienBullets = [];
             };
 
             this.alien.onFire = (bullet: Bullet) => {
-                bullet.onDone = () => {
-                    this.alienBullets = this.alienBullets.filter(x => x !== bullet);    
-                }
+                
+                bullet.on('expired', () => {
+                    this.alienBullets = this.alienBullets.filter(x => x !== bullet);
+                });
+
                 this.alienBullets.push(bullet);
             };
 
@@ -92,6 +99,12 @@ export class StartState {
         } else {
             this.renderStart();
         }
+
+        if (this.debug) {
+            screen.draw.text2('debug mode', '12pt', (width) => {
+                return { x: screen.width - width - 10, y: screen.height - 40 };
+            });
+        }
     }
 
     private renderStart() {
@@ -101,7 +114,7 @@ export class StartState {
     }
 
     private updateDemo(step) {
-        
+
         this.rocks.forEach(rock => {
             rock.update(step);
         });
@@ -121,10 +134,19 @@ export class StartState {
 
         this.rocks.forEach(rock => {
             rock.render();
+            
+            if (this.debug) {
+                screen.draw.bounds(rock);
+            }
+
         });
 
         if (this.alien) {
             this.alien.render();
+
+            if (this.debug) {
+                screen.draw.bounds(this.alien);
+            }
         }
 
         this.alienBullets.forEach(bullet => {
@@ -142,17 +164,17 @@ export class StartState {
     private drawHighScores() {
         let screenX = screen.width / 2;
 
-        screen.draw.text2('high scores', '30pt', (width) => {    
+        screen.draw.text2('high scores', '30pt', (width) => {
             return {
                 x: screenX - (width / 2),
                 y: 200
             }
         });
-        
-        for(let i = 0; i < highscores.length; i++) {
+
+        for (let i = 0; i < highscores.length; i++) {
             let y = 280 + (i * 40);
             let text = `${this.pad(i + 1, ' ', 2)}.${this.pad(highscores[i].score, ' ', 6)} ${highscores[i].initials}`;
-            
+
             screen.draw.text2(text, '30pt', (width) => {
                 return {
                     x: screenX - (width / 2),
@@ -166,7 +188,7 @@ export class StartState {
         let screenX = screen.width / 2;
 
         if (this.showPushStart) {
-            screen.draw.text2('push start', '30pt', (width) => {    
+            screen.draw.text2('push start', '30pt', (width) => {
                 return {
                     x: screenX - (width / 2),
                     y: 120
@@ -182,4 +204,5 @@ export class StartState {
         }
         return text;
     }
+
 }

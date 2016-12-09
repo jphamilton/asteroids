@@ -47,6 +47,22 @@ export class Draw {
         this.rect({ x: 0, y: 0}, { x: screen.width, y: screen.height }, '#000000');
     }
 
+    bounds(obj: IObject2D) {
+        let { ctx } = this;
+        let rect = obj.rect;
+
+        ctx.beginPath();
+        ctx.strokeStyle = VectorLine;
+        ctx.lineWidth = 1; 
+        ctx.moveTo(obj.x + rect.x, obj.y + rect.y);
+        ctx.lineTo(obj.x + rect.x + rect.width, obj.y + rect.y);
+        ctx.lineTo(obj.x + rect.x + rect.width, obj.y + rect.y + rect.height);
+        ctx.lineTo(obj.x + rect.x, obj.y + rect.y + rect.height);
+        ctx.lineTo(obj.x + rect.x, obj.y + rect.y);
+        ctx.stroke();
+        ctx.closePath();
+    }
+
     text(text: string, x: number, y: number, size: string) {
         let { ctx } = this;
         ctx.save();

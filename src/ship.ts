@@ -34,12 +34,9 @@ class Flame extends Object2D {
 export class Ship extends Object2D {
 
     private moving: boolean = false;
-    private bulletTimer: number = 0;
     private bulletCount: number = 0;
     private flame: Flame;
 
-    onFire: (bullet: Bullet) => void;
-    
     constructor(x: number, y: number) {
         super(x, y);
         this.angle = 360;
@@ -57,14 +54,9 @@ export class Ship extends Object2D {
 
     render() {
         screen.draw.shape(this.points, this.x, this.y, this.color);
-        
         if (this.moving && (Math.floor(Math.random() * 10) + 1) % 2 === 0) {
             this.flame.draw();
         }
-
-        //let r = this.rect;
-        //screen.draw.rect(r[0], r[1]);
-        //screen.draw.shape(this.rect, this.x, this.y);
     }
 
     update(step: number) {
@@ -88,16 +80,8 @@ export class Ship extends Object2D {
             this.flame.rotate(ROTATION);
         }
 
-        // can only fire bullets so fast
-        if (this.bulletTimer > 0) {
-            this.bulletTimer -= step;
-        }
-
-        if (Key.isDown(Key.CTRL)) {
-            if (this.bulletTimer <= 0) {
-                this.bulletTimer = .3;
-                this.fire();
-            }
+        if (Key.isPressed(Key.CTRL)) {
+            this.fire();
         }
 
         // slow down ship over time
@@ -108,22 +92,25 @@ export class Ship extends Object2D {
     }
 
     private thrust() {
-        let t = VECTOR[this.angle];
+        let v = VECTOR[this.angle];
 
-        //if (this.vx >= -MAX_SPEED && this.vx <= MAX_SPEED) {
-            this.vx += t.x * ACCELERATION;
-            this.flame.vx = this.vx;
-        //}
-
-        //if (this.vy >= -MAX_SPEED && this.vy <= MAX_SPEED) {
-            this.vy -= t.y * ACCELERATION;
-            this.flame.vy = this.vy;
-        //}
+        this.vx += v.x * ACCELERATION;
+        this.flame.vx = this.vx;
+        
+        this.vy += v.y * ACCELERATION;
+        this.flame.vy = this.vy;
     }
 
     private fire() {
-        if (this.bulletCount <= MAX_BULLETS) {
+        if (this.bulletCount < MAX_BULLETS) {
+            
+            this.bulletCount++;
+
             let bullet = new Bullet(this.x, this.y, this.angle);
+
+            bullet.on('expired', () => {
+                this.bulletCount--;
+            });
 
             // move bullet to nose of ship
             bullet.x += bullet.vx * 20;
@@ -140,7 +127,7 @@ export class Ship extends Object2D {
             bullet.vx *= (10 + speed);
             bullet.vy *= (10 + speed);
             
-            this.onFire(bullet);
+            this.trigger('fire', bullet);
         }
     }
 }

@@ -1,16 +1,18 @@
 import screen from './screen';
-import { SIN, COS } from './lut';
+import { VECTOR } from './lut';
 import { Object2D } from './object2d';
 
 export class Bullet extends Object2D { 
 
     life: number = 1.25;   // in seconds
-    onDone: () => void;
-
+    
     constructor(x: number, y: number, angle: number) {
         super(x, y);
-        this.vx = SIN[angle];
-        this.vy = -COS[angle];
+        
+        let v = VECTOR[angle];
+        
+        this.vx = v.x;
+        this.vy = v.y;
     }
 
     render() {
@@ -23,7 +25,8 @@ export class Bullet extends Object2D {
         this.life -= step;
 
         if (this.life <= 0) {
-            this.onDone();
+            this.trigger('expired');
+            this.destroy();
         }
     }
 

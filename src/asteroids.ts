@@ -13,15 +13,16 @@ export class Asteroids {
         switch(state) {
             case 'start':
                 startState.update(step);
-                if (Key.isDown(Key.ONE)) {
+                if (Key.isPressed(Key.ONE)) {
                     state = 'game';
+                } else {
+                    
                 }
                 break;
             case 'game':
                 gameState.update(step);
             break;
         }
-
     }
 
     render(step) {
@@ -33,6 +34,8 @@ export class Asteroids {
                 gameState.render(step);
                 break;
         }
+
+        Key.update();
     }
 
 }

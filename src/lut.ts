@@ -22,7 +22,7 @@ for(let i = 1; i <= 360; i++) {
     
     VECTOR[i] = {
         x: Math.sin(t),
-        y: Math.cos(t)
+        y: -Math.cos(t)
     }
 }
 

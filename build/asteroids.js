@@ -47,8 +47,8 @@
 	"use strict";
 	var loop_1 = __webpack_require__(1);
 	var startstate_1 = __webpack_require__(2);
-	var gamestate_1 = __webpack_require__(12);
-	var keys_1 = __webpack_require__(14);
+	var gamestate_1 = __webpack_require__(13);
+	var keys_1 = __webpack_require__(5);
 	var state = 'start';
 	var startState = new startstate_1.StartState();
 	var gameState = new gamestate_1.GameState();
@@ -59,8 +59,10 @@
 	        switch (state) {
 	            case 'start':
 	                startState.update(step);
-	                if (keys_1.Key.isDown(keys_1.Key.ONE)) {
+	                if (keys_1.Key.isPressed(keys_1.Key.ONE)) {
 	                    state = 'game';
+	                }
+	                else {
 	                }
 	                break;
 	            case 'game':
@@ -77,6 +79,7 @@
 	                gameState.render(step);
 	                break;
 	        }
+	        keys_1.Key.update();
 	    };
 	    return Asteroids;
 	}());
@@ -124,9 +127,10 @@
 
 	"use strict";
 	var screen_1 = __webpack_require__(3);
-	var highscores_1 = __webpack_require__(5);
-	var rocks_1 = __webpack_require__(6);
-	var alien_1 = __webpack_require__(10);
+	var keys_1 = __webpack_require__(5);
+	var highscores_1 = __webpack_require__(6);
+	var rocks_1 = __webpack_require__(7);
+	var alien_1 = __webpack_require__(11);
 	var StartState = (function () {
 	    function StartState() {
 	        this.blink = 0;
@@ -136,6 +140,7 @@
 	        this.demo = false;
 	        this.demoStarted = false;
 	        this.alienBullets = [];
+	        this.debug = false;
 	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
 	        var rock1 = new rocks_1.Rock(20, screen_1.default.height - 40, rocks_1.RockSize.Large);
 	        rock1.vx = 2;
@@ -153,6 +158,9 @@
 	    }
 	    StartState.prototype.update = function (step) {
 	        var _this = this;
+	        if (keys_1.Key.isPressed(keys_1.Key.DEBUG)) {
+	            this.debug = !this.debug;
+	        }
 	        this.modeTimer += step;
 	        if (this.modeTimer >= 15) {
 	            this.modeTimer = step;
@@ -171,9 +179,9 @@
 	                _this.alienBullets = [];
 	            };
 	            this.alien.onFire = function (bullet) {
-	                bullet.onDone = function () {
+	                bullet.on('expired', function () {
 	                    _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
-	                };
+	                });
 	                _this.alienBullets.push(bullet);
 	            };
 	            this.alienTimer = 0;
@@ -191,6 +199,11 @@
 	        }
 	        else {
 	            this.renderStart();
+	        }
+	        if (this.debug) {
+	            screen_1.default.draw.text2('debug mode', '12pt', function (width) {
+	                return { x: screen_1.default.width - width - 10, y: screen_1.default.height - 40 };
+	            });
 	        }
 	    };
 	    StartState.prototype.renderStart = function () {
@@ -210,13 +223,20 @@
 	        });
 	    };
 	    StartState.prototype.renderDemo = function () {
+	        var _this = this;
 	        this.drawBackground();
 	        this.drawPushStart();
 	        this.rocks.forEach(function (rock) {
 	            rock.render();
+	            if (_this.debug) {
+	                screen_1.default.draw.bounds(rock);
+	            }
 	        });
 	        if (this.alien) {
 	            this.alien.render();
+	            if (this.debug) {
+	                screen_1.default.draw.bounds(this.alien);
+	            }
 	        }
 	        this.alienBullets.forEach(function (bullet) {
 	            bullet.render();
@@ -352,6 +372,20 @@
 	    Draw.prototype.background = function () {
 	        this.rect({ x: 0, y: 0 }, { x: screen_1.default.width, y: screen_1.default.height }, '#000000');
 	    };
+	    Draw.prototype.bounds = function (obj) {
+	        var ctx = this.ctx;
+	        var rect = obj.rect;
+	        ctx.beginPath();
+	        ctx.strokeStyle = VectorLine;
+	        ctx.lineWidth = 1;
+	        ctx.moveTo(obj.x + rect.x, obj.y + rect.y);
+	        ctx.lineTo(obj.x + rect.x + rect.width, obj.y + rect.y);
+	        ctx.lineTo(obj.x + rect.x + rect.width, obj.y + rect.y + rect.height);
+	        ctx.lineTo(obj.x + rect.x, obj.y + rect.y + rect.height);
+	        ctx.lineTo(obj.x + rect.x, obj.y + rect.y);
+	        ctx.stroke();
+	        ctx.closePath();
+	    };
 	    Draw.prototype.text = function (text, x, y, size) {
 	        var ctx = this.ctx;
 	        ctx.save();
@@ -409,6 +443,55 @@
 /***/ function(module, exports) {
 
 	"use strict";
+	var _Key = (function () {
+	    function _Key() {
+	        var _this = this;
+	        this.LEFT = 37;
+	        this.UP = 38;
+	        this.RIGHT = 39;
+	        this.SHIFT = 16;
+	        this.CTRL = 17;
+	        this.ONE = 49;
+	        this.DEBUG = 68;
+	        this.keys = new Array(222);
+	        this.prev = new Array(222);
+	        for (var i = 0; i < 222; i++) {
+	            this.keys[i] = this.prev[i] = false;
+	        }
+	        window.onkeydown = function (event) {
+	            event.preventDefault();
+	            _this.keys[event.keyCode] = true;
+	        };
+	        window.onkeyup = function (event) {
+	            event.preventDefault();
+	            _this.keys[event.keyCode] = false;
+	        };
+	    }
+	    _Key.prototype.update = function () {
+	        for (var i = 0; i < 222; i++) {
+	            this.prev[i] = this.keys[i];
+	        }
+	    };
+	    _Key.prototype.isPressed = function (key) {
+	        return this.prev[key] === false && this.keys[key] === true;
+	    };
+	    _Key.prototype.wasPressed = function (key) {
+	        return this.prev[key] && !this.keys[key];
+	    };
+	    _Key.prototype.isDown = function (key) {
+	        return this.keys[key];
+	    };
+	    return _Key;
+	}());
+	exports._Key = _Key;
+	exports.Key = new _Key();
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	"use strict";
 	exports.highscores = [
 	    { score: 20140, initials: 'J H' },
 	    { score: 20050, initials: 'O A' },
@@ -424,7 +507,7 @@
 
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -433,8 +516,8 @@
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var object2d_1 = __webpack_require__(7);
-	var util_1 = __webpack_require__(9);
+	var object2d_1 = __webpack_require__(8);
+	var util_1 = __webpack_require__(10);
 	(function (RockSize) {
 	    RockSize[RockSize["Small"] = 5] = "Small";
 	    RockSize[RockSize["Medium"] = 10] = "Medium";
@@ -520,11 +603,11 @@
 
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var lut_1 = __webpack_require__(8);
+	var lut_1 = __webpack_require__(9);
 	var screen_1 = __webpack_require__(3);
 	var Object2D = (function () {
 	    function Object2D(x, y) {
@@ -536,6 +619,7 @@
 	        this.angle = 360;
 	        this.vx = 0;
 	        this.vy = 0;
+	        this.handlers = {};
 	        this.x = x;
 	        this.y = y;
 	    }
@@ -590,38 +674,61 @@
 	    });
 	    Object.defineProperty(Object2D.prototype, "rect", {
 	        get: function () {
-	            var minX = 0;
-	            var minY = 0;
-	            var maxX = 0;
-	            var maxY = 0;
+	            var xmin = 0;
+	            var ymin = 0;
+	            var xmax = 0;
+	            var ymax = 0;
 	            this.points.forEach(function (p) {
-	                if (p.x < minX)
-	                    minX = p.x;
-	                if (p.x > maxX)
-	                    maxX = p.x;
-	                if (p.y < minY)
-	                    minY = p.y;
-	                if (p.y > maxY)
-	                    maxY = p.y;
+	                if (p.x < xmin)
+	                    xmin = p.x;
+	                if (p.x > xmax)
+	                    xmax = p.x;
+	                if (p.y < ymin)
+	                    ymin = p.y;
+	                if (p.y > ymax)
+	                    ymax = p.y;
 	            });
-	            var r = [
-	                { x: this.x + minX, y: this.y + minY },
-	                { x: this.x + minX, y: this.y + maxY },
-	                { x: this.x + maxX, y: this.y + maxY },
-	                { x: this.x + maxX, y: this.y + minY }
-	            ];
-	            return r;
+	            return {
+	                x: xmin,
+	                y: ymin,
+	                width: xmax - xmin,
+	                height: ymax - ymin
+	            };
 	        },
 	        enumerable: true,
 	        configurable: true
 	    });
+	    Object2D.prototype.on = function (event, handler) {
+	        if (!this.handlers[event]) {
+	            this.handlers[event] = [];
+	        }
+	        this.handlers[event].push(handler);
+	    };
+	    Object2D.prototype.off = function (event, handler) {
+	        this.handlers[event] = this.handlers[event].filter(function (x) { return x !== handler; });
+	    };
+	    Object2D.prototype.trigger = function (event) {
+	        var _this = this;
+	        var args = [];
+	        for (var _i = 1; _i < arguments.length; _i++) {
+	            args[_i - 1] = arguments[_i];
+	        }
+	        var handlers = this.handlers[event] || [];
+	        handlers.forEach(function (x) { return x.apply(void 0, [_this].concat(args)); });
+	    };
+	    Object2D.prototype.destroy = function () {
+	        for (var event_1 in this.handlers) {
+	            this.handlers[event_1] = null;
+	        }
+	        this.handlers = {};
+	    };
 	    return Object2D;
 	}());
 	exports.Object2D = Object2D;
 
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -645,13 +752,13 @@
 	    var t = PI2 * (i / 360);
 	    VECTOR[i] = {
 	        x: Math.sin(t),
-	        y: Math.cos(t)
+	        y: -Math.cos(t)
 	    };
 	}
 
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -662,7 +769,7 @@
 
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -672,9 +779,9 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var screen_1 = __webpack_require__(3);
-	var object2d_1 = __webpack_require__(7);
-	var bullet_1 = __webpack_require__(11);
-	var util_1 = __webpack_require__(9);
+	var object2d_1 = __webpack_require__(8);
+	var bullet_1 = __webpack_require__(12);
+	var util_1 = __webpack_require__(10);
 	var MAX_BULLETS = 3;
 	var BigAlien = (function (_super) {
 	    __extends(BigAlien, _super);
@@ -750,7 +857,7 @@
 
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -760,15 +867,16 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var screen_1 = __webpack_require__(3);
-	var lut_1 = __webpack_require__(8);
-	var object2d_1 = __webpack_require__(7);
+	var lut_1 = __webpack_require__(9);
+	var object2d_1 = __webpack_require__(8);
 	var Bullet = (function (_super) {
 	    __extends(Bullet, _super);
 	    function Bullet(x, y, angle) {
 	        var _this = _super.call(this, x, y) || this;
 	        _this.life = 1.25;
-	        _this.vx = lut_1.SIN[angle];
-	        _this.vy = -lut_1.COS[angle];
+	        var v = lut_1.VECTOR[angle];
+	        _this.vx = v.x;
+	        _this.vy = v.y;
 	        return _this;
 	    }
 	    Bullet.prototype.render = function () {
@@ -778,7 +886,8 @@
 	        this.move();
 	        this.life -= step;
 	        if (this.life <= 0) {
-	            this.onDone();
+	            this.trigger('expired');
+	            this.destroy();
 	        }
 	    };
 	    Bullet.prototype.draw = function () {
@@ -790,13 +899,13 @@
 
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var ship_1 = __webpack_require__(13);
+	var ship_1 = __webpack_require__(14);
 	var screen_1 = __webpack_require__(3);
-	var highscores_1 = __webpack_require__(5);
+	var highscores_1 = __webpack_require__(6);
 	var GameState = (function () {
 	    function GameState() {
 	        var _this = this;
@@ -806,12 +915,12 @@
 	        this.shipBullets = [];
 	        this.extraLives = [];
 	        this.ship = new ship_1.Ship(screen_1.default.width / 2, screen_1.default.height / 2);
-	        this.ship.onFire = function (bullet) {
-	            bullet.onDone = function () {
+	        this.ship.on('fire', function (ship, bullet) {
+	            bullet.on('expired', function () {
 	                _this.shipBullets = _this.shipBullets.filter(function (x) { return x !== bullet; });
-	            };
+	            });
 	            _this.shipBullets.push(bullet);
-	        };
+	        });
 	        for (var i = 0; i < this.lives; i++) {
 	            var life = new ship_1.Ship(80 + (i * 20), 55);
 	            this.extraLives.push(life);
@@ -848,7 +957,7 @@
 
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -857,11 +966,11 @@
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var keys_1 = __webpack_require__(14);
+	var keys_1 = __webpack_require__(5);
 	var screen_1 = __webpack_require__(3);
-	var object2d_1 = __webpack_require__(7);
-	var bullet_1 = __webpack_require__(11);
-	var lut_1 = __webpack_require__(8);
+	var object2d_1 = __webpack_require__(8);
+	var bullet_1 = __webpack_require__(12);
+	var lut_1 = __webpack_require__(9);
 	var ACCELERATION = 0.2;
 	var FRICTION = 0.007;
 	var ROTATION = 5;
@@ -890,7 +999,6 @@
 	    function Ship(x, y) {
 	        var _this = _super.call(this, x, y) || this;
 	        _this.moving = false;
-	        _this.bulletTimer = 0;
 	        _this.bulletCount = 0;
 	        _this.angle = 360;
 	        _this.flame = new Flame(x, y);
@@ -928,14 +1036,8 @@
 	            this.rotate(ROTATION);
 	            this.flame.rotate(ROTATION);
 	        }
-	        if (this.bulletTimer > 0) {
-	            this.bulletTimer -= step;
-	        }
-	        if (keys_1.Key.isDown(keys_1.Key.CTRL)) {
-	            if (this.bulletTimer <= 0) {
-	                this.bulletTimer = .3;
-	                this.fire();
-	            }
+	        if (keys_1.Key.isPressed(keys_1.Key.CTRL)) {
+	            this.fire();
 	        }
 	        this.vx -= this.vx * FRICTION;
 	        this.vy -= this.vy * FRICTION;
@@ -943,15 +1045,20 @@
 	        this.flame.vy = this.vy;
 	    };
 	    Ship.prototype.thrust = function () {
-	        var t = lut_1.VECTOR[this.angle];
-	        this.vx += t.x * ACCELERATION;
+	        var v = lut_1.VECTOR[this.angle];
+	        this.vx += v.x * ACCELERATION;
 	        this.flame.vx = this.vx;
-	        this.vy -= t.y * ACCELERATION;
+	        this.vy += v.y * ACCELERATION;
 	        this.flame.vy = this.vy;
 	    };
 	    Ship.prototype.fire = function () {
-	        if (this.bulletCount <= MAX_BULLETS) {
+	        var _this = this;
+	        if (this.bulletCount < MAX_BULLETS) {
+	            this.bulletCount++;
 	            var bullet = new bullet_1.Bullet(this.x, this.y, this.angle);
+	            bullet.on('expired', function () {
+	                _this.bulletCount--;
+	            });
 	            bullet.x += bullet.vx * 20;
 	            bullet.y += bullet.vy * 20;
 	            var speed = 0;
@@ -961,39 +1068,12 @@
 	            }
 	            bullet.vx *= (10 + speed);
 	            bullet.vy *= (10 + speed);
-	            this.onFire(bullet);
+	            this.trigger('fire', bullet);
 	        }
 	    };
 	    return Ship;
 	}(object2d_1.Object2D));
 	exports.Ship = Ship;
-
-
-/***/ },
-/* 14 */
-/***/ function(module, exports) {
-
-	"use strict";
-	exports.Key = {
-	    _pressed: {},
-	    LEFT: 37,
-	    UP: 38,
-	    RIGHT: 39,
-	    SHIFT: 16,
-	    CTRL: 17,
-	    ONE: 49,
-	    isDown: function (keyCode) {
-	        return this._pressed[keyCode];
-	    },
-	    onKeydown: function (event) {
-	        this._pressed[event.keyCode] = true;
-	    },
-	    onKeyup: function (event) {
-	        delete this._pressed[event.keyCode];
-	    }
-	};
-	window.addEventListener('keyup', function (event) { exports.Key.onKeyup(event); }, false);
-	window.addEventListener('keydown', function (event) { exports.Key.onKeydown(event); }, false);
 
 
 /***/ }

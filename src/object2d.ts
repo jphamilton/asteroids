@@ -11,6 +11,8 @@ export abstract class Object2D implements IObject2D {
     vx: number = 0;
     vy: number = 0;
 
+    protected handlers: { [event: string]: ((...args: any[])=> void)[]} = {};
+    
     abstract update(step?: number) : void;
     abstract render(step?: number) : void;
     
@@ -78,36 +80,48 @@ export abstract class Object2D implements IObject2D {
         return Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2));
     }
 
-    get rect(): Point[] {
-        let minX = 0;
-        let minY = 0;
-        let maxX = 0;
-        let maxY = 0;
+    get rect(): Rect {
+        let xmin = 0;
+        let ymin = 0;
+        let xmax = 0;
+        let ymax = 0;
 
         this.points.forEach(p => {
-            if (p.x < minX) minX = p.x;
-            if (p.x > maxX) maxX = p.x;
-            if (p.y < minY) minY = p.y;
-            if (p.y > maxY) maxY = p.y;
+            if (p.x < xmin) xmin = p.x;
+            if (p.x > xmax) xmax = p.x;
+            if (p.y < ymin) ymin = p.y;
+            if (p.y > ymax) ymax = p.y;
         });
 
-        
-        //(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
-        let r = [
-            { x: this.x + minX, y: this.y + minY },
-            { x: this.x + minX, y: this.y + maxY },
-            { x: this.x + maxX, y: this.y + maxY },
-            { x: this.x + maxX, y: this.y + minY }                        
-        ];
+        return {
+            x: xmin,
+            y: ymin,
+            width: xmax - xmin,
+            height: ymax - ymin 
+        };
 
-        return r;
+    }
 
-        // return [
-        //     { x: minX, y: minY },
-        //     { x: maxX, y: minY },
-        //     { x: maxX, y: maxY },
-        //     { x: minX, y: maxY },
-        //     { x: minX, y: minY }
-        // ];
+    on(event: string, handler: (...args: any[]) => void) {
+        if (!this.handlers[event]) {
+            this.handlers[event] = [];
+        }
+        this.handlers[event].push(handler); 
+    }
+
+    off(event: string, handler: (...args: any[]) => void) {
+        this.handlers[event] = this.handlers[event].filter(x => x !== handler); 
+    }
+
+    trigger(event: string, ...args: any[] ) {
+        let handlers = this.handlers[event] || [];
+        handlers.forEach(x => x(this, ...args));
+    }
+
+    destroy() {
+        for(let event in this.handlers) {
+            this.handlers[event] = null;
+        }
+        this.handlers = {};
     }
 }
