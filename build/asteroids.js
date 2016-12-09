@@ -517,12 +517,12 @@
 	};
 	var object2d_1 = __webpack_require__(8);
 	var util_1 = __webpack_require__(10);
+	var RockSize;
 	(function (RockSize) {
 	    RockSize[RockSize["Small"] = 5] = "Small";
 	    RockSize[RockSize["Medium"] = 10] = "Medium";
 	    RockSize[RockSize["Large"] = 20] = "Large";
-	})(exports.RockSize || (exports.RockSize = {}));
-	var RockSize = exports.RockSize;
+	})(RockSize = exports.RockSize || (exports.RockSize = {}));
 	var Rock = (function (_super) {
 	    __extends(Rock, _super);
 	    function Rock(x, y, size) {
@@ -892,6 +892,19 @@
 	    Bullet.prototype.draw = function () {
 	        screen_1.default.draw.point({ x: this.x, y: this.y });
 	    };
+	    Object.defineProperty(Bullet.prototype, "rect", {
+	        get: function () {
+	            var size = 5;
+	            return {
+	                x: this.x - size,
+	                y: this.y - size,
+	                width: size,
+	                height: size
+	            };
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    return Bullet;
 	}(object2d_1.Object2D));
 	exports.Bullet = Bullet;
