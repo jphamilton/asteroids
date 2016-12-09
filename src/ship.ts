@@ -60,6 +60,12 @@ export class Ship extends Object2D {
     }
 
     update(step: number) {
+        // slow down ship over time
+        this.vx -= this.vx * FRICTION;
+        this.vy -= this.vy * FRICTION;
+        this.flame.vx = this.vx;
+        this.flame.vy = this.vy;
+        
         this.move();
         this.flame.move();
 
@@ -84,11 +90,6 @@ export class Ship extends Object2D {
             this.fire();
         }
 
-        // slow down ship over time
-        this.vx -= this.vx * FRICTION;
-        this.vy -= this.vy * FRICTION;
-        this.flame.vx = this.vx;
-        this.flame.vy = this.vy;
     }
 
     private thrust() {

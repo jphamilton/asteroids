@@ -11,8 +11,8 @@ export class BigAlien extends Object2D {
     bulletTimer: number = 1;
     bulletCount: number = 0;
     moveTime: number = 2;
-    onDone: () => void;
-    onFire: (bullet: Bullet) => void;
+    //onDone: () => void;
+    //onFire: (bullet: Bullet) => void;
     
     constructor(x: number, y: number) {
         super(x, y);
@@ -47,8 +47,8 @@ export class BigAlien extends Object2D {
     update(step: number) {
         this.move();
         
-        if (this.x >= screen.width || this.x <= 0) {
-            this.onDone();
+        if (this.x >= screen.width - 5 || this.x <= 5) {
+            this.trigger('expired');
             return;
         }
 
@@ -77,7 +77,8 @@ export class BigAlien extends Object2D {
             let bullet = new Bullet(this.x, this.y, random(1, 360));
             bullet.vx *= 10;
             bullet.vy *= 10;
-            this.onFire(bullet);
+            //this.onFire(bullet);
+            this.trigger('fire', bullet);
             this.bulletTimer = 0;
         }
 

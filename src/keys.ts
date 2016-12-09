@@ -20,12 +20,10 @@ export class _Key {
         }
 
         window.onkeydown = (event) => {
-            event.preventDefault();
             this.keys[event.keyCode] = true;
         }
 
         window.onkeyup = (event) => {
-            event.preventDefault();
             this.keys[event.keyCode] = false;
         }
 

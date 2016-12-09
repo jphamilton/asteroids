@@ -66,19 +66,20 @@ export class StartState {
         if (this.alienTimer >= 7) {
             this.alien = new BigAlien(0, 0);
 
-            this.alien.onDone = () => {
+            this.alien.on('expired', () => {
+                this.alien.destroy();
                 this.alien = null;
                 this.alienBullets = [];
-            };
+            });
 
-            this.alien.onFire = (bullet: Bullet) => {
+            this.alien.on('fire', (alien, bullet: Bullet) => {
                 
                 bullet.on('expired', () => {
                     this.alienBullets = this.alienBullets.filter(x => x !== bullet);
                 });
 
                 this.alienBullets.push(bullet);
-            };
+            });
 
             this.alienTimer = 0;
         }

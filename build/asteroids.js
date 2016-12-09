@@ -174,16 +174,17 @@
 	        }
 	        if (this.alienTimer >= 7) {
 	            this.alien = new alien_1.BigAlien(0, 0);
-	            this.alien.onDone = function () {
+	            this.alien.on('expired', function () {
+	                _this.alien.destroy();
 	                _this.alien = null;
 	                _this.alienBullets = [];
-	            };
-	            this.alien.onFire = function (bullet) {
+	            });
+	            this.alien.on('fire', function (alien, bullet) {
 	                bullet.on('expired', function () {
 	                    _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
 	                });
 	                _this.alienBullets.push(bullet);
-	            };
+	            });
 	            this.alienTimer = 0;
 	        }
 	        this.blink += step;
@@ -459,11 +460,9 @@
 	            this.keys[i] = this.prev[i] = false;
 	        }
 	        window.onkeydown = function (event) {
-	            event.preventDefault();
 	            _this.keys[event.keyCode] = true;
 	        };
 	        window.onkeyup = function (event) {
-	            event.preventDefault();
 	            _this.keys[event.keyCode] = false;
 	        };
 	    }
@@ -817,8 +816,8 @@
 	    }
 	    BigAlien.prototype.update = function (step) {
 	        this.move();
-	        if (this.x >= screen_1.default.width || this.x <= 0) {
-	            this.onDone();
+	        if (this.x >= screen_1.default.width - 5 || this.x <= 5) {
+	            this.trigger('expired');
 	            return;
 	        }
 	        this.moveTimer += step;
@@ -839,7 +838,7 @@
 	            var bullet = new bullet_1.Bullet(this.x, this.y, util_1.random(1, 360));
 	            bullet.vx *= 10;
 	            bullet.vy *= 10;
-	            this.onFire(bullet);
+	            this.trigger('fire', bullet);
 	            this.bulletTimer = 0;
 	        }
 	    };
@@ -1019,6 +1018,10 @@
 	        }
 	    };
 	    Ship.prototype.update = function (step) {
+	        this.vx -= this.vx * FRICTION;
+	        this.vy -= this.vy * FRICTION;
+	        this.flame.vx = this.vx;
+	        this.flame.vy = this.vy;
 	        this.move();
 	        this.flame.move();
 	        if (keys_1.Key.isDown(keys_1.Key.UP)) {
@@ -1039,10 +1042,6 @@
 	        if (keys_1.Key.isPressed(keys_1.Key.CTRL)) {
 	            this.fire();
 	        }
-	        this.vx -= this.vx * FRICTION;
-	        this.vy -= this.vy * FRICTION;
-	        this.flame.vx = this.vx;
-	        this.flame.vy = this.vy;
 	    };
 	    Ship.prototype.thrust = function () {
 	        var v = lut_1.VECTOR[this.angle];
