@@ -98,13 +98,14 @@ export class DemoState {
 
     private updateDemo(step) {
         // check for collisions
-        const check = this.alien;
+        const check = !!this.alien;
 
         if (check) {
             this.bounds = [];
             this.qt = new Quadtree(
                 {x: 0, y: 0, width: screen.width, height: screen.height}, 
-                Math.floor(this.rocks.length / 4));
+                Math.floor(this.rocks.length / 4)
+            );
         }
 
         this.rocks.forEach(rock => {
@@ -157,6 +158,7 @@ export class DemoState {
         if (this.debug) {
             this.bounds.forEach(r => screen.draw.bounds(r, '#fc058d'));
             this.bounds = [];
+            this.drawQuadtree();
         }
     }
 
@@ -180,4 +182,19 @@ export class DemoState {
         }
     }
 
+    private drawQuadtree() {
+        if (this.qt) {
+            let drawNodes = (nodes: Quadtree[]) => {
+                if (!nodes) {
+                    return;
+                }
+                nodes.forEach(n => {
+                    screen.draw.bounds(n.bounds);
+                    drawNodes(n.nodes);
+                });
+            }
+
+            drawNodes(this.qt.nodes);
+        }
+    }
 }

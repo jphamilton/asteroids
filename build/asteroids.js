@@ -60,13 +60,7 @@
 	        this.demoStarted = false;
 	    }
 	    Asteroids.prototype.update = function (step) {
-	        if (this.state !== 'game') {
-	            this.demoTimer += step;
-	            if (this.demoTimer >= 15) {
-	                this.demoTimer = 0;
-	                this.state = this.state === 'demo' ? 'start' : 'demo';
-	            }
-	        }
+	        this.timers(step);
 	        switch (this.state) {
 	            case 'start':
 	                highScoreState.update(step);
@@ -80,6 +74,9 @@
 	            case 'demo':
 	                this.demoStarted = true;
 	                demoState.update(step);
+	                if (keys_1.Key.isPressed(keys_1.Key.ONE)) {
+	                    this.state = 'game';
+	                }
 	                break;
 	            case 'game':
 	                gameState.update(step);
@@ -99,6 +96,15 @@
 	                break;
 	        }
 	        keys_1.Key.update();
+	    };
+	    Asteroids.prototype.timers = function (step) {
+	        if (this.state !== 'game') {
+	            this.demoTimer += step;
+	            if (this.demoTimer >= 15) {
+	                this.demoTimer = 0;
+	                this.state = this.state === 'demo' ? 'start' : 'demo';
+	            }
+	        }
 	    };
 	    return Asteroids;
 	}());
@@ -458,7 +464,7 @@
 	    };
 	    DemoState.prototype.updateDemo = function (step) {
 	        var _this = this;
-	        var check = this.alien;
+	        var check = !!this.alien;
 	        if (check) {
 	            this.bounds = [];
 	            this.qt = new quadtree_1.Quadtree({ x: 0, y: 0, width: screen_1.default.width, height: screen_1.default.height }, Math.floor(this.rocks.length / 4));
@@ -505,6 +511,7 @@
 	        if (this.debug) {
 	            this.bounds.forEach(function (r) { return screen_1.default.draw.bounds(r, '#fc058d'); });
 	            this.bounds = [];
+	            this.drawQuadtree();
 	        }
 	    };
 	    DemoState.prototype.drawBackground = function () {
@@ -522,6 +529,20 @@
 	                    y: 120
 	                };
 	            });
+	        }
+	    };
+	    DemoState.prototype.drawQuadtree = function () {
+	        if (this.qt) {
+	            var drawNodes_1 = function (nodes) {
+	                if (!nodes) {
+	                    return;
+	                }
+	                nodes.forEach(function (n) {
+	                    screen_1.default.draw.bounds(n.bounds);
+	                    drawNodes_1(n.nodes);
+	                });
+	            };
+	            drawNodes_1(this.qt.nodes);
 	        }
 	    };
 	    return DemoState;

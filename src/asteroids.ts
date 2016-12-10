@@ -16,14 +16,7 @@ export class Asteroids {
 
     update(step) {
 
-        if (this.state !== 'game') {
-            this.demoTimer += step;
-            
-            if (this.demoTimer >= 15) {
-                this.demoTimer = 0;
-                this.state = this.state === 'demo' ? 'start' : 'demo';
-            }
-        }
+        this.timers(step);
 
         switch(this.state) {
             case 'start':
@@ -44,6 +37,11 @@ export class Asteroids {
             case 'demo':
                 this.demoStarted = true;
                 demoState.update(step);
+
+                if (Key.isPressed(Key.ONE)) {
+                    this.state = 'game';
+                }
+                
                 break;
 
             case 'game':
@@ -68,6 +66,16 @@ export class Asteroids {
         Key.update();
     }
 
+    timers(step) {
+        if (this.state !== 'game') {
+            this.demoTimer += step;
+            
+            if (this.demoTimer >= 15) {
+                this.demoTimer = 0;
+                this.state = this.state === 'demo' ? 'start' : 'demo';
+            }
+        }
+    }
 }
 
 let game = new Asteroids();
