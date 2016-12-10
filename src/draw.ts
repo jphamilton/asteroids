@@ -47,20 +47,21 @@ export class Draw {
         this.rect({ x: 0, y: 0}, { x: screen.width, y: screen.height }, '#000000');
     }
 
-    bounds(obj: IObject2D) {
+    bounds(rect: Rect, color: string = VectorLine) {
         let { ctx } = this;
-        let rect = obj.rect;
-
+    
+        ctx.save();
         ctx.beginPath();
-        ctx.strokeStyle = VectorLine;
-        ctx.lineWidth = 1; 
-        ctx.moveTo(obj.x + rect.x, obj.y + rect.y);
-        ctx.lineTo(obj.x + rect.x + rect.width, obj.y + rect.y);
-        ctx.lineTo(obj.x + rect.x + rect.width, obj.y + rect.y + rect.height);
-        ctx.lineTo(obj.x + rect.x, obj.y + rect.y + rect.height);
-        ctx.lineTo(obj.x + rect.x, obj.y + rect.y);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3; 
+        ctx.moveTo(rect.x, rect.y);
+        ctx.lineTo(rect.x + rect.width, rect.y);
+        ctx.lineTo(rect.x + rect.width, rect.y + rect.height);
+        ctx.lineTo(rect.x, rect.y + rect.height);
+        ctx.lineTo(rect.x, rect.y);
         ctx.stroke();
         ctx.closePath();
+        ctx.restore();
     }
 
     text(text: string, x: number, y: number, size: string) {

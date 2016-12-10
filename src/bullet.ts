@@ -35,7 +35,7 @@ export class Bullet extends Object2D {
     }
 
     get rect(): Rect {
-        const size = 5;
+        const size = 1;
 
         return {
             x: this.x - size,

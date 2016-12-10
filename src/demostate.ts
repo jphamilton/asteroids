@@ -5,20 +5,21 @@ import { Object2D } from './object2d';
 import { Bullet } from './bullet';
 import { Rock, RockSize } from './rocks';
 import { BigAlien } from './alien';
+import { Quadtree } from './quadtree';
 
-export class StartState {
+export class DemoState {
 
     blink: number = 0;
     showPushStart: boolean = true;
     highscore: number;
     modeTimer: number = 0;
     alienTimer: number = 0;
-    demo: boolean = false;
-    demoStarted: boolean = false;
     rocks: Object2D[];
     alienBullets: Bullet[] = [];
     alien: BigAlien;
     debug: boolean = false;
+    qt: Quadtree;
+    bounds: Rect[] = [];
 
     constructor() {
         this.highscore = highscores.length ? highscores[0].score : 0;
@@ -44,22 +45,11 @@ export class StartState {
     }
 
     update(step) {
-        //this.demo = true;
         if (Key.isPressed(Key.DEBUG)) {
             this.debug = !this.debug; 
         }
 
-        this.modeTimer += step;
-
-        if (this.modeTimer >= 15) {
-            this.modeTimer = step;
-            this.demo = !this.demo;
-            if (this.demo && !this.demoStarted) {
-                this.demoStarted = true;
-            }
-        }
-
-        if (this.demoStarted && !this.alien) {
+        if (!this.alien) {
             this.alienTimer += step;
         }
 
@@ -69,6 +59,7 @@ export class StartState {
             this.alien.on('expired', () => {
                 this.alien.destroy();
                 this.alien = null;
+                this.alienBullets.forEach(b => b.destroy());
                 this.alienBullets = [];
             });
 
@@ -95,12 +86,9 @@ export class StartState {
     }
 
     render(step) {
-        if (this.demo) {
-            this.renderDemo();
-        } else {
-            this.renderStart();
-        }
-
+        
+        this.renderDemo();
+        
         if (this.debug) {
             screen.draw.text2('debug mode', '12pt', (width) => {
                 return { x: screen.width - width - 10, y: screen.height - 40 };
@@ -108,23 +96,35 @@ export class StartState {
         }
     }
 
-    private renderStart() {
-        this.drawBackground();
-        this.drawPushStart();
-        this.drawHighScores();
-    }
-
     private updateDemo(step) {
+        // check for collisions
+        const check = this.alien;
+
+        if (check) {
+            this.bounds = [];
+            this.qt = new Quadtree(
+                {x: 0, y: 0, width: screen.width, height: screen.height}, 
+                Math.floor(this.rocks.length / 4));
+        }
 
         this.rocks.forEach(rock => {
+            if (check) {
+                this.qt.insert(rock.rect);
+            }
             rock.update(step);
         });
 
         if (this.alien) {
+            if (check) {
+                this.bounds = this.qt.retrieve(this.alien.rect);
+            }
             this.alien.update(step);
         }
 
         this.alienBullets.forEach(bullet => {
+            if (check) {
+                this.bounds.push(...this.qt.retrieve(bullet.rect));
+            }
             bullet.update(step);
         });
     }
@@ -137,7 +137,7 @@ export class StartState {
             rock.render();
             
             if (this.debug) {
-                screen.draw.bounds(rock);
+                screen.draw.bounds(rock.rect);
             }
 
         });
@@ -146,13 +146,18 @@ export class StartState {
             this.alien.render();
 
             if (this.debug) {
-                screen.draw.bounds(this.alien);
+                screen.draw.bounds(this.alien.rect);
             }
         }
 
         this.alienBullets.forEach(bullet => {
             bullet.render();
         });
+
+        if (this.debug) {
+            this.bounds.forEach(r => screen.draw.bounds(r, '#fc058d'));
+            this.bounds = [];
+        }
     }
 
     private drawBackground() {
@@ -160,29 +165,6 @@ export class StartState {
         screen.draw.scorePlayer1(0);
         screen.draw.highscore(this.highscore);
         screen.draw.copyright();
-    }
-
-    private drawHighScores() {
-        let screenX = screen.width / 2;
-
-        screen.draw.text2('high scores', '30pt', (width) => {
-            return {
-                x: screenX - (width / 2),
-                y: 200
-            }
-        });
-
-        for (let i = 0; i < highscores.length; i++) {
-            let y = 280 + (i * 40);
-            let text = `${this.pad(i + 1, ' ', 2)}.${this.pad(highscores[i].score, ' ', 6)} ${highscores[i].initials}`;
-
-            screen.draw.text2(text, '30pt', (width) => {
-                return {
-                    x: screenX - (width / 2),
-                    y: y
-                }
-            });
-        }
     }
 
     private drawPushStart() {
@@ -196,14 +178,6 @@ export class StartState {
                 }
             });
         }
-    }
-
-    private pad(text: any, char, count) {
-        text = text.toString();
-        while (text.length < count) {
-            text = char + text;
-        }
-        return text;
     }
 
 }

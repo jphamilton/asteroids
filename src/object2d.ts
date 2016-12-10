@@ -94,8 +94,8 @@ export abstract class Object2D implements IObject2D {
         });
 
         return {
-            x: xmin,
-            y: ymin,
+            x: this.x + xmin,
+            y: this.y + ymin,
             width: xmax - xmin,
             height: ymax - ymin 
         };

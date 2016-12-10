@@ -53,7 +53,7 @@ export class Quadtree {
         }
     }
 
-    retrieve(rect) {
+    retrieve(rect: Rect) {
         let indices = this.getIndex(rect);
         let result = this.objects;
 
@@ -86,9 +86,9 @@ export class Quadtree {
 
     private getIndex(rect: Rect): number[] {
         if (!rect) {
-            debugger;
+            return [];
         }
-
+        
         let index = -1;
         let results = [];
         let {
@@ -96,10 +96,10 @@ export class Quadtree {
             ymid
         } = this;
 
-        let top = (rect.y < ymid); 
+        let top = (rect.y <= ymid); 
         let bottom = (rect.y > ymid);
 
-        if (rect.x < xmid) {
+        if (rect.x <= xmid) {
             if (top) {
                 results.push(1);
                 let zero = false;
