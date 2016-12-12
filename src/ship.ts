@@ -7,8 +7,9 @@ import { VECTOR } from './lut';
 const ACCELERATION: number = 0.2;
 const FRICTION: number = 0.007;
 const ROTATION: number = 5;
-const MAX_ACCELERATION: number = 20.0;
+const MAX_ACCELERATION: number = 1100;
 const MAX_BULLETS: number = 4;
+const VELOCITY = 100;
 
 class Flame extends Object2D {
 
@@ -50,7 +51,6 @@ export class Ship extends Object2D {
         ];
 
         this.angle = 270;
-        //this.angle = 90;
     }
 
     render() {
@@ -61,14 +61,6 @@ export class Ship extends Object2D {
     }
 
     update(step: number) {
-        // slow down ship over time
-        if (!this.moving) {
-            this.vx -= this.vx * FRICTION;
-            this.vy -= this.vy * FRICTION;
-            this.flame.vx = this.vx;
-            this.flame.vy = this.vy;
-        }
-
         this.move(step);
         this.flame.move(step);
 
@@ -91,6 +83,13 @@ export class Ship extends Object2D {
             this.fire();
         }
 
+        // slow down ship over time
+        if (!this.moving) {
+            this.vx -= this.vx * FRICTION;
+            this.vy -= this.vy * FRICTION;
+            this.flame.vx = this.vx;
+            this.flame.vy = this.vy;
+        }
     }
 
     rotate(n: number) {
@@ -100,18 +99,15 @@ export class Ship extends Object2D {
 
     private thrust() {
         let v = VECTOR[this.angle];
-        
-        console.clear();
-        console.log(this.angle)
-        
-        this.vx += v.x * ACCELERATION;
+        let tx = v.x * VELOCITY * ACCELERATION;
+        let ty = v.y * VELOCITY * ACCELERATION;
+
+        this.vx += tx;
         this.flame.vx = this.vx;
         
-        this.vy += v.y * ACCELERATION;
+        this.vy += ty;
         this.flame.vy = this.vy;
 
-        //@acceleration       = 0.05
-       // @maxAcceleration    = 5.0
         let velocity = this.magnitude;
 
         if (velocity > MAX_ACCELERATION) {
@@ -122,13 +118,6 @@ export class Ship extends Object2D {
             this.flame.vx = this.vx;
             this.flame.vy = this.vy;
         }
-        //if (velocity > @maxAcceleration)
-        //     @xVelocity = @xVelocity / velocity
-        //     @yVelocity = @yVelocity / velocity
-            
-        //     @xVelocity = @xVelocity * @maxAcceleration
-        //     @yVelocity = @yVelocity * @maxAcceleration
-        // end
     }
 
     private fire() {
@@ -147,16 +136,19 @@ export class Ship extends Object2D {
             bullet.origin.y += bullet.vy * 20;
             
             // adjust for speed of ship if bullets and ship are moving in same general direction
-             let speed = 0; 
-             let dot = (this.vx * bullet.vx) + (this.vy * bullet.vy);
+            let speed = 0; 
+            let dot = (this.vx * bullet.vx) + (this.vy * bullet.vy);
             
+            console.log(this.magnitude);
+
             if (dot > 0) {
                 speed = this.magnitude;
             }
 
-            bullet.vx *= (10 + speed);
-            bullet.vy *= (10 + speed);
-            
+            bullet.vx *= Math.max(1000, speed + 1000);
+            bullet.vy *= Math.max(1000, speed + 1000);
+
+
             this.trigger('fire', bullet);
         }
     }

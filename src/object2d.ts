@@ -23,8 +23,6 @@ export abstract class Object2D extends EventSource implements Rect {
     
     constructor(x: number, y: number) {
         super();
-        // this.x = x;
-        // this.y = y;
         this.origin = { x: x, y: y};
     }
 
@@ -72,9 +70,11 @@ export abstract class Object2D extends EventSource implements Rect {
         this.calcBounds();
     }
 
-    move(step: number) {
-        this.origin.x += this.vx;
-        this.origin.y += this.vy;
+    move(dt?: number) {
+        dt = dt ? dt : 1;
+
+        this.origin.x += this.vx * dt;
+        this.origin.y += this.vy * dt;
         
         if (this.origin.x > screen.width) {
             this.origin.x -= screen.width;

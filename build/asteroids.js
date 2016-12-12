@@ -560,6 +560,8 @@
 	var alien_1 = __webpack_require__(14);
 	var explosion_1 = __webpack_require__(16);
 	var quadtree_1 = __webpack_require__(17);
+	var util_1 = __webpack_require__(13);
+	var lut_1 = __webpack_require__(12);
 	var DemoState = (function () {
 	    function DemoState() {
 	        this.blink = 0;
@@ -571,10 +573,15 @@
 	        this.debug = false;
 	        this.paused = false;
 	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
-	        var rock1 = new rocks_1.Rock(20, screen_1.default.height - 40, 2, -2, rocks_1.RockSize.Large);
-	        var rock2 = new rocks_1.Rock(screen_1.default.width - 40, 40, -2, 2, rocks_1.RockSize.Large);
-	        var rock3 = new rocks_1.Rock(screen_1.default.width - 80, screen_1.default.height - 80, -1, 2, rocks_1.RockSize.Large);
-	        var rock4 = new rocks_1.Rock(screen_1.default.width - 80, screen_1.default.height - 120, 1, -2, rocks_1.RockSize.Large);
+	        var speed = 200;
+	        var v = lut_1.VECTOR[util_1.random(1, 90)];
+	        var rock1 = new rocks_1.Rock(40, 40, v.x, v.y, rocks_1.RockSize.Large, speed);
+	        v = lut_1.VECTOR[util_1.random(90, 180)];
+	        var rock2 = new rocks_1.Rock(screen_1.default.width - 40, 40, v.x, v.y, rocks_1.RockSize.Large, speed);
+	        v = lut_1.VECTOR[util_1.random(270, 360)];
+	        var rock3 = new rocks_1.Rock(40, screen_1.default.height - 40, v.x, v.y, rocks_1.RockSize.Large, speed);
+	        v = lut_1.VECTOR[util_1.random(180, 270)];
+	        var rock4 = new rocks_1.Rock(screen_1.default.width - 40, screen_1.default.height - 40, v.x, v.y, rocks_1.RockSize.Large, speed);
 	        this.rocks = [rock1, rock2, rock3, rock4];
 	    }
 	    DemoState.prototype.update = function (step) {
@@ -768,7 +775,8 @@
 	})(RockSize = exports.RockSize || (exports.RockSize = {}));
 	var Rock = (function (_super) {
 	    __extends(Rock, _super);
-	    function Rock(x, y, vx, vy, size) {
+	    function Rock(x, y, vx, vy, size, speed) {
+	        if (speed === void 0) { speed = 1; }
 	        var _this = _super.call(this, x, y) || this;
 	        _this.rotTimer = 0;
 	        _this.rock1 = [
@@ -815,8 +823,8 @@
 	            [0, -1]
 	        ];
 	        _this.rocks = [_this.rock1, _this.rock2, _this.rock3];
-	        _this.vx = vx;
-	        _this.vy = vy;
+	        _this.vx = vx * speed;
+	        _this.vy = vy * speed;
 	        var type = util_1.random(0, 2);
 	        var def = _this.rocks[type];
 	        _this.points = def.map(function (p) {
@@ -868,13 +876,13 @@
 	            if (angle2 > 360) {
 	                angle2 -= 360;
 	            }
+	            var size = this.size === RockSize.Large ? RockSize.Medium : RockSize.Small;
 	            var v1 = lut_1.VECTOR[angle1];
 	            var v2 = lut_1.VECTOR[angle2];
-	            var r1 = util_1.random(1, 6);
-	            var r2 = util_1.random(1, 6);
-	            var size = this.size === RockSize.Large ? RockSize.Medium : RockSize.Small;
-	            var rock1 = new Rock(this.origin.x, this.origin.y, v1.x *= r1, v1.y *= r1, size);
-	            var rock2 = new Rock(this.origin.x, this.origin.y, v2.x *= r2, v2.y *= r2, size);
+	            var speed1 = size === RockSize.Medium ? util_1.random(200, 300) : util_1.random(200, 600);
+	            var speed2 = size === RockSize.Medium ? util_1.random(200, 300) : util_1.random(200, 600);
+	            var rock1 = new Rock(this.origin.x, this.origin.y, v1.x, v1.y, size, speed1);
+	            var rock2 = new Rock(this.origin.x, this.origin.y, v2.x, v2.y, size, speed2);
 	            return [rock1, rock2];
 	        }
 	        return [];
@@ -958,9 +966,10 @@
 	        });
 	        this.calcBounds();
 	    };
-	    Object2D.prototype.move = function (step) {
-	        this.origin.x += this.vx;
-	        this.origin.y += this.vy;
+	    Object2D.prototype.move = function (dt) {
+	        dt = dt ? dt : 1;
+	        this.origin.x += this.vx * dt;
+	        this.origin.y += this.vy * dt;
 	        if (this.origin.x > screen_1.default.width) {
 	            this.origin.x -= screen_1.default.width;
 	        }
@@ -1095,13 +1104,13 @@
 	var bullet_1 = __webpack_require__(15);
 	var util_1 = __webpack_require__(13);
 	var MAX_BULLETS = 3;
+	var BULLET_SPEED = 600;
 	var BigAlien = (function (_super) {
 	    __extends(BigAlien, _super);
 	    function BigAlien() {
 	        var _this = _super.call(this, 0, 0) || this;
 	        _this.moveTimer = 0;
-	        _this.bulletTimer = 1;
-	        _this.bulletCount = 0;
+	        _this.bulletTimer = .7;
 	        _this.moveTime = 2;
 	        _this.vy = 0;
 	        _this.origin.y = util_1.random(100, screen_1.default.height - 100);
@@ -1128,7 +1137,7 @@
 	        return _this;
 	    }
 	    BigAlien.prototype.update = function (step) {
-	        this.move(step);
+	        this.move();
 	        if (this.origin.x >= screen_1.default.width - 5 || this.origin.x <= 5) {
 	            this.trigger('expired');
 	            return;
@@ -1147,10 +1156,10 @@
 	            this.moveTime++;
 	        }
 	        this.bulletTimer += step;
-	        if (this.bulletTimer >= 1 && this.bulletCount <= MAX_BULLETS) {
+	        if (this.bulletTimer >= .7) {
 	            var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, util_1.random(1, 360));
-	            bullet.vx *= 10;
-	            bullet.vy *= 10;
+	            bullet.vx *= BULLET_SPEED;
+	            bullet.vy *= BULLET_SPEED;
 	            this.trigger('fire', bullet);
 	            this.bulletTimer = 0;
 	        }
@@ -1228,20 +1237,22 @@
 	    __extends(Explosion, _super);
 	    function Explosion(x, y) {
 	        var _this = _super.call(this) || this;
-	        _this.life = 1;
+	        _this.life = 1.25;
 	        _this.points = [];
-	        for (var i = 0; i < 10; i++) {
+	        for (var i = 0; i < 15; i++) {
 	            var t = lut_1.VECTOR[util_1.random(1, 360)];
-	            _this.points.push({ x: x, y: y, vx: t.x + Math.random(), vy: t.y + Math.random() });
+	            var tx = t.x * Math.random() * 150;
+	            var ty = t.y * Math.random() * 150;
+	            _this.points.push({ x: x, y: y, vx: tx, vy: ty });
 	        }
 	        return _this;
 	    }
-	    Explosion.prototype.update = function (step) {
+	    Explosion.prototype.update = function (dt) {
 	        this.points.forEach(function (point) {
-	            point.x += point.vx;
-	            point.y += point.vy;
+	            point.x += point.vx * dt;
+	            point.y += point.vy * dt;
 	        });
-	        this.life -= step;
+	        this.life -= dt;
 	        if (this.life <= 0) {
 	            this.trigger('expired');
 	        }
@@ -1487,8 +1498,9 @@
 	var ACCELERATION = 0.2;
 	var FRICTION = 0.007;
 	var ROTATION = 5;
-	var MAX_ACCELERATION = 20.0;
+	var MAX_ACCELERATION = 1100;
 	var MAX_BULLETS = 4;
+	var VELOCITY = 100;
 	var Flame = (function (_super) {
 	    __extends(Flame, _super);
 	    function Flame(x, y) {
@@ -1532,12 +1544,6 @@
 	        }
 	    };
 	    Ship.prototype.update = function (step) {
-	        if (!this.moving) {
-	            this.vx -= this.vx * FRICTION;
-	            this.vy -= this.vy * FRICTION;
-	            this.flame.vx = this.vx;
-	            this.flame.vy = this.vy;
-	        }
 	        this.move(step);
 	        this.flame.move(step);
 	        if (keys_1.Key.isDown(keys_1.Key.UP)) {
@@ -1556,6 +1562,12 @@
 	        if (keys_1.Key.isPressed(keys_1.Key.CTRL)) {
 	            this.fire();
 	        }
+	        if (!this.moving) {
+	            this.vx -= this.vx * FRICTION;
+	            this.vy -= this.vy * FRICTION;
+	            this.flame.vx = this.vx;
+	            this.flame.vy = this.vy;
+	        }
 	    };
 	    Ship.prototype.rotate = function (n) {
 	        _super.prototype.rotate.call(this, n);
@@ -1563,11 +1575,11 @@
 	    };
 	    Ship.prototype.thrust = function () {
 	        var v = lut_1.VECTOR[this.angle];
-	        console.clear();
-	        console.log(this.angle);
-	        this.vx += v.x * ACCELERATION;
+	        var tx = v.x * VELOCITY * ACCELERATION;
+	        var ty = v.y * VELOCITY * ACCELERATION;
+	        this.vx += tx;
 	        this.flame.vx = this.vx;
-	        this.vy += v.y * ACCELERATION;
+	        this.vy += ty;
 	        this.flame.vy = this.vy;
 	        var velocity = this.magnitude;
 	        if (velocity > MAX_ACCELERATION) {
@@ -1591,11 +1603,12 @@
 	            bullet.origin.y += bullet.vy * 20;
 	            var speed = 0;
 	            var dot = (this.vx * bullet.vx) + (this.vy * bullet.vy);
+	            console.log(this.magnitude);
 	            if (dot > 0) {
 	                speed = this.magnitude;
 	            }
-	            bullet.vx *= (10 + speed);
-	            bullet.vy *= (10 + speed);
+	            bullet.vx *= Math.max(1000, speed + 1000);
+	            bullet.vy *= Math.max(1000, speed + 1000);
 	            this.trigger('fire', bullet);
 	        }
 	    };

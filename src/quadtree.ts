@@ -116,7 +116,6 @@ export class Quadtree {
                     }
                 }
             } else if (bottom) {
-                // 2 or 3
                 results.push(2);
 
                 if (rect.x + rect.width > xmid) {

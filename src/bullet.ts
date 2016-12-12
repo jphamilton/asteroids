@@ -33,15 +33,4 @@ export class Bullet extends Object2D {
     draw() {
         screen.draw.point({x: this.origin.x, y: this.origin.y});
     }
-
-    // get rect(): Rect {
-    //     const size = 1;
-
-    //     return {
-    //         x: this.origin.x - size,
-    //         y: this.origin.y - size,
-    //         width: size,
-    //         height: size 
-    //     };
-    // }
 }

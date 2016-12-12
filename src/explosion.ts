@@ -7,25 +7,27 @@ import { random } from './util';
 
 export class Explosion extends EventSource {
 
-    life: number = 1;   
+    life: number = 1.25;   
     points: {x: number, y: number, vx: number, vy: number}[] = [];
 
     constructor(x: number, y: number) {
         super();
 
-        for(let i = 0; i < 10; i++) {
+        for(let i = 0; i < 15; i++) {
             let t = VECTOR[random(1,360)];
-            this.points.push({x: x, y: y, vx: t.x + Math.random(), vy: t.y + Math.random() });
+            let tx = t.x * Math.random() * 150;
+            let ty = t.y * Math.random() * 150;
+            this.points.push({x: x, y: y, vx: tx, vy: ty });
         }
     }
 
-    update(step) {
+    update(dt) {
         this.points.forEach(point => {
-            point.x += point.vx;
-            point.y += point.vy;
+            point.x += point.vx * dt;
+            point.y += point.vy * dt;
         });
 
-        this.life -= step;
+        this.life -= dt;
 
         if (this.life <= 0) {
             this.trigger('expired');

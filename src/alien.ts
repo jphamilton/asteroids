@@ -4,15 +4,13 @@ import { Bullet } from './bullet';
 import { random } from './util';
 
 const MAX_BULLETS: number = 3;
+const BULLET_SPEED: number = 600;
 
 export class BigAlien extends Object2D {
 
     moveTimer: number = 0;
-    bulletTimer: number = 1;
-    bulletCount: number = 0;
+    bulletTimer: number = .7;
     moveTime: number = 2;
-    //onDone: () => void;
-    //onFire: (bullet: Bullet) => void;
     
     constructor() {
         super(0, 0);
@@ -45,7 +43,7 @@ export class BigAlien extends Object2D {
     }
 
     update(step: number) {
-        this.move(step);
+        this.move();
         
         if (this.origin.x >= screen.width - 5 || this.origin.x <= 5) {
             this.trigger('expired');
@@ -73,10 +71,12 @@ export class BigAlien extends Object2D {
 
         // firing 
         this.bulletTimer += step;
-        if (this.bulletTimer >= 1 && this.bulletCount <= MAX_BULLETS) {
+        if (this.bulletTimer >= .7) {
             let bullet = new Bullet(this.origin.x, this.origin.y, random(1, 360));
-            bullet.vx *= 10;
-            bullet.vy *= 10;
+            
+            bullet.vx *= BULLET_SPEED;
+            bullet.vy *= BULLET_SPEED;
+            
             this.trigger('fire', bullet);
             this.bulletTimer = 0;
         }

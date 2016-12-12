@@ -29,11 +29,20 @@ export class DemoState {
     constructor() {
         this.highscore = highscores.length ? highscores[0].score : 0;
 
-        // rocks in demo mode always start out at the same place
-        let rock1 = new Rock(20, screen.height - 40, 2, -2, RockSize.Large);
-        let rock2 = new Rock(screen.width - 40, 40, -2, 2, RockSize.Large);
-        let rock3 = new Rock(screen.width - 80, screen.height - 80, -1, 2, RockSize.Large);
-        let rock4 = new Rock(screen.width - 80, screen.height - 120, 1, -2, RockSize.Large);
+        let speed = 200;
+
+        let v = VECTOR[random(1, 90)];
+        let rock1 = new Rock(40, 40, v.x, v.y, RockSize.Large, speed);
+
+        v = VECTOR[random(90, 180)];
+        let rock2 = new Rock(screen.width - 40, 40, v.x, v.y, RockSize.Large, speed);
+
+        v = VECTOR[random(270, 360)];
+        let rock3 = new Rock(40, screen.height - 40, v.x, v.y, RockSize.Large, speed);
+        
+        v = VECTOR[random(180, 270)];
+        let rock4 = new Rock(screen.width - 40, screen.height - 40, v.x, v.y, RockSize.Large, speed);
+        
         this.rocks = [rock1, rock2, rock3, rock4];
     }
 
