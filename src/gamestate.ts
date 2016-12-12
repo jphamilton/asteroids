@@ -20,6 +20,7 @@ export class GameState {
     
     constructor() {
         this.ship = new Ship(screen.width / 2, screen.height / 2);
+        //this.ship.rotate(90);
         
         this.ship.on('fire', (ship, bullet) => {
 

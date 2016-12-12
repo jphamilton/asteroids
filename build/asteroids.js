@@ -47,64 +47,68 @@
 	"use strict";
 	var loop_1 = __webpack_require__(1);
 	var highscorestate_1 = __webpack_require__(2);
-	var demostate_1 = __webpack_require__(6);
-	var gamestate_1 = __webpack_require__(15);
-	var keys_1 = __webpack_require__(7);
-	var highScoreState = new highscorestate_1.HighScoreState();
-	var demoState = new demostate_1.DemoState();
-	var gameState = new gamestate_1.GameState();
+	var enterhighscorestate_1 = __webpack_require__(6);
+	var demostate_1 = __webpack_require__(7);
+	var gamestate_1 = __webpack_require__(16);
+	var keys_1 = __webpack_require__(8);
 	var Asteroids = (function () {
 	    function Asteroids() {
-	        this.state = 'start';
+	        var _this = this;
+	        this.state = 'demo';
 	        this.demoTimer = 0;
-	        this.demoStarted = false;
+	        this.highScoreState = new highscorestate_1.HighScoreState();
+	        this.demoState;
+	        this.gameState = new gamestate_1.GameState();
+	        this.initialsState = new enterhighscorestate_1.EnterHighScoreState();
+	        this.initialsState.on('done', function () { return _this.state = 'start'; });
 	    }
 	    Asteroids.prototype.update = function (step) {
 	        this.timers(step);
 	        switch (this.state) {
 	            case 'start':
-	                highScoreState.update(step);
-	                if (this.demoStarted) {
-	                    demoState.update(step);
+	                this.highScoreState.update(step);
+	                if (this.demoState) {
+	                    this.demoState.update(step);
 	                }
 	                if (keys_1.Key.isPressed(keys_1.Key.ONE)) {
 	                    this.state = 'game';
 	                }
 	                break;
 	            case 'demo':
-	                this.demoStarted = true;
-	                demoState.update(step);
+	                if (!this.demoState) {
+	                    this.demoState = new demostate_1.DemoState();
+	                }
+	                this.demoState.update(step);
 	                if (keys_1.Key.isPressed(keys_1.Key.ONE)) {
 	                    this.state = 'game';
 	                }
 	                break;
+	            case 'initials':
+	                this.initialsState.update(step);
+	                break;
 	            case 'game':
-	                gameState.update(step);
+	                this.gameState.update(step);
 	                break;
 	        }
 	    };
 	    Asteroids.prototype.render = function (step) {
 	        switch (this.state) {
 	            case 'start':
-	                highScoreState.render(step);
+	                this.highScoreState.render(step);
 	                break;
 	            case 'demo':
-	                demoState.render(step);
+	                this.demoState.render(step);
+	                break;
+	            case 'initials':
+	                this.initialsState.render(step);
 	                break;
 	            case 'game':
-	                gameState.render(step);
+	                this.gameState.render(step);
 	                break;
 	        }
 	        keys_1.Key.update();
 	    };
 	    Asteroids.prototype.timers = function (step) {
-	        if (this.state !== 'game') {
-	            this.demoTimer += step;
-	            if (this.demoTimer >= 15) {
-	                this.demoTimer = 0;
-	                this.state = this.state === 'demo' ? 'start' : 'demo';
-	            }
-	        }
 	    };
 	    return Asteroids;
 	}());
@@ -299,6 +303,7 @@
 	        this.rect(p, { x: 4, y: 4 }, fillStyle);
 	    };
 	    Draw.prototype.background = function () {
+	        var ctx = this.ctx;
 	        this.rect({ x: 0, y: 0 }, { x: screen_1.default.width, y: screen_1.default.height }, '#000000');
 	    };
 	    Draw.prototype.bounds = function (rect, color) {
@@ -307,7 +312,7 @@
 	        ctx.save();
 	        ctx.beginPath();
 	        ctx.strokeStyle = color;
-	        ctx.lineWidth = 3;
+	        ctx.lineWidth = 2;
 	        ctx.moveTo(rect.x, rect.y);
 	        ctx.lineTo(rect.x + rect.width, rect.y);
 	        ctx.lineTo(rect.x + rect.width, rect.y + rect.height);
@@ -393,59 +398,119 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
 	var screen_1 = __webpack_require__(3);
-	var keys_1 = __webpack_require__(7);
+	var keys_1 = __webpack_require__(8);
 	var highscores_1 = __webpack_require__(5);
-	var rocks_1 = __webpack_require__(8);
-	var alien_1 = __webpack_require__(12);
-	var quadtree_1 = __webpack_require__(14);
+	var events_1 = __webpack_require__(18);
+	var letters = '_abcdefghijklmnopqrstuvwxyz';
+	var EnterHighScoreState = (function (_super) {
+	    __extends(EnterHighScoreState, _super);
+	    function EnterHighScoreState() {
+	        var _this = _super.call(this) || this;
+	        _this.index = 1;
+	        _this.init();
+	        return _this;
+	    }
+	    EnterHighScoreState.prototype.init = function () {
+	        this.position = 0;
+	        this.index = 1;
+	        this.score = 0;
+	        this.initials = ['a', '_', '_'];
+	    };
+	    EnterHighScoreState.prototype.update = function (step) {
+	        if (keys_1.Key.isPressed(keys_1.Key.LEFT)) {
+	            this.index--;
+	            if (this.index < 0) {
+	                this.index = letters.length - 1;
+	            }
+	            this.initials[this.position] = letters[this.index];
+	        }
+	        if (keys_1.Key.isPressed(keys_1.Key.RIGHT)) {
+	            this.index++;
+	            if (this.index > letters.length - 1) {
+	                this.index = 0;
+	            }
+	            this.initials[this.position] = letters[this.index];
+	        }
+	        if (keys_1.Key.isPressed(keys_1.Key.SPACE)) {
+	            this.position++;
+	            if (this.position >= 3) {
+	                this.init();
+	                this.trigger('done');
+	            }
+	            this.index = 1;
+	            this.initials[this.position] = letters[this.index];
+	        }
+	    };
+	    EnterHighScoreState.prototype.render = function (step) {
+	        var offset = 165;
+	        var text = (function (t) { return screen_1.default.draw.text(t, 50, offset += 35, '30pt'); });
+	        screen_1.default.draw.background();
+	        screen_1.default.draw.highscore(highscores_1.highscores[0].score);
+	        screen_1.default.draw.scorePlayer1(this.score);
+	        screen_1.default.draw.copyright();
+	        text('your score is one of the ten best');
+	        text('please enter your initials');
+	        text('push rotate to select letter');
+	        text('push hyperspace when letter is correct');
+	        screen_1.default.draw.text2(this.initials.join(''), '60pt', function (width) {
+	            return { x: (screen_1.default.width / 2) - width, y: screen_1.default.height / 2 };
+	        });
+	    };
+	    return EnterHighScoreState;
+	}(events_1.EventSource));
+	exports.EnterHighScoreState = EnterHighScoreState;
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var screen_1 = __webpack_require__(3);
+	var keys_1 = __webpack_require__(8);
+	var highscores_1 = __webpack_require__(5);
+	var rocks_1 = __webpack_require__(9);
+	var alien_1 = __webpack_require__(13);
+	var explosion_1 = __webpack_require__(19);
+	var quadtree_1 = __webpack_require__(15);
 	var DemoState = (function () {
 	    function DemoState() {
 	        this.blink = 0;
 	        this.showPushStart = true;
 	        this.modeTimer = 0;
 	        this.alienTimer = 0;
+	        this.explosions = [];
 	        this.alienBullets = [];
 	        this.debug = false;
-	        this.bounds = [];
+	        this.paused = false;
 	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
-	        var rock1 = new rocks_1.Rock(20, screen_1.default.height - 40, rocks_1.RockSize.Large);
-	        rock1.vx = 2;
-	        rock1.vy = -2;
-	        var rock2 = new rocks_1.Rock(screen_1.default.width - 40, 40, rocks_1.RockSize.Large);
-	        rock2.vx = -2;
-	        rock2.vy = 1;
-	        var rock3 = new rocks_1.Rock(screen_1.default.width - 80, screen_1.default.height - 80, rocks_1.RockSize.Large);
-	        rock3.vx = 1;
-	        rock3.vy = -1.5;
-	        var rock4 = new rocks_1.Rock(screen_1.default.width - 80, screen_1.default.height - 120, rocks_1.RockSize.Large);
-	        rock4.vx = -1;
-	        rock4.vy = 1.5;
+	        var rock1 = new rocks_1.Rock(20, screen_1.default.height - 40, 2, -2, rocks_1.RockSize.Large);
+	        var rock2 = new rocks_1.Rock(screen_1.default.width - 40, 40, -2, 2, rocks_1.RockSize.Large);
+	        var rock3 = new rocks_1.Rock(screen_1.default.width - 80, screen_1.default.height - 80, -1, 2, rocks_1.RockSize.Large);
+	        var rock4 = new rocks_1.Rock(screen_1.default.width - 80, screen_1.default.height - 120, 1, -2, rocks_1.RockSize.Large);
 	        this.rocks = [rock1, rock2, rock3, rock4];
 	    }
 	    DemoState.prototype.update = function (step) {
-	        var _this = this;
 	        if (keys_1.Key.isPressed(keys_1.Key.DEBUG)) {
 	            this.debug = !this.debug;
+	        }
+	        if (keys_1.Key.isPressed(keys_1.Key.PAUSE)) {
+	            this.paused = !this.paused;
+	        }
+	        if (this.paused) {
+	            return;
 	        }
 	        if (!this.alien) {
 	            this.alienTimer += step;
 	        }
 	        if (this.alienTimer >= 7) {
-	            this.alien = new alien_1.BigAlien(0, 0);
-	            this.alien.on('expired', function () {
-	                _this.alien.destroy();
-	                _this.alien = null;
-	                _this.alienBullets.forEach(function (b) { return b.destroy(); });
-	                _this.alienBullets = [];
-	            });
-	            this.alien.on('fire', function (alien, bullet) {
-	                bullet.on('expired', function () {
-	                    _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
-	                });
-	                _this.alienBullets.push(bullet);
-	            });
-	            this.alienTimer = 0;
+	            this.createBigAlien();
 	        }
 	        this.blink += step;
 	        if (this.blink >= .4) {
@@ -455,7 +520,21 @@
 	        this.updateDemo(step);
 	    };
 	    DemoState.prototype.render = function (step) {
-	        this.renderDemo();
+	        this.drawBackground();
+	        this.drawPushStart();
+	        var objects = this.rocks.concat([this.alien], this.alienBullets, this.explosions);
+	        objects.forEach(function (obj) {
+	            if (obj) {
+	                obj.render();
+	            }
+	        });
+	        if (this.alien && this.debug) {
+	            this.drawQuadtree();
+	            this.bounds.forEach(function (r) {
+	                screen_1.default.draw.bounds(r, '#fc058d');
+	            });
+	        }
+	        this.bounds = [];
 	        if (this.debug) {
 	            screen_1.default.draw.text2('debug mode', '12pt', function (width) {
 	                return { x: screen_1.default.width - width - 10, y: screen_1.default.height - 40 };
@@ -467,52 +546,89 @@
 	        var check = !!this.alien;
 	        if (check) {
 	            this.bounds = [];
-	            this.qt = new quadtree_1.Quadtree({ x: 0, y: 0, width: screen_1.default.width, height: screen_1.default.height }, Math.floor(this.rocks.length / 4));
+	            this.qt = new quadtree_1.Quadtree({ x: 0, y: 0, width: screen_1.default.width, height: screen_1.default.height }, 1);
 	        }
 	        this.rocks.forEach(function (rock) {
 	            if (check) {
-	                _this.qt.insert(rock.rect);
+	                _this.qt.insert(rock);
 	            }
-	            rock.update(step);
 	        });
 	        if (this.alien) {
 	            if (check) {
-	                this.bounds = this.qt.retrieve(this.alien.rect);
+	                var rocks = this.qt.retrieve(this.alien);
+	                rocks.forEach(function (rock) {
+	                    if (rock.collided(_this.alien)) {
+	                        _this.createExplosion(_this.alien.origin.x, _this.alien.origin.y);
+	                        _this.createExplosion(rock.origin.x, rock.origin.y);
+	                        _this.splitRock(rock, _this.alien);
+	                        _this.alien = null;
+	                        _this.alienBullets = [];
+	                    }
+	                    if (_this.debug) {
+	                        _this.bounds.push(rock);
+	                    }
+	                });
 	            }
-	            this.alien.update(step);
 	        }
 	        this.alienBullets.forEach(function (bullet) {
+	            var rocks = [];
 	            if (check) {
-	                (_a = _this.bounds).push.apply(_a, _this.qt.retrieve(bullet.rect));
+	                rocks.push.apply(rocks, _this.qt.retrieve(bullet));
+	                rocks.forEach(function (rock) {
+	                    if (rock.collided(bullet)) {
+	                        _this.createExplosion(rock.origin.x, rock.origin.y);
+	                        _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
+	                        _this.splitRock(rock, bullet);
+	                        bullet = null;
+	                    }
+	                    if (_this.debug) {
+	                        _this.bounds.push(rock);
+	                    }
+	                });
 	            }
-	            bullet.update(step);
+	            if (_this.debug) {
+	                (_a = _this.bounds).push.apply(_a, rocks);
+	            }
 	            var _a;
 	        });
+	        var objects = [this.alien].concat(this.rocks, this.alienBullets, this.explosions);
+	        objects.forEach(function (obj) {
+	            if (obj) {
+	                obj.update(step);
+	            }
+	        });
 	    };
-	    DemoState.prototype.renderDemo = function () {
+	    DemoState.prototype.createBigAlien = function () {
 	        var _this = this;
-	        this.drawBackground();
-	        this.drawPushStart();
-	        this.rocks.forEach(function (rock) {
-	            rock.render();
-	            if (_this.debug) {
-	                screen_1.default.draw.bounds(rock.rect);
-	            }
+	        this.alien = new alien_1.BigAlien();
+	        this.alien.on('expired', function () {
+	            _this.alien.destroy();
+	            _this.alien = null;
+	            _this.alienBullets.forEach(function (b) { return b.destroy(); });
+	            _this.alienBullets = [];
 	        });
-	        if (this.alien) {
-	            this.alien.render();
-	            if (this.debug) {
-	                screen_1.default.draw.bounds(this.alien.rect);
-	            }
-	        }
-	        this.alienBullets.forEach(function (bullet) {
-	            bullet.render();
+	        this.alien.on('fire', function (alien, bullet) {
+	            bullet.on('expired', function () {
+	                _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
+	            });
+	            _this.alienBullets.push(bullet);
 	        });
-	        if (this.debug) {
-	            this.bounds.forEach(function (r) { return screen_1.default.draw.bounds(r, '#fc058d'); });
-	            this.bounds = [];
-	            this.drawQuadtree();
-	        }
+	        this.alienTimer = 0;
+	    };
+	    DemoState.prototype.createExplosion = function (x, y) {
+	        var _this = this;
+	        var explosion = new explosion_1.Explosion(x, y);
+	        explosion.on('expired', function () {
+	            _this.explosions = _this.explosions.filter(function (x) { return x !== explosion; });
+	            explosion = null;
+	        });
+	        this.explosions.push(explosion);
+	    };
+	    DemoState.prototype.splitRock = function (rock, obj) {
+	        this.rocks = this.rocks.filter(function (x) { return x !== rock; });
+	        (_a = this.rocks).push.apply(_a, rock.split(obj));
+	        rock = null;
+	        var _a;
 	    };
 	    DemoState.prototype.drawBackground = function () {
 	        screen_1.default.draw.background();
@@ -551,13 +667,14 @@
 
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports) {
 
 	"use strict";
 	var _Key = (function () {
 	    function _Key() {
 	        var _this = this;
+	        this.SPACE = 32;
 	        this.LEFT = 37;
 	        this.UP = 38;
 	        this.RIGHT = 39;
@@ -565,6 +682,7 @@
 	        this.CTRL = 17;
 	        this.ONE = 49;
 	        this.DEBUG = 68;
+	        this.PAUSE = 80;
 	        this.keys = new Array(222);
 	        this.prev = new Array(222);
 	        for (var i = 0; i < 222; i++) {
@@ -598,7 +716,7 @@
 
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -607,8 +725,9 @@
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var object2d_1 = __webpack_require__(9);
-	var util_1 = __webpack_require__(11);
+	var object2d_1 = __webpack_require__(10);
+	var util_1 = __webpack_require__(12);
+	var lut_1 = __webpack_require__(11);
 	var RockSize;
 	(function (RockSize) {
 	    RockSize[RockSize["Small"] = 5] = "Small";
@@ -617,9 +736,8 @@
 	})(RockSize = exports.RockSize || (exports.RockSize = {}));
 	var Rock = (function (_super) {
 	    __extends(Rock, _super);
-	    function Rock(x, y, size) {
-	        if (size === void 0) { size = 1; }
-	        var _this = _super.call(this, x, y, size) || this;
+	    function Rock(x, y, vx, vy, size) {
+	        var _this = _super.call(this, x, y) || this;
 	        _this.rotTimer = 0;
 	        _this.rock1 = [
 	            [.5, -2],
@@ -665,6 +783,8 @@
 	            [0, -1]
 	        ];
 	        _this.rocks = [_this.rock1, _this.rock2, _this.rock3];
+	        _this.vx = vx;
+	        _this.vy = vy;
 	        var type = util_1.random(0, 2);
 	        var def = _this.rocks[type];
 	        _this.points = def.map(function (p) {
@@ -673,14 +793,16 @@
 	                y: p[1] * size
 	            };
 	        });
+	        _this.size = size;
 	        _this.rotate(util_1.random(1, 90));
 	        _this.rot = util_1.random(1, 10) % 2 === 0 ? 1 : -1;
+	        _this.timeToRot = util_1.random(1, 5);
 	        return _this;
 	    }
 	    Rock.prototype.update = function (step) {
 	        this.rotTimer += 1;
-	        this.move();
-	        if (this.rotTimer === 5) {
+	        this.move(step);
+	        if (this.rotTimer === this.timeToRot) {
 	            this.rotate(this.rot);
 	            this.rotTimer = 0;
 	        }
@@ -688,32 +810,104 @@
 	    Rock.prototype.render = function () {
 	        this.draw();
 	    };
+	    Object.defineProperty(Rock.prototype, "direction", {
+	        get: function () {
+	            var radians = Math.atan2(this.vy, this.vx);
+	            var degrees = radians * (180 / Math.PI);
+	            degrees = degrees > 0.0 ? degrees : 360 + degrees;
+	            return Math.floor(degrees);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Rock.prototype.split = function (obj) {
+	        if (this.size > RockSize.Small) {
+	            var angle1 = util_1.random(this.direction, this.direction + 80);
+	            var angle2 = util_1.random(this.direction - 80, this.direction);
+	            if (angle1 < 0) {
+	                angle1 += 360;
+	            }
+	            if (angle1 > 360) {
+	                angle1 -= 360;
+	            }
+	            if (angle2 < 0) {
+	                angle2 += 360;
+	            }
+	            if (angle2 > 360) {
+	                angle2 -= 360;
+	            }
+	            var v1 = lut_1.VECTOR[angle1];
+	            var v2 = lut_1.VECTOR[angle2];
+	            var r1 = util_1.random(1, 6);
+	            var r2 = util_1.random(1, 6);
+	            var size = this.size === RockSize.Large ? RockSize.Medium : RockSize.Small;
+	            var rock1 = new Rock(this.origin.x, this.origin.y, v1.x *= r1, v1.y *= r1, size);
+	            var rock2 = new Rock(this.origin.x, this.origin.y, v2.x *= r2, v2.y *= r2, size);
+	            return [rock1, rock2];
+	        }
+	        return [];
+	    };
 	    return Rock;
 	}(object2d_1.Object2D));
 	exports.Rock = Rock;
 
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var lut_1 = __webpack_require__(10);
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var events_1 = __webpack_require__(18);
+	var lut_1 = __webpack_require__(11);
 	var screen_1 = __webpack_require__(3);
-	var Object2D = (function () {
+	var Object2D = (function (_super) {
+	    __extends(Object2D, _super);
 	    function Object2D(x, y) {
-	        var args = [];
-	        for (var _i = 2; _i < arguments.length; _i++) {
-	            args[_i - 2] = arguments[_i];
-	        }
-	        this.color = 'rgba(255,255,255,.8)';
-	        this.angle = 360;
-	        this.vx = 0;
-	        this.vy = 0;
-	        this.handlers = {};
-	        this.x = x;
-	        this.y = y;
+	        var _this = _super.call(this) || this;
+	        _this.color = 'rgba(255,255,255,.9)';
+	        _this.angle = 360;
+	        _this.vx = 0;
+	        _this.vy = 0;
+	        _this._xmin = 0;
+	        _this._xmax = 0;
+	        _this._ymin = 0;
+	        _this._ymax = 0;
+	        _this._width = 0;
+	        _this._height = 0;
+	        _this.origin = { x: x, y: y };
+	        return _this;
 	    }
+	    Object.defineProperty(Object2D.prototype, "points", {
+	        get: function () {
+	            return this._points;
+	        },
+	        set: function (points) {
+	            this._points = points;
+	            this.calcBounds();
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object2D.prototype.calcBounds = function () {
+	        var _this = this;
+	        this._points.forEach(function (p) {
+	            if (p.x < _this._xmin)
+	                _this._xmin = p.x;
+	            if (p.x > _this._xmax)
+	                _this._xmax = p.x;
+	            if (p.y < _this._ymin)
+	                _this._ymin = p.y;
+	            if (p.y > _this._ymax)
+	                _this._ymax = p.y;
+	        });
+	        this._width = this._xmax - this._xmin;
+	        this._height = this._ymax - this._ymin;
+	    };
 	    Object2D.prototype.rotate = function (angle) {
 	        this.angle += angle;
 	        if (this.angle < 1) {
@@ -730,21 +924,22 @@
 	            p.x = newX;
 	            p.y = newY;
 	        });
+	        this.calcBounds();
 	    };
-	    Object2D.prototype.move = function () {
-	        this.x += this.vx;
-	        this.y += this.vy;
-	        if (this.x > screen_1.default.width) {
-	            this.x -= screen_1.default.width;
+	    Object2D.prototype.move = function (step) {
+	        this.origin.x += this.vx;
+	        this.origin.y += this.vy;
+	        if (this.origin.x > screen_1.default.width) {
+	            this.origin.x -= screen_1.default.width;
 	        }
-	        if (this.x < 0) {
-	            this.x += screen_1.default.width;
+	        if (this.origin.x < 0) {
+	            this.origin.x += screen_1.default.width;
 	        }
-	        if (this.y > screen_1.default.height) {
-	            this.y -= screen_1.default.height;
+	        if (this.origin.y > screen_1.default.height) {
+	            this.origin.y -= screen_1.default.height;
 	        }
-	        if (this.y < 0) {
-	            this.y += screen_1.default.height;
+	        if (this.origin.y < 0) {
+	            this.origin.y += screen_1.default.height;
 	        }
 	    };
 	    Object2D.prototype.scale = function (factor) {
@@ -752,60 +947,54 @@
 	            point.x *= factor;
 	            point.y *= factor;
 	        });
+	        this.calcBounds();
 	    };
 	    Object2D.prototype.draw = function () {
-	        screen_1.default.draw.shape(this.points, this.x, this.y, this.color);
+	        screen_1.default.draw.shape(this.points, this.origin.x, this.origin.y, this.color);
 	    };
-	    Object.defineProperty(Object2D.prototype, "speed", {
+	    Object.defineProperty(Object2D.prototype, "magnitude", {
 	        get: function () {
-	            return Math.sqrt(Math.pow(this.vx, 2) + Math.pow(this.vy, 2));
+	            return Math.sqrt((this.vx * this.vx) + (this.vy * this.vy));
 	        },
 	        enumerable: true,
 	        configurable: true
 	    });
-	    Object.defineProperty(Object2D.prototype, "rect", {
+	    Object.defineProperty(Object2D.prototype, "x", {
 	        get: function () {
-	            var xmin = 0;
-	            var ymin = 0;
-	            var xmax = 0;
-	            var ymax = 0;
-	            this.points.forEach(function (p) {
-	                if (p.x < xmin)
-	                    xmin = p.x;
-	                if (p.x > xmax)
-	                    xmax = p.x;
-	                if (p.y < ymin)
-	                    ymin = p.y;
-	                if (p.y > ymax)
-	                    ymax = p.y;
-	            });
-	            return {
-	                x: this.x + xmin,
-	                y: this.y + ymin,
-	                width: xmax - xmin,
-	                height: ymax - ymin
-	            };
+	            return this.origin.x + this._xmin;
 	        },
 	        enumerable: true,
 	        configurable: true
 	    });
-	    Object2D.prototype.on = function (event, handler) {
-	        if (!this.handlers[event]) {
-	            this.handlers[event] = [];
+	    Object.defineProperty(Object2D.prototype, "y", {
+	        get: function () {
+	            return this.origin.y + this._ymin;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(Object2D.prototype, "width", {
+	        get: function () {
+	            return this._width;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(Object2D.prototype, "height", {
+	        get: function () {
+	            return this._height;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object2D.prototype.collided = function (rect2) {
+	        if (rect2 && this.x < rect2.x + rect2.width &&
+	            this.x + this.width > rect2.x &&
+	            this.y < rect2.y + rect2.height &&
+	            this.height + this.y > rect2.y) {
+	            return true;
 	        }
-	        this.handlers[event].push(handler);
-	    };
-	    Object2D.prototype.off = function (event, handler) {
-	        this.handlers[event] = this.handlers[event].filter(function (x) { return x !== handler; });
-	    };
-	    Object2D.prototype.trigger = function (event) {
-	        var _this = this;
-	        var args = [];
-	        for (var _i = 1; _i < arguments.length; _i++) {
-	            args[_i - 1] = arguments[_i];
-	        }
-	        var handlers = this.handlers[event] || [];
-	        handlers.forEach(function (x) { return x.apply(void 0, [_this].concat(args)); });
+	        return false;
 	    };
 	    Object2D.prototype.destroy = function () {
 	        for (var event_1 in this.handlers) {
@@ -814,12 +1003,12 @@
 	        this.handlers = {};
 	    };
 	    return Object2D;
-	}());
+	}(events_1.EventSource));
 	exports.Object2D = Object2D;
 
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -833,7 +1022,7 @@
 	exports.VECTOR = VECTOR;
 	var r = Math.PI / 180;
 	var PI2 = 2 * Math.PI;
-	for (var i = 1; i <= 360; i++) {
+	for (var i = 0; i <= 360; i++) {
 	    RAD[i] = i * r;
 	    COS[i] = Math.cos(RAD[i]);
 	    SIN[i] = Math.sin(RAD[i]);
@@ -842,25 +1031,25 @@
 	    SIN[-i] = Math.sin(RAD[-i]);
 	    var t = PI2 * (i / 360);
 	    VECTOR[i] = {
-	        x: Math.sin(t),
-	        y: -Math.cos(t)
+	        x: Math.cos(t),
+	        y: Math.sin(t)
 	    };
 	}
 
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 	"use strict";
 	function random(start, end) {
-	    return Math.floor(Math.random() * end) + start;
+	    return Math.floor(Math.random() * (end - start + 1)) + start;
 	}
 	exports.random = random;
 
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -870,26 +1059,26 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var screen_1 = __webpack_require__(3);
-	var object2d_1 = __webpack_require__(9);
-	var bullet_1 = __webpack_require__(13);
-	var util_1 = __webpack_require__(11);
+	var object2d_1 = __webpack_require__(10);
+	var bullet_1 = __webpack_require__(14);
+	var util_1 = __webpack_require__(12);
 	var MAX_BULLETS = 3;
 	var BigAlien = (function (_super) {
 	    __extends(BigAlien, _super);
-	    function BigAlien(x, y) {
-	        var _this = _super.call(this, x, y) || this;
+	    function BigAlien() {
+	        var _this = _super.call(this, 0, 0) || this;
 	        _this.moveTimer = 0;
 	        _this.bulletTimer = 1;
 	        _this.bulletCount = 0;
 	        _this.moveTime = 2;
 	        _this.vy = 0;
-	        _this.y = util_1.random(100, screen_1.default.height - 100);
-	        if (_this.y % 2 === 0) {
-	            _this.x = 40;
+	        _this.origin.y = util_1.random(100, screen_1.default.height - 100);
+	        if (_this.origin.y % 2 === 0) {
+	            _this.origin.x = 40;
 	            _this.vx = 3;
 	        }
 	        else {
-	            _this.x = screen_1.default.width - 40;
+	            _this.origin.x = screen_1.default.width - 40;
 	            _this.vx = -3;
 	        }
 	        _this.points = [
@@ -907,8 +1096,8 @@
 	        return _this;
 	    }
 	    BigAlien.prototype.update = function (step) {
-	        this.move();
-	        if (this.x >= screen_1.default.width - 5 || this.x <= 5) {
+	        this.move(step);
+	        if (this.origin.x >= screen_1.default.width - 5 || this.origin.x <= 5) {
 	            this.trigger('expired');
 	            return;
 	        }
@@ -920,14 +1109,14 @@
 	        if (this.moveTimer >= this.moveTime) {
 	            var move = util_1.random(1, 20) % 2 === 0;
 	            if (move) {
-	                this.vy = this.x % 2 === 0 ? this.vx : -this.vx;
+	                this.vy = this.origin.x % 2 === 0 ? this.vx : -this.vx;
 	            }
 	            this.moveTimer = 0;
 	            this.moveTime++;
 	        }
 	        this.bulletTimer += step;
 	        if (this.bulletTimer >= 1 && this.bulletCount <= MAX_BULLETS) {
-	            var bullet = new bullet_1.Bullet(this.x, this.y, util_1.random(1, 360));
+	            var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, util_1.random(1, 360));
 	            bullet.vx *= 10;
 	            bullet.vy *= 10;
 	            this.trigger('fire', bullet);
@@ -939,8 +1128,8 @@
 	    };
 	    BigAlien.prototype.draw = function () {
 	        _super.prototype.draw.call(this);
-	        screen_1.default.draw.shape([this.points[1], this.points[6]], this.x, this.y);
-	        screen_1.default.draw.shape([this.points[2], this.points[5]], this.x, this.y);
+	        screen_1.default.draw.shape([this.points[1], this.points[6]], this.origin.x, this.origin.y);
+	        screen_1.default.draw.shape([this.points[2], this.points[5]], this.origin.x, this.origin.y);
 	    };
 	    return BigAlien;
 	}(object2d_1.Object2D));
@@ -948,7 +1137,7 @@
 
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -958,8 +1147,8 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var screen_1 = __webpack_require__(3);
-	var lut_1 = __webpack_require__(10);
-	var object2d_1 = __webpack_require__(9);
+	var lut_1 = __webpack_require__(11);
+	var object2d_1 = __webpack_require__(10);
 	var Bullet = (function (_super) {
 	    __extends(Bullet, _super);
 	    function Bullet(x, y, angle) {
@@ -974,7 +1163,7 @@
 	        this.draw();
 	    };
 	    Bullet.prototype.update = function (step) {
-	        this.move();
+	        this.move(step);
 	        this.life -= step;
 	        if (this.life <= 0) {
 	            this.trigger('expired');
@@ -982,28 +1171,15 @@
 	        }
 	    };
 	    Bullet.prototype.draw = function () {
-	        screen_1.default.draw.point({ x: this.x, y: this.y });
+	        screen_1.default.draw.point({ x: this.origin.x, y: this.origin.y });
 	    };
-	    Object.defineProperty(Bullet.prototype, "rect", {
-	        get: function () {
-	            var size = 1;
-	            return {
-	                x: this.x - size,
-	                y: this.y - size,
-	                width: size,
-	                height: size
-	            };
-	        },
-	        enumerable: true,
-	        configurable: true
-	    });
 	    return Bullet;
 	}(object2d_1.Object2D));
 	exports.Bullet = Bullet;
 
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1157,11 +1333,11 @@
 
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var ship_1 = __webpack_require__(16);
+	var ship_1 = __webpack_require__(17);
 	var screen_1 = __webpack_require__(3);
 	var highscores_1 = __webpack_require__(5);
 	var GameState = (function () {
@@ -1215,7 +1391,7 @@
 
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1224,15 +1400,15 @@
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var keys_1 = __webpack_require__(7);
+	var keys_1 = __webpack_require__(8);
 	var screen_1 = __webpack_require__(3);
-	var object2d_1 = __webpack_require__(9);
-	var bullet_1 = __webpack_require__(13);
-	var lut_1 = __webpack_require__(10);
+	var object2d_1 = __webpack_require__(10);
+	var bullet_1 = __webpack_require__(14);
+	var lut_1 = __webpack_require__(11);
 	var ACCELERATION = 0.2;
 	var FRICTION = 0.007;
 	var ROTATION = 5;
-	var MAX_SPEED = 15;
+	var MAX_ACCELERATION = 20.0;
 	var MAX_BULLETS = 4;
 	var Flame = (function (_super) {
 	    __extends(Flame, _super);
@@ -1258,7 +1434,6 @@
 	        var _this = _super.call(this, x, y) || this;
 	        _this.moving = false;
 	        _this.bulletCount = 0;
-	        _this.angle = 360;
 	        _this.flame = new Flame(x, y);
 	        _this.points = [
 	            { x: 0, y: -15 },
@@ -1268,21 +1443,24 @@
 	            { x: -10, y: 10 },
 	            { x: 0, y: -15 }
 	        ];
+	        _this.angle = 270;
 	        return _this;
 	    }
 	    Ship.prototype.render = function () {
-	        screen_1.default.draw.shape(this.points, this.x, this.y, this.color);
+	        screen_1.default.draw.shape(this.points, this.origin.x, this.origin.y, this.color);
 	        if (this.moving && (Math.floor(Math.random() * 10) + 1) % 2 === 0) {
 	            this.flame.draw();
 	        }
 	    };
 	    Ship.prototype.update = function (step) {
-	        this.vx -= this.vx * FRICTION;
-	        this.vy -= this.vy * FRICTION;
-	        this.flame.vx = this.vx;
-	        this.flame.vy = this.vy;
-	        this.move();
-	        this.flame.move();
+	        if (!this.moving) {
+	            this.vx -= this.vx * FRICTION;
+	            this.vy -= this.vy * FRICTION;
+	            this.flame.vx = this.vx;
+	            this.flame.vy = this.vy;
+	        }
+	        this.move(step);
+	        this.flame.move(step);
 	        if (keys_1.Key.isDown(keys_1.Key.UP)) {
 	            this.moving = true;
 	            this.thrust();
@@ -1292,37 +1470,50 @@
 	        }
 	        if (keys_1.Key.isDown(keys_1.Key.LEFT)) {
 	            this.rotate(-ROTATION);
-	            this.flame.rotate(-ROTATION);
 	        }
 	        if (keys_1.Key.isDown(keys_1.Key.RIGHT)) {
 	            this.rotate(ROTATION);
-	            this.flame.rotate(ROTATION);
 	        }
 	        if (keys_1.Key.isPressed(keys_1.Key.CTRL)) {
 	            this.fire();
 	        }
 	    };
+	    Ship.prototype.rotate = function (n) {
+	        _super.prototype.rotate.call(this, n);
+	        this.flame.rotate(n);
+	    };
 	    Ship.prototype.thrust = function () {
 	        var v = lut_1.VECTOR[this.angle];
+	        console.clear();
+	        console.log(this.angle);
 	        this.vx += v.x * ACCELERATION;
 	        this.flame.vx = this.vx;
 	        this.vy += v.y * ACCELERATION;
 	        this.flame.vy = this.vy;
+	        var velocity = this.magnitude;
+	        if (velocity > MAX_ACCELERATION) {
+	            this.vx = this.vx / velocity;
+	            this.vy = this.vy / velocity;
+	            this.vx *= MAX_ACCELERATION;
+	            this.vy *= MAX_ACCELERATION;
+	            this.flame.vx = this.vx;
+	            this.flame.vy = this.vy;
+	        }
 	    };
 	    Ship.prototype.fire = function () {
 	        var _this = this;
 	        if (this.bulletCount < MAX_BULLETS) {
 	            this.bulletCount++;
-	            var bullet = new bullet_1.Bullet(this.x, this.y, this.angle);
+	            var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, this.angle);
 	            bullet.on('expired', function () {
 	                _this.bulletCount--;
 	            });
-	            bullet.x += bullet.vx * 20;
-	            bullet.y += bullet.vy * 20;
+	            bullet.origin.x += bullet.vx * 20;
+	            bullet.origin.y += bullet.vy * 20;
 	            var speed = 0;
 	            var dot = (this.vx * bullet.vx) + (this.vy * bullet.vy);
 	            if (dot > 0) {
-	                speed = this.speed;
+	                speed = this.magnitude;
 	            }
 	            bullet.vx *= (10 + speed);
 	            bullet.vy *= (10 + speed);
@@ -1332,6 +1523,85 @@
 	    return Ship;
 	}(object2d_1.Object2D));
 	exports.Ship = Ship;
+
+
+/***/ },
+/* 18 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var EventSource = (function () {
+	    function EventSource() {
+	        this.handlers = {};
+	    }
+	    EventSource.prototype.on = function (event, handler) {
+	        if (!this.handlers[event]) {
+	            this.handlers[event] = [];
+	        }
+	        this.handlers[event].push(handler);
+	    };
+	    EventSource.prototype.off = function (event, handler) {
+	        this.handlers[event] = this.handlers[event].filter(function (x) { return x !== handler; });
+	    };
+	    EventSource.prototype.trigger = function (event) {
+	        var _this = this;
+	        var args = [];
+	        for (var _i = 1; _i < arguments.length; _i++) {
+	            args[_i - 1] = arguments[_i];
+	        }
+	        var handlers = this.handlers[event] || [];
+	        handlers.forEach(function (x) { return x.apply(void 0, [_this].concat(args)); });
+	    };
+	    return EventSource;
+	}());
+	exports.EventSource = EventSource;
+
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var events_1 = __webpack_require__(18);
+	var screen_1 = __webpack_require__(3);
+	var lut_1 = __webpack_require__(11);
+	var util_1 = __webpack_require__(12);
+	var Explosion = (function (_super) {
+	    __extends(Explosion, _super);
+	    function Explosion(x, y) {
+	        var _this = _super.call(this) || this;
+	        _this.life = 1;
+	        _this.points = [];
+	        for (var i = 0; i < 10; i++) {
+	            var t = lut_1.VECTOR[util_1.random(1, 360)];
+	            _this.points.push({ x: x, y: y, vx: t.x + Math.random(), vy: t.y + Math.random() });
+	        }
+	        return _this;
+	    }
+	    Explosion.prototype.update = function (step) {
+	        this.points.forEach(function (point) {
+	            point.x += point.vx;
+	            point.y += point.vy;
+	        });
+	        this.life -= step;
+	        if (this.life <= 0) {
+	            this.trigger('expired');
+	        }
+	    };
+	    Explosion.prototype.render = function (step) {
+	        var _this = this;
+	        this.points.forEach(function (point) {
+	            screen_1.default.draw.point(point, "rgba(255,255,255," + _this.life + ")");
+	        });
+	    };
+	    return Explosion;
+	}(events_1.EventSource));
+	exports.Explosion = Explosion;
 
 
 /***/ }

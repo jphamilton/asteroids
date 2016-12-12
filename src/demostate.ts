@@ -5,7 +5,10 @@ import { Object2D } from './object2d';
 import { Bullet } from './bullet';
 import { Rock, RockSize } from './rocks';
 import { BigAlien } from './alien';
+import { Explosion } from './explosion';
 import { Quadtree } from './quadtree';
+import { random } from './util';
+import { VECTOR } from './lut';
 
 export class DemoState {
 
@@ -15,32 +18,22 @@ export class DemoState {
     modeTimer: number = 0;
     alienTimer: number = 0;
     rocks: Object2D[];
+    explosions: IGameState[] = [];
     alienBullets: Bullet[] = [];
     alien: BigAlien;
     debug: boolean = false;
     qt: Quadtree;
-    bounds: Rect[] = [];
+    bounds: Rect[];
+    paused: boolean = false;
 
     constructor() {
         this.highscore = highscores.length ? highscores[0].score : 0;
 
         // rocks in demo mode always start out at the same place
-        let rock1 = new Rock(20, screen.height - 40, RockSize.Large);
-        rock1.vx = 2;
-        rock1.vy = -2;
-
-        let rock2 = new Rock(screen.width - 40, 40, RockSize.Large);
-        rock2.vx = -2;
-        rock2.vy = 1;
-
-        let rock3 = new Rock(screen.width - 80, screen.height - 80, RockSize.Large);
-        rock3.vx = 1;
-        rock3.vy = -1.5;
-
-        let rock4 = new Rock(screen.width - 80, screen.height - 120, RockSize.Large);
-        rock4.vx = -1;
-        rock4.vy = 1.5;
-
+        let rock1 = new Rock(20, screen.height - 40, 2, -2, RockSize.Large);
+        let rock2 = new Rock(screen.width - 40, 40, -2, 2, RockSize.Large);
+        let rock3 = new Rock(screen.width - 80, screen.height - 80, -1, 2, RockSize.Large);
+        let rock4 = new Rock(screen.width - 80, screen.height - 120, 1, -2, RockSize.Large);
         this.rocks = [rock1, rock2, rock3, rock4];
     }
 
@@ -49,30 +42,20 @@ export class DemoState {
             this.debug = !this.debug; 
         }
 
+        if (Key.isPressed(Key.PAUSE)) {
+            this.paused = !this.paused; 
+        }
+        
+        if (this.paused) {
+            return;
+        }
+
         if (!this.alien) {
             this.alienTimer += step;
         }
 
         if (this.alienTimer >= 7) {
-            this.alien = new BigAlien(0, 0);
-
-            this.alien.on('expired', () => {
-                this.alien.destroy();
-                this.alien = null;
-                this.alienBullets.forEach(b => b.destroy());
-                this.alienBullets = [];
-            });
-
-            this.alien.on('fire', (alien, bullet: Bullet) => {
-                
-                bullet.on('expired', () => {
-                    this.alienBullets = this.alienBullets.filter(x => x !== bullet);
-                });
-
-                this.alienBullets.push(bullet);
-            });
-
-            this.alienTimer = 0;
+            this.createBigAlien();
         }
 
         this.blink += step;
@@ -86,8 +69,25 @@ export class DemoState {
     }
 
     render(step) {
+        this.drawBackground();
+        this.drawPushStart();
+
+        let objects = [...this.rocks, this.alien, ...this.alienBullets, ...this.explosions];
         
-        this.renderDemo();
+        objects.forEach(obj => {
+            if (obj) {
+                obj.render();
+            }
+        });
+
+        if (this.alien && this.debug) {
+            this.drawQuadtree();
+            this.bounds.forEach(r => {
+                screen.draw.bounds(r, '#fc058d');
+            });
+        }
+
+        this.bounds = [];
         
         if (this.debug) {
             screen.draw.text2('debug mode', '12pt', (width) => {
@@ -99,67 +99,112 @@ export class DemoState {
     private updateDemo(step) {
         // check for collisions
         const check = !!this.alien;
-
+        
         if (check) {
             this.bounds = [];
             this.qt = new Quadtree(
                 {x: 0, y: 0, width: screen.width, height: screen.height}, 
-                Math.floor(this.rocks.length / 4)
+                1
             );
         }
 
         this.rocks.forEach(rock => {
             if (check) {
-                this.qt.insert(rock.rect);
+                this.qt.insert(rock);
             }
-            rock.update(step);
         });
 
         if (this.alien) {
             if (check) {
-                this.bounds = this.qt.retrieve(this.alien.rect);
+                let rocks = <Rock[]>this.qt.retrieve(this.alien);
+                rocks.forEach(rock => {
+                    if (rock.collided(this.alien)) {
+                        this.createExplosion(this.alien.origin.x, this.alien.origin.y);
+                        this.createExplosion(rock.origin.x, rock.origin.y);
+                        this.splitRock(rock, this.alien);
+                        this.alien = null;
+                        this.alienBullets = [];
+                    } 
+
+                    if (this.debug) {
+                        this.bounds.push(rock);
+                    }
+                });
             }
-            this.alien.update(step);
+
         }
 
         this.alienBullets.forEach(bullet => {
+            let rocks = [];
+            
             if (check) {
-                this.bounds.push(...this.qt.retrieve(bullet.rect));
+                rocks.push(...this.qt.retrieve(bullet));
+                rocks.forEach(rock => {
+                    if (rock.collided(bullet)) {
+                        this.createExplosion(rock.origin.x, rock.origin.y);
+                        this.alienBullets = this.alienBullets.filter(x => x !== bullet);
+                        this.splitRock(rock, bullet);
+                        bullet = null;
+                    } 
+
+                    if (this.debug) {
+                        this.bounds.push(rock);
+                    }
+                });
             }
-            bullet.update(step);
+
+            if (this.debug) {
+                this.bounds.push(...rocks);
+            }
+
         });
+
+        let objects = [this.alien, ...this.rocks, ...this.alienBullets, ...this.explosions];
+        
+        objects.forEach(obj => {
+            if (obj) {
+                obj.update(step);
+            }
+        })
     }
 
-    private renderDemo() {
-        this.drawBackground();
-        this.drawPushStart();
+    private createBigAlien() {
+        this.alien = new BigAlien();
 
-        this.rocks.forEach(rock => {
-            rock.render();
+        this.alien.on('expired', () => {
+            this.alien.destroy();
+            this.alien = null;
+            this.alienBullets.forEach(b => b.destroy());
+            this.alienBullets = [];
+        });
+
+        this.alien.on('fire', (alien, bullet: Bullet) => {
             
-            if (this.debug) {
-                screen.draw.bounds(rock.rect);
-            }
+            bullet.on('expired', () => {
+                this.alienBullets = this.alienBullets.filter(x => x !== bullet);
+            });
 
+            this.alienBullets.push(bullet);
         });
 
-        if (this.alien) {
-            this.alien.render();
+        this.alienTimer = 0;
+    }
 
-            if (this.debug) {
-                screen.draw.bounds(this.alien.rect);
-            }
-        }
+    private createExplosion(x: number, y: number) {
+        let explosion = new Explosion(x, y);
 
-        this.alienBullets.forEach(bullet => {
-            bullet.render();
+        explosion.on('expired', ()=> {
+            this.explosions = this.explosions.filter(x => x !== explosion);
+            explosion = null;
         });
 
-        if (this.debug) {
-            this.bounds.forEach(r => screen.draw.bounds(r, '#fc058d'));
-            this.bounds = [];
-            this.drawQuadtree();
-        }
+        this.explosions.push(explosion);
+    }
+
+    private splitRock(rock: Rock, obj: Object2D) {
+        this.rocks = this.rocks.filter(x => x !== rock);
+        this.rocks.push(...rock.split(obj));
+        rock = null;
     }
 
     private drawBackground() {

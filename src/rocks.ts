@@ -1,5 +1,6 @@
 import { Object2D } from './object2d';
 import { random } from './util';
+import { VECTOR } from './lut';
 
 export enum RockSize {
     Small = 5,
@@ -12,6 +13,7 @@ export class Rock extends Object2D {
     rot: number;
     rotTimer: number = 0;
     size: RockSize;
+    timeToRot: number;
 
     private rock1 = [
         [ .5, -2 ],
@@ -61,9 +63,13 @@ export class Rock extends Object2D {
 
     private rocks = [this.rock1, this.rock2, this.rock3];
 
-    constructor(x: number, y: number, size: RockSize = 1) {
-        super(x, y, size);
+    //constructor(x: number, y: number, vx: number, vy: number, size: RockSize, speed: number) {
+    constructor(x: number, y: number, vx: number, vy: number, size: RockSize) {
+        super(x, y);
         
+        this.vx = vx;
+        this.vy = vy;
+
         let type = random(0, 2);
         let def = this.rocks[type];
         
@@ -74,15 +80,17 @@ export class Rock extends Object2D {
             }
         });
 
+        this.size = size;
         this.rotate(random(1, 90));
         this.rot = random(1, 10) % 2 === 0 ? 1 : -1;
+        this.timeToRot = random(1,5);
     }
 
     update(step: number) {
         this.rotTimer += 1;
-        this.move();
-        
-        if (this.rotTimer === 5) {
+        this.move(step);
+
+        if (this.rotTimer === this.timeToRot) {
             this.rotate(this.rot);
             this.rotTimer = 0;
         }
@@ -92,5 +100,48 @@ export class Rock extends Object2D {
         this.draw();
     }
 
+    get direction() {
+        let radians = Math.atan2(this.vy, this.vx);
+        let degrees = radians * (180 / Math.PI);
+        degrees = degrees > 0.0 ? degrees : 360 + degrees;
+        return Math.floor(degrees);
+    }
+
+    split(obj: Object2D): Rock[] {
+        if (this.size > RockSize.Small) {
+
+            let angle1 = random(this.direction, this.direction + 80);
+            let angle2 = random(this.direction - 80, this.direction);
+
+            if (angle1 < 0) {
+                angle1 += 360;
+            }
+
+            if (angle1 > 360) {
+                angle1 -= 360;
+            }
+
+            if (angle2 < 0) {
+                angle2 += 360;
+            }
+
+            if (angle2 > 360) {
+                angle2 -= 360;
+            }
+
+            let v1 = VECTOR[angle1];
+            let v2 = VECTOR[angle2];
+            let r1 = random(1,6);
+            let r2 = random(1,6);
+
+            const size = this.size === RockSize.Large ? RockSize.Medium : RockSize.Small;
+            const rock1 = new Rock(this.origin.x, this.origin.y, v1.x *= r1, v1.y *= r1, size);
+            const rock2 = new Rock(this.origin.x, this.origin.y, v2.x *= r2, v2.y *= r2, size);
+            
+             return [rock1, rock2]
+        }
+
+        return [];
+    }
 }
 

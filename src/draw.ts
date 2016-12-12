@@ -11,6 +11,7 @@ export class Draw {
 
     line(p1: Point, p2: Point, color: string = VectorLine, width: number = 2) {
         let { ctx } = this;
+        
         ctx.beginPath();
         ctx.strokeStyle = color;
         ctx.lineWidth = width; 
@@ -32,6 +33,7 @@ export class Draw {
 
     rect(p1: Point, p2: Point, color: string = VectorLine) {
         let { ctx } = this;
+
         ctx.beginPath();
         ctx.fillStyle = color; 
         ctx.fillRect(p1.x, p1.y, p2.x, p2.y);
@@ -44,6 +46,8 @@ export class Draw {
     }
 
     background() {
+        let { ctx } = this;
+
         this.rect({ x: 0, y: 0}, { x: screen.width, y: screen.height }, '#000000');
     }
 
@@ -53,7 +57,7 @@ export class Draw {
         ctx.save();
         ctx.beginPath();
         ctx.strokeStyle = color;
-        ctx.lineWidth = 3; 
+        ctx.lineWidth = 2; 
         ctx.moveTo(rect.x, rect.y);
         ctx.lineTo(rect.x + rect.width, rect.y);
         ctx.lineTo(rect.x + rect.width, rect.y + rect.height);
@@ -68,7 +72,6 @@ export class Draw {
         let { ctx } = this;
         ctx.save();
         ctx.font = `${size} hyperspace`;
-        //ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.lineWidth = 1;
         ctx.strokeStyle = VectorLine;

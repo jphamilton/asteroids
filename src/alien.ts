@@ -14,18 +14,18 @@ export class BigAlien extends Object2D {
     //onDone: () => void;
     //onFire: (bullet: Bullet) => void;
     
-    constructor(x: number, y: number) {
-        super(x, y);
+    constructor() {
+        super(0, 0);
 
         this.vy = 0;
 
-        this.y = random(100, screen.height - 100);
+        this.origin.y = random(100, screen.height - 100);
         
-        if (this.y % 2 === 0) {
-            this.x = 40;
+        if (this.origin.y % 2 === 0) {
+            this.origin.x = 40;
             this.vx = 3;
         } else {
-            this.x = screen.width - 40;
+            this.origin.x = screen.width - 40;
             this.vx = -3;
         }
 
@@ -45,9 +45,9 @@ export class BigAlien extends Object2D {
     }
 
     update(step: number) {
-        this.move();
+        this.move(step);
         
-        if (this.x >= screen.width - 5 || this.x <= 5) {
+        if (this.origin.x >= screen.width - 5 || this.origin.x <= 5) {
             this.trigger('expired');
             return;
         }
@@ -64,7 +64,7 @@ export class BigAlien extends Object2D {
             let move = random(1, 20) % 2 === 0;
             
             if (move) {
-                this.vy = this.x % 2 === 0 ? this.vx : -this.vx;   
+                this.vy = this.origin.x % 2 === 0 ? this.vx : -this.vx;   
             }
             
             this.moveTimer = 0;
@@ -74,10 +74,9 @@ export class BigAlien extends Object2D {
         // firing 
         this.bulletTimer += step;
         if (this.bulletTimer >= 1 && this.bulletCount <= MAX_BULLETS) {
-            let bullet = new Bullet(this.x, this.y, random(1, 360));
+            let bullet = new Bullet(this.origin.x, this.origin.y, random(1, 360));
             bullet.vx *= 10;
             bullet.vy *= 10;
-            //this.onFire(bullet);
             this.trigger('fire', bullet);
             this.bulletTimer = 0;
         }
@@ -90,7 +89,7 @@ export class BigAlien extends Object2D {
     
     draw() {
         super.draw();
-        screen.draw.shape([this.points[1], this.points[6]], this.x, this.y);
-        screen.draw.shape([this.points[2], this.points[5]], this.x, this.y);
+        screen.draw.shape([this.points[1], this.points[6]], this.origin.x, this.origin.y);
+        screen.draw.shape([this.points[2], this.points[5]], this.origin.x, this.origin.y);
     }
 }

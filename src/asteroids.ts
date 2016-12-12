@@ -1,18 +1,27 @@
 import { loop } from './loop';
 import { HighScoreState } from './highscorestate';
+import { EnterHighScoreState } from './enterhighscorestate';
 import { DemoState } from './demostate';
 import { GameState } from './gamestate';
 import { Key } from './keys';
 
-let highScoreState = new HighScoreState();
-let demoState = new DemoState();
-let gameState = new GameState();
-
 export class Asteroids {
 
-    private state: string = 'start';    
+    private state: string = 'demo';    
     private demoTimer = 0;
-    private demoStarted = false;
+    private highScoreState;
+    private demoState;
+    private gameState;
+    private initialsState;
+
+    constructor() {
+        this.highScoreState = new HighScoreState();
+        this.demoState;
+        this.gameState = new GameState();
+        this.initialsState = new EnterHighScoreState();
+
+        this.initialsState.on('done', () => this.state = 'start');
+    }
 
     update(step) {
 
@@ -20,12 +29,12 @@ export class Asteroids {
 
         switch(this.state) {
             case 'start':
-                highScoreState.update(step);
+                this.highScoreState.update(step);
                 
-                if (this.demoStarted) {
+                if (this.demoState) {
                     // demo runs in the background
                     // even when it is not rendered
-                    demoState.update(step);
+                    this.demoState.update(step);
                 }
 
                 if (Key.isPressed(Key.ONE)) {
@@ -35,17 +44,24 @@ export class Asteroids {
                 break;
 
             case 'demo':
-                this.demoStarted = true;
-                demoState.update(step);
+                if (!this.demoState) {
+                    this.demoState = new DemoState();
+                }
+
+                this.demoState.update(step);
 
                 if (Key.isPressed(Key.ONE)) {
                     this.state = 'game';
                 }
-                
+                 
+                break;
+
+            case 'initials':
+                this.initialsState.update(step);
                 break;
 
             case 'game':
-                gameState.update(step);
+                this.gameState.update(step);
                 break;
         }
     }
@@ -53,13 +69,16 @@ export class Asteroids {
     render(step) {
         switch(this.state) {
             case 'start':
-                highScoreState.render(step);
+                this.highScoreState.render(step);
                 break;
             case 'demo':
-                demoState.render(step);
+                this.demoState.render(step);
+                break;
+            case 'initials':
+                this.initialsState.render(step);
                 break;
             case 'game':
-                gameState.render(step);
+                this.gameState.render(step);
                 break;
         }
 
@@ -67,14 +86,14 @@ export class Asteroids {
     }
 
     timers(step) {
-        if (this.state !== 'game') {
-            this.demoTimer += step;
+        // if (this.state === 'demo' || this.state === 'start') {
+        //     this.demoTimer += step;
             
-            if (this.demoTimer >= 15) {
-                this.demoTimer = 0;
-                this.state = this.state === 'demo' ? 'start' : 'demo';
-            }
-        }
+        //     if (this.demoTimer >= 15) {
+        //         this.demoTimer = 0;
+        //         this.state = this.state === 'demo' ? 'start' : 'demo';
+        //     }
+        // }
     }
 }
 

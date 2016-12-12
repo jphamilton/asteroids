@@ -3,13 +3,15 @@ export class _Key {
     keys: boolean[];
     prev: boolean[];
 
+    SPACE = 32; // hyperspace
     LEFT = 37;
-    UP= 38;
-    RIGHT= 39;
-    SHIFT= 16;  // special weapon / hyperspace
-    CTRL= 17;   // fire
-    ONE= 49;    // 1 player start
-    DEBUG= 68;  // toggle debug mode
+    UP = 38;
+    RIGHT = 39;
+    SHIFT = 16;  // special weapon?
+    CTRL = 17;   // fire
+    ONE = 49;    // 1 player start
+    DEBUG = 68;  // toggle debug mode
+    PAUSE = 80;
 
     constructor() {
         this.keys = new Array(222);

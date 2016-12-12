@@ -19,8 +19,8 @@ export class Bullet extends Object2D {
         this.draw();   
     }
 
-    update(step?: number) {
-        this.move();
+    update(step: number) {
+        this.move(step);
 
         this.life -= step;
 
@@ -31,17 +31,17 @@ export class Bullet extends Object2D {
     }
 
     draw() {
-        screen.draw.point({x: this.x, y: this.y});
+        screen.draw.point({x: this.origin.x, y: this.origin.y});
     }
 
-    get rect(): Rect {
-        const size = 1;
+    // get rect(): Rect {
+    //     const size = 1;
 
-        return {
-            x: this.x - size,
-            y: this.y - size,
-            width: size,
-            height: size 
-        };
-    }
+    //     return {
+    //         x: this.origin.x - size,
+    //         y: this.origin.y - size,
+    //         width: size,
+    //         height: size 
+    //     };
+    // }
 }
