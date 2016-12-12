@@ -48,9 +48,9 @@
 	var loop_1 = __webpack_require__(1);
 	var highscorestate_1 = __webpack_require__(2);
 	var enterhighscorestate_1 = __webpack_require__(6);
-	var demostate_1 = __webpack_require__(7);
-	var gamestate_1 = __webpack_require__(16);
-	var keys_1 = __webpack_require__(8);
+	var demostate_1 = __webpack_require__(9);
+	var gamestate_1 = __webpack_require__(18);
+	var keys_1 = __webpack_require__(7);
 	var Asteroids = (function () {
 	    function Asteroids() {
 	        var _this = this;
@@ -91,19 +91,19 @@
 	                break;
 	        }
 	    };
-	    Asteroids.prototype.render = function (step) {
+	    Asteroids.prototype.render = function (dt) {
 	        switch (this.state) {
 	            case 'start':
-	                this.highScoreState.render(step);
+	                this.highScoreState.render(dt);
 	                break;
 	            case 'demo':
-	                this.demoState.render(step);
+	                this.demoState.render(dt);
 	                break;
 	            case 'initials':
-	                this.initialsState.render(step);
+	                this.initialsState.render(dt);
 	                break;
 	            case 'game':
-	                this.gameState.render(step);
+	                this.gameState.render(dt);
 	                break;
 	        }
 	        keys_1.Key.update();
@@ -134,10 +134,10 @@
 	var init = function (state) {
 	    var frame = function () {
 	        now = timestamp();
-	        delta = delta + Math.min(1, (now - last) / 1000);
+	        delta += Math.min(1, (now - last) / 1000);
 	        while (delta > step) {
-	            delta -= step;
 	            state.update(step);
+	            delta -= step;
 	        }
 	        state.render(delta);
 	        last = now;
@@ -404,9 +404,9 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var screen_1 = __webpack_require__(3);
-	var keys_1 = __webpack_require__(8);
+	var keys_1 = __webpack_require__(7);
 	var highscores_1 = __webpack_require__(5);
-	var events_1 = __webpack_require__(18);
+	var events_1 = __webpack_require__(8);
 	var letters = '_abcdefghijklmnopqrstuvwxyz';
 	var EnterHighScoreState = (function (_super) {
 	    __extends(EnterHighScoreState, _super);
@@ -469,16 +469,97 @@
 
 /***/ },
 /* 7 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var _Key = (function () {
+	    function _Key() {
+	        var _this = this;
+	        this.SPACE = 32;
+	        this.LEFT = 37;
+	        this.UP = 38;
+	        this.RIGHT = 39;
+	        this.SHIFT = 16;
+	        this.CTRL = 17;
+	        this.ONE = 49;
+	        this.DEBUG = 68;
+	        this.PAUSE = 80;
+	        this.keys = new Array(222);
+	        this.prev = new Array(222);
+	        for (var i = 0; i < 222; i++) {
+	            this.keys[i] = this.prev[i] = false;
+	        }
+	        window.onkeydown = function (event) {
+	            _this.keys[event.keyCode] = true;
+	        };
+	        window.onkeyup = function (event) {
+	            _this.keys[event.keyCode] = false;
+	        };
+	    }
+	    _Key.prototype.update = function () {
+	        for (var i = 0; i < 222; i++) {
+	            this.prev[i] = this.keys[i];
+	        }
+	    };
+	    _Key.prototype.isPressed = function (key) {
+	        return this.prev[key] === false && this.keys[key] === true;
+	    };
+	    _Key.prototype.wasPressed = function (key) {
+	        return this.prev[key] && !this.keys[key];
+	    };
+	    _Key.prototype.isDown = function (key) {
+	        return this.keys[key];
+	    };
+	    return _Key;
+	}());
+	exports._Key = _Key;
+	exports.Key = new _Key();
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var EventSource = (function () {
+	    function EventSource() {
+	        this.handlers = {};
+	    }
+	    EventSource.prototype.on = function (event, handler) {
+	        if (!this.handlers[event]) {
+	            this.handlers[event] = [];
+	        }
+	        this.handlers[event].push(handler);
+	    };
+	    EventSource.prototype.off = function (event, handler) {
+	        this.handlers[event] = this.handlers[event].filter(function (x) { return x !== handler; });
+	    };
+	    EventSource.prototype.trigger = function (event) {
+	        var _this = this;
+	        var args = [];
+	        for (var _i = 1; _i < arguments.length; _i++) {
+	            args[_i - 1] = arguments[_i];
+	        }
+	        var handlers = this.handlers[event] || [];
+	        handlers.forEach(function (x) { return x.apply(void 0, [_this].concat(args)); });
+	    };
+	    return EventSource;
+	}());
+	exports.EventSource = EventSource;
+
+
+/***/ },
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	var screen_1 = __webpack_require__(3);
-	var keys_1 = __webpack_require__(8);
+	var keys_1 = __webpack_require__(7);
 	var highscores_1 = __webpack_require__(5);
-	var rocks_1 = __webpack_require__(9);
-	var alien_1 = __webpack_require__(13);
-	var explosion_1 = __webpack_require__(19);
-	var quadtree_1 = __webpack_require__(15);
+	var rocks_1 = __webpack_require__(10);
+	var alien_1 = __webpack_require__(14);
+	var explosion_1 = __webpack_require__(16);
+	var quadtree_1 = __webpack_require__(17);
 	var DemoState = (function () {
 	    function DemoState() {
 	        this.blink = 0;
@@ -667,56 +748,7 @@
 
 
 /***/ },
-/* 8 */
-/***/ function(module, exports) {
-
-	"use strict";
-	var _Key = (function () {
-	    function _Key() {
-	        var _this = this;
-	        this.SPACE = 32;
-	        this.LEFT = 37;
-	        this.UP = 38;
-	        this.RIGHT = 39;
-	        this.SHIFT = 16;
-	        this.CTRL = 17;
-	        this.ONE = 49;
-	        this.DEBUG = 68;
-	        this.PAUSE = 80;
-	        this.keys = new Array(222);
-	        this.prev = new Array(222);
-	        for (var i = 0; i < 222; i++) {
-	            this.keys[i] = this.prev[i] = false;
-	        }
-	        window.onkeydown = function (event) {
-	            _this.keys[event.keyCode] = true;
-	        };
-	        window.onkeyup = function (event) {
-	            _this.keys[event.keyCode] = false;
-	        };
-	    }
-	    _Key.prototype.update = function () {
-	        for (var i = 0; i < 222; i++) {
-	            this.prev[i] = this.keys[i];
-	        }
-	    };
-	    _Key.prototype.isPressed = function (key) {
-	        return this.prev[key] === false && this.keys[key] === true;
-	    };
-	    _Key.prototype.wasPressed = function (key) {
-	        return this.prev[key] && !this.keys[key];
-	    };
-	    _Key.prototype.isDown = function (key) {
-	        return this.keys[key];
-	    };
-	    return _Key;
-	}());
-	exports._Key = _Key;
-	exports.Key = new _Key();
-
-
-/***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -725,9 +757,9 @@
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var object2d_1 = __webpack_require__(10);
-	var util_1 = __webpack_require__(12);
-	var lut_1 = __webpack_require__(11);
+	var object2d_1 = __webpack_require__(11);
+	var util_1 = __webpack_require__(13);
+	var lut_1 = __webpack_require__(12);
 	var RockSize;
 	(function (RockSize) {
 	    RockSize[RockSize["Small"] = 5] = "Small";
@@ -853,7 +885,7 @@
 
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -862,8 +894,8 @@
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var events_1 = __webpack_require__(18);
-	var lut_1 = __webpack_require__(11);
+	var events_1 = __webpack_require__(8);
+	var lut_1 = __webpack_require__(12);
 	var screen_1 = __webpack_require__(3);
 	var Object2D = (function (_super) {
 	    __extends(Object2D, _super);
@@ -1008,7 +1040,7 @@
 
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1038,7 +1070,7 @@
 
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1049,7 +1081,7 @@
 
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1059,9 +1091,9 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var screen_1 = __webpack_require__(3);
-	var object2d_1 = __webpack_require__(10);
-	var bullet_1 = __webpack_require__(14);
-	var util_1 = __webpack_require__(12);
+	var object2d_1 = __webpack_require__(11);
+	var bullet_1 = __webpack_require__(15);
+	var util_1 = __webpack_require__(13);
 	var MAX_BULLETS = 3;
 	var BigAlien = (function (_super) {
 	    __extends(BigAlien, _super);
@@ -1137,7 +1169,7 @@
 
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1147,8 +1179,8 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var screen_1 = __webpack_require__(3);
-	var lut_1 = __webpack_require__(11);
-	var object2d_1 = __webpack_require__(10);
+	var lut_1 = __webpack_require__(12);
+	var object2d_1 = __webpack_require__(11);
 	var Bullet = (function (_super) {
 	    __extends(Bullet, _super);
 	    function Bullet(x, y, angle) {
@@ -1179,7 +1211,54 @@
 
 
 /***/ },
-/* 15 */
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var events_1 = __webpack_require__(8);
+	var screen_1 = __webpack_require__(3);
+	var lut_1 = __webpack_require__(12);
+	var util_1 = __webpack_require__(13);
+	var Explosion = (function (_super) {
+	    __extends(Explosion, _super);
+	    function Explosion(x, y) {
+	        var _this = _super.call(this) || this;
+	        _this.life = 1;
+	        _this.points = [];
+	        for (var i = 0; i < 10; i++) {
+	            var t = lut_1.VECTOR[util_1.random(1, 360)];
+	            _this.points.push({ x: x, y: y, vx: t.x + Math.random(), vy: t.y + Math.random() });
+	        }
+	        return _this;
+	    }
+	    Explosion.prototype.update = function (step) {
+	        this.points.forEach(function (point) {
+	            point.x += point.vx;
+	            point.y += point.vy;
+	        });
+	        this.life -= step;
+	        if (this.life <= 0) {
+	            this.trigger('expired');
+	        }
+	    };
+	    Explosion.prototype.render = function (dt) {
+	        var _this = this;
+	        this.points.forEach(function (point) {
+	            screen_1.default.draw.point(point, "rgba(255,255,255," + _this.life + ")");
+	        });
+	    };
+	    return Explosion;
+	}(events_1.EventSource));
+	exports.Explosion = Explosion;
+
+
+/***/ },
+/* 17 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1333,11 +1412,11 @@
 
 
 /***/ },
-/* 16 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var ship_1 = __webpack_require__(17);
+	var ship_1 = __webpack_require__(19);
 	var screen_1 = __webpack_require__(3);
 	var highscores_1 = __webpack_require__(5);
 	var GameState = (function () {
@@ -1391,7 +1470,7 @@
 
 
 /***/ },
-/* 17 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1400,11 +1479,11 @@
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var keys_1 = __webpack_require__(8);
+	var keys_1 = __webpack_require__(7);
 	var screen_1 = __webpack_require__(3);
-	var object2d_1 = __webpack_require__(10);
-	var bullet_1 = __webpack_require__(14);
-	var lut_1 = __webpack_require__(11);
+	var object2d_1 = __webpack_require__(11);
+	var bullet_1 = __webpack_require__(15);
+	var lut_1 = __webpack_require__(12);
 	var ACCELERATION = 0.2;
 	var FRICTION = 0.007;
 	var ROTATION = 5;
@@ -1523,85 +1602,6 @@
 	    return Ship;
 	}(object2d_1.Object2D));
 	exports.Ship = Ship;
-
-
-/***/ },
-/* 18 */
-/***/ function(module, exports) {
-
-	"use strict";
-	var EventSource = (function () {
-	    function EventSource() {
-	        this.handlers = {};
-	    }
-	    EventSource.prototype.on = function (event, handler) {
-	        if (!this.handlers[event]) {
-	            this.handlers[event] = [];
-	        }
-	        this.handlers[event].push(handler);
-	    };
-	    EventSource.prototype.off = function (event, handler) {
-	        this.handlers[event] = this.handlers[event].filter(function (x) { return x !== handler; });
-	    };
-	    EventSource.prototype.trigger = function (event) {
-	        var _this = this;
-	        var args = [];
-	        for (var _i = 1; _i < arguments.length; _i++) {
-	            args[_i - 1] = arguments[_i];
-	        }
-	        var handlers = this.handlers[event] || [];
-	        handlers.forEach(function (x) { return x.apply(void 0, [_this].concat(args)); });
-	    };
-	    return EventSource;
-	}());
-	exports.EventSource = EventSource;
-
-
-/***/ },
-/* 19 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var __extends = (this && this.__extends) || function (d, b) {
-	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-	    function __() { this.constructor = d; }
-	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-	};
-	var events_1 = __webpack_require__(18);
-	var screen_1 = __webpack_require__(3);
-	var lut_1 = __webpack_require__(11);
-	var util_1 = __webpack_require__(12);
-	var Explosion = (function (_super) {
-	    __extends(Explosion, _super);
-	    function Explosion(x, y) {
-	        var _this = _super.call(this) || this;
-	        _this.life = 1;
-	        _this.points = [];
-	        for (var i = 0; i < 10; i++) {
-	            var t = lut_1.VECTOR[util_1.random(1, 360)];
-	            _this.points.push({ x: x, y: y, vx: t.x + Math.random(), vy: t.y + Math.random() });
-	        }
-	        return _this;
-	    }
-	    Explosion.prototype.update = function (step) {
-	        this.points.forEach(function (point) {
-	            point.x += point.vx;
-	            point.y += point.vy;
-	        });
-	        this.life -= step;
-	        if (this.life <= 0) {
-	            this.trigger('expired');
-	        }
-	    };
-	    Explosion.prototype.render = function (step) {
-	        var _this = this;
-	        this.points.forEach(function (point) {
-	            screen_1.default.draw.point(point, "rgba(255,255,255," + _this.life + ")");
-	        });
-	    };
-	    return Explosion;
-	}(events_1.EventSource));
-	exports.Explosion = Explosion;
 
 
 /***/ }

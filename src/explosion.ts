@@ -32,7 +32,7 @@ export class Explosion extends EventSource {
         }
     }
 
-    render(step) {
+    render(dt) {
         this.points.forEach(point => {
            screen.draw.point(point, `rgba(255,255,255,${this.life})`);
         });

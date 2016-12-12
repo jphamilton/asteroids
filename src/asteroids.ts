@@ -66,19 +66,19 @@ export class Asteroids {
         }
     }
 
-    render(step) {
+    render(dt) {
         switch(this.state) {
             case 'start':
-                this.highScoreState.render(step);
+                this.highScoreState.render(dt);
                 break;
             case 'demo':
-                this.demoState.render(step);
+                this.demoState.render(dt);
                 break;
             case 'initials':
-                this.initialsState.render(step);
+                this.initialsState.render(dt);
                 break;
             case 'game':
-                this.gameState.render(step);
+                this.gameState.render(dt);
                 break;
         }
 

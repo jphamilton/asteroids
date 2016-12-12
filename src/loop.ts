@@ -11,11 +11,11 @@ const init = (state: IGameState) => {
 
     const frame = () => {
         now = timestamp();
-        delta = delta + Math.min(1, (now - last) / 1000);
+        delta += Math.min(1, (now - last) / 1000);
         
         while(delta > step) {
-            delta -= step;
             state.update(step);
+            delta -= step;
         }
 
         state.render(delta);
