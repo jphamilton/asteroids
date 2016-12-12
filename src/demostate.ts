@@ -46,7 +46,7 @@ export class DemoState {
         this.rocks = [rock1, rock2, rock3, rock4];
     }
 
-    update(step) {
+    update(dt) {
         if (Key.isPressed(Key.DEBUG)) {
             this.debug = !this.debug; 
         }
@@ -60,24 +60,24 @@ export class DemoState {
         }
 
         if (!this.alien) {
-            this.alienTimer += step;
+            this.alienTimer += dt;
         }
 
         if (this.alienTimer >= 7) {
             this.createBigAlien();
         }
 
-        this.blink += step;
+        this.blink += dt;
 
         if (this.blink >= .4) {
             this.blink = 0;
             this.showPushStart = !this.showPushStart;
         }
 
-        this.updateDemo(step);
+        this.updateDemo(dt);
     }
 
-    render(step) {
+    render() {
         this.drawBackground();
         this.drawPushStart();
 
@@ -105,7 +105,7 @@ export class DemoState {
         }
     }
 
-    private updateDemo(step) {
+    private updateDemo(dt) {
         // check for collisions
         const check = !!this.alien;
         
@@ -172,7 +172,7 @@ export class DemoState {
         
         objects.forEach(obj => {
             if (obj) {
-                obj.update(step);
+                obj.update(dt);
             }
         })
     }

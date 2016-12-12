@@ -5,6 +5,7 @@ import { Bullet } from './bullet';
 import { VECTOR } from './lut';
 
 const ACCELERATION: number = 0.2;
+const BULLET_SPEED: number = 800;
 const FRICTION: number = 0.007;
 const ROTATION: number = 5;
 const MAX_ACCELERATION: number = 1100;
@@ -60,9 +61,9 @@ export class Ship extends Object2D {
         }
     }
 
-    update(step: number) {
-        this.move(step);
-        this.flame.move(step);
+    update(dt: number) {
+        this.move(dt);
+        this.flame.move(dt);
 
         if (Key.isDown(Key.UP)) {
             this.moving = true;
@@ -139,15 +140,14 @@ export class Ship extends Object2D {
             let speed = 0; 
             let dot = (this.vx * bullet.vx) + (this.vy * bullet.vy);
             
-            console.log(this.magnitude);
-
             if (dot > 0) {
                 speed = this.magnitude;
             }
 
-            bullet.vx *= Math.max(1000, speed + 1000);
-            bullet.vy *= Math.max(1000, speed + 1000);
+            speed = Math.max(BULLET_SPEED, speed + BULLET_SPEED);
 
+            bullet.vx *= speed;
+            bullet.vy *= speed;
 
             this.trigger('fire', bullet);
         }

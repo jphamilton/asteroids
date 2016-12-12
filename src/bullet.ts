@@ -19,10 +19,10 @@ export class Bullet extends Object2D {
         this.draw();   
     }
 
-    update(step: number) {
-        this.move(step);
+    update(dt: number) {
+        this.move(dt);
 
-        this.life -= step;
+        this.life -= dt;
 
         if (this.life <= 0) {
             this.trigger('expired');

@@ -62,13 +62,13 @@
 	        this.initialsState = new enterhighscorestate_1.EnterHighScoreState();
 	        this.initialsState.on('done', function () { return _this.state = 'start'; });
 	    }
-	    Asteroids.prototype.update = function (step) {
-	        this.timers(step);
+	    Asteroids.prototype.update = function (dt) {
+	        this.timers(dt);
 	        switch (this.state) {
 	            case 'start':
-	                this.highScoreState.update(step);
+	                this.highScoreState.update(dt);
 	                if (this.demoState) {
-	                    this.demoState.update(step);
+	                    this.demoState.update(dt);
 	                }
 	                if (keys_1.Key.isPressed(keys_1.Key.ONE)) {
 	                    this.state = 'game';
@@ -78,16 +78,16 @@
 	                if (!this.demoState) {
 	                    this.demoState = new demostate_1.DemoState();
 	                }
-	                this.demoState.update(step);
+	                this.demoState.update(dt);
 	                if (keys_1.Key.isPressed(keys_1.Key.ONE)) {
 	                    this.state = 'game';
 	                }
 	                break;
 	            case 'initials':
-	                this.initialsState.update(step);
+	                this.initialsState.update(dt);
 	                break;
 	            case 'game':
-	                this.gameState.update(step);
+	                this.gameState.update(dt);
 	                break;
 	        }
 	    };
@@ -108,7 +108,7 @@
 	        }
 	        keys_1.Key.update();
 	    };
-	    Asteroids.prototype.timers = function (step) {
+	    Asteroids.prototype.timers = function (dt) {
 	    };
 	    return Asteroids;
 	}());
@@ -130,14 +130,14 @@
 	var now;
 	var delta = 0;
 	var last = timestamp();
-	var step = 1 / 60;
+	var dt = 1 / 60;
 	var init = function (state) {
 	    var frame = function () {
 	        now = timestamp();
 	        delta += Math.min(1, (now - last) / 1000);
-	        while (delta > step) {
-	            state.update(step);
-	            delta -= step;
+	        while (delta > dt) {
+	            state.update(dt);
+	            delta -= dt;
 	        }
 	        state.render(delta);
 	        last = now;
@@ -163,14 +163,14 @@
 	        this.showPushStart = true;
 	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
 	    }
-	    HighScoreState.prototype.update = function (step) {
-	        this.blink += step;
+	    HighScoreState.prototype.update = function (dt) {
+	        this.blink += dt;
 	        if (this.blink >= .4) {
 	            this.blink = 0;
 	            this.showPushStart = !this.showPushStart;
 	        }
 	    };
-	    HighScoreState.prototype.render = function (step) {
+	    HighScoreState.prototype.render = function () {
 	        this.drawBackground();
 	        this.drawPushStart();
 	        this.drawHighScores();
@@ -422,7 +422,7 @@
 	        this.score = 0;
 	        this.initials = ['a', '_', '_'];
 	    };
-	    EnterHighScoreState.prototype.update = function (step) {
+	    EnterHighScoreState.prototype.update = function (dt) {
 	        if (keys_1.Key.isPressed(keys_1.Key.LEFT)) {
 	            this.index--;
 	            if (this.index < 0) {
@@ -447,7 +447,7 @@
 	            this.initials[this.position] = letters[this.index];
 	        }
 	    };
-	    EnterHighScoreState.prototype.render = function (step) {
+	    EnterHighScoreState.prototype.render = function () {
 	        var offset = 165;
 	        var text = (function (t) { return screen_1.default.draw.text(t, 50, offset += 35, '30pt'); });
 	        screen_1.default.draw.background();
@@ -584,7 +584,7 @@
 	        var rock4 = new rocks_1.Rock(screen_1.default.width - 40, screen_1.default.height - 40, v.x, v.y, rocks_1.RockSize.Large, speed);
 	        this.rocks = [rock1, rock2, rock3, rock4];
 	    }
-	    DemoState.prototype.update = function (step) {
+	    DemoState.prototype.update = function (dt) {
 	        if (keys_1.Key.isPressed(keys_1.Key.DEBUG)) {
 	            this.debug = !this.debug;
 	        }
@@ -595,19 +595,19 @@
 	            return;
 	        }
 	        if (!this.alien) {
-	            this.alienTimer += step;
+	            this.alienTimer += dt;
 	        }
 	        if (this.alienTimer >= 7) {
 	            this.createBigAlien();
 	        }
-	        this.blink += step;
+	        this.blink += dt;
 	        if (this.blink >= .4) {
 	            this.blink = 0;
 	            this.showPushStart = !this.showPushStart;
 	        }
-	        this.updateDemo(step);
+	        this.updateDemo(dt);
 	    };
-	    DemoState.prototype.render = function (step) {
+	    DemoState.prototype.render = function () {
 	        this.drawBackground();
 	        this.drawPushStart();
 	        var objects = this.rocks.concat([this.alien], this.alienBullets, this.explosions);
@@ -629,7 +629,7 @@
 	            });
 	        }
 	    };
-	    DemoState.prototype.updateDemo = function (step) {
+	    DemoState.prototype.updateDemo = function (dt) {
 	        var _this = this;
 	        var check = !!this.alien;
 	        if (check) {
@@ -682,7 +682,7 @@
 	        var objects = [this.alien].concat(this.rocks, this.alienBullets, this.explosions);
 	        objects.forEach(function (obj) {
 	            if (obj) {
-	                obj.update(step);
+	                obj.update(dt);
 	            }
 	        });
 	    };
@@ -839,9 +839,9 @@
 	        _this.timeToRot = util_1.random(1, 5);
 	        return _this;
 	    }
-	    Rock.prototype.update = function (step) {
+	    Rock.prototype.update = function (dt) {
 	        this.rotTimer += 1;
-	        this.move(step);
+	        this.move(dt);
 	        if (this.rotTimer === this.timeToRot) {
 	            this.rotate(this.rot);
 	            this.rotTimer = 0;
@@ -1103,8 +1103,8 @@
 	var object2d_1 = __webpack_require__(11);
 	var bullet_1 = __webpack_require__(15);
 	var util_1 = __webpack_require__(13);
-	var MAX_BULLETS = 3;
 	var BULLET_SPEED = 600;
+	var VELOCITY = 75;
 	var BigAlien = (function (_super) {
 	    __extends(BigAlien, _super);
 	    function BigAlien() {
@@ -1116,11 +1116,11 @@
 	        _this.origin.y = util_1.random(100, screen_1.default.height - 100);
 	        if (_this.origin.y % 2 === 0) {
 	            _this.origin.x = 40;
-	            _this.vx = 3;
+	            _this.vx = 3 * VELOCITY;
 	        }
 	        else {
 	            _this.origin.x = screen_1.default.width - 40;
-	            _this.vx = -3;
+	            _this.vx = -3 * VELOCITY;
 	        }
 	        _this.points = [
 	            { x: .5, y: -2 },
@@ -1136,13 +1136,13 @@
 	        _this.scale(7);
 	        return _this;
 	    }
-	    BigAlien.prototype.update = function (step) {
-	        this.move();
+	    BigAlien.prototype.update = function (dt) {
+	        this.move(dt);
 	        if (this.origin.x >= screen_1.default.width - 5 || this.origin.x <= 5) {
 	            this.trigger('expired');
 	            return;
 	        }
-	        this.moveTimer += step;
+	        this.moveTimer += dt;
 	        if (this.moveTimer >= 1 && this.vy !== 0) {
 	            this.vy = 0;
 	            this.moveTimer = 0;
@@ -1155,7 +1155,7 @@
 	            this.moveTimer = 0;
 	            this.moveTime++;
 	        }
-	        this.bulletTimer += step;
+	        this.bulletTimer += dt;
 	        if (this.bulletTimer >= .7) {
 	            var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, util_1.random(1, 360));
 	            bullet.vx *= BULLET_SPEED;
@@ -1203,9 +1203,9 @@
 	    Bullet.prototype.render = function () {
 	        this.draw();
 	    };
-	    Bullet.prototype.update = function (step) {
-	        this.move(step);
-	        this.life -= step;
+	    Bullet.prototype.update = function (dt) {
+	        this.move(dt);
+	        this.life -= dt;
 	        if (this.life <= 0) {
 	            this.trigger('expired');
 	            this.destroy();
@@ -1233,6 +1233,7 @@
 	var screen_1 = __webpack_require__(3);
 	var lut_1 = __webpack_require__(12);
 	var util_1 = __webpack_require__(13);
+	var VELOCITY = 150;
 	var Explosion = (function (_super) {
 	    __extends(Explosion, _super);
 	    function Explosion(x, y) {
@@ -1241,8 +1242,8 @@
 	        _this.points = [];
 	        for (var i = 0; i < 15; i++) {
 	            var t = lut_1.VECTOR[util_1.random(1, 360)];
-	            var tx = t.x * Math.random() * 150;
-	            var ty = t.y * Math.random() * 150;
+	            var tx = t.x * Math.random() * VELOCITY;
+	            var ty = t.y * Math.random() * VELOCITY;
 	            _this.points.push({ x: x, y: y, vx: tx, vy: ty });
 	        }
 	        return _this;
@@ -1451,10 +1452,10 @@
 	        }
 	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
 	    }
-	    GameState.prototype.update = function (step) {
-	        this.ship.update(step);
+	    GameState.prototype.update = function (dt) {
+	        this.ship.update(dt);
 	        for (var i = 0; i < this.shipBullets.length; i++) {
-	            this.shipBullets[i].update(step);
+	            this.shipBullets[i].update(dt);
 	        }
 	    };
 	    GameState.prototype.render = function (delta) {
@@ -1496,6 +1497,7 @@
 	var bullet_1 = __webpack_require__(15);
 	var lut_1 = __webpack_require__(12);
 	var ACCELERATION = 0.2;
+	var BULLET_SPEED = 800;
 	var FRICTION = 0.007;
 	var ROTATION = 5;
 	var MAX_ACCELERATION = 1100;
@@ -1543,9 +1545,9 @@
 	            this.flame.draw();
 	        }
 	    };
-	    Ship.prototype.update = function (step) {
-	        this.move(step);
-	        this.flame.move(step);
+	    Ship.prototype.update = function (dt) {
+	        this.move(dt);
+	        this.flame.move(dt);
 	        if (keys_1.Key.isDown(keys_1.Key.UP)) {
 	            this.moving = true;
 	            this.thrust();
@@ -1603,12 +1605,12 @@
 	            bullet.origin.y += bullet.vy * 20;
 	            var speed = 0;
 	            var dot = (this.vx * bullet.vx) + (this.vy * bullet.vy);
-	            console.log(this.magnitude);
 	            if (dot > 0) {
 	                speed = this.magnitude;
 	            }
-	            bullet.vx *= Math.max(1000, speed + 1000);
-	            bullet.vy *= Math.max(1000, speed + 1000);
+	            speed = Math.max(BULLET_SPEED, speed + BULLET_SPEED);
+	            bullet.vx *= speed;
+	            bullet.vy *= speed;
 	            this.trigger('fire', bullet);
 	        }
 	    };

@@ -18,8 +18,8 @@ export abstract class Object2D extends EventSource implements Rect {
     private _height: number = 0;
     private _points: Point[];
 
-    abstract update(step?: number) : void;
-    abstract render(step?: number) : void;
+    abstract update(dt?: number) : void;
+    abstract render(dt?: number) : void;
     
     constructor(x: number, y: number) {
         super();

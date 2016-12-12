@@ -3,8 +3,8 @@ import { Object2D } from './object2d';
 import { Bullet } from './bullet';
 import { random } from './util';
 
-const MAX_BULLETS: number = 3;
 const BULLET_SPEED: number = 600;
+const VELOCITY: number = 75;
 
 export class BigAlien extends Object2D {
 
@@ -21,10 +21,10 @@ export class BigAlien extends Object2D {
         
         if (this.origin.y % 2 === 0) {
             this.origin.x = 40;
-            this.vx = 3;
+            this.vx = 3 * VELOCITY;
         } else {
             this.origin.x = screen.width - 40;
-            this.vx = -3;
+            this.vx = -3 * VELOCITY;
         }
 
         this.points = [
@@ -42,8 +42,8 @@ export class BigAlien extends Object2D {
         this.scale(7);
     }
 
-    update(step: number) {
-        this.move();
+    update(dt: number) {
+        this.move(dt);
         
         if (this.origin.x >= screen.width - 5 || this.origin.x <= 5) {
             this.trigger('expired');
@@ -51,7 +51,7 @@ export class BigAlien extends Object2D {
         }
 
         // direction changes
-        this.moveTimer += step;
+        this.moveTimer += dt;
         
         if (this.moveTimer >= 1 && this.vy !== 0) {
             this.vy = 0;
@@ -70,7 +70,8 @@ export class BigAlien extends Object2D {
         }
 
         // firing 
-        this.bulletTimer += step;
+        this.bulletTimer += dt
+        ;
         if (this.bulletTimer >= .7) {
             let bullet = new Bullet(this.origin.x, this.origin.y, random(1, 360));
             

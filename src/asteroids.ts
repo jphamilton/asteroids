@@ -23,18 +23,18 @@ export class Asteroids {
         this.initialsState.on('done', () => this.state = 'start');
     }
 
-    update(step) {
+    update(dt) {
 
-        this.timers(step);
+        this.timers(dt);
 
         switch(this.state) {
             case 'start':
-                this.highScoreState.update(step);
+                this.highScoreState.update(dt);
                 
                 if (this.demoState) {
                     // demo runs in the background
                     // even when it is not rendered
-                    this.demoState.update(step);
+                    this.demoState.update(dt);
                 }
 
                 if (Key.isPressed(Key.ONE)) {
@@ -48,7 +48,7 @@ export class Asteroids {
                     this.demoState = new DemoState();
                 }
 
-                this.demoState.update(step);
+                this.demoState.update(dt);
 
                 if (Key.isPressed(Key.ONE)) {
                     this.state = 'game';
@@ -57,11 +57,11 @@ export class Asteroids {
                 break;
 
             case 'initials':
-                this.initialsState.update(step);
+                this.initialsState.update(dt);
                 break;
 
             case 'game':
-                this.gameState.update(step);
+                this.gameState.update(dt);
                 break;
         }
     }
@@ -85,7 +85,7 @@ export class Asteroids {
         Key.update();
     }
 
-    timers(step) {
+    timers(dt) {
         // if (this.state === 'demo' || this.state === 'start') {
         //     this.demoTimer += step;
             

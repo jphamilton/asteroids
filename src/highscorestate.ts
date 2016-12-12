@@ -13,8 +13,8 @@ export class HighScoreState {
         this.highscore = highscores.length ? highscores[0].score : 0;
     }
 
-    update(step) {
-        this.blink += step;
+    update(dt) {
+        this.blink += dt;
         
         if (this.blink >= .4) {
             this.blink = 0;
@@ -22,7 +22,7 @@ export class HighScoreState {
         }
     }
 
-    render(step) {
+    render() {
         this.drawBackground();
         this.drawPushStart();
         this.drawHighScores();

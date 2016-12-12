@@ -85,9 +85,9 @@ export class Rock extends Object2D {
         this.timeToRot = random(1,5);
     }
 
-    update(step: number) {
+    update(dt: number) {
         this.rotTimer += 1;
-        this.move(step);
+        this.move(dt);
 
         if (this.rotTimer === this.timeToRot) {
             this.rotate(this.rot);

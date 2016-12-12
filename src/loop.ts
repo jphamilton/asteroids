@@ -5,7 +5,7 @@ const timestamp = () => {
 let now;
 let delta = 0;
 let last = timestamp();
-let step = 1/60;
+let dt = 1/60;
 
 const init = (state: IGameState) => {
 
@@ -13,9 +13,9 @@ const init = (state: IGameState) => {
         now = timestamp();
         delta += Math.min(1, (now - last) / 1000);
         
-        while(delta > step) {
-            state.update(step);
-            delta -= step;
+        while(delta > dt) {
+            state.update(dt);
+            delta -= dt;
         }
 
         state.render(delta);

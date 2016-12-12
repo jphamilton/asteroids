@@ -24,7 +24,7 @@ export class EnterHighScoreState extends EventSource {
         this.initials = ['a', '_', '_'];
     }
 
-    update(step) {
+    update(dt) {
         if (Key.isPressed(Key.LEFT)) {
             this.index--;
             if (this.index < 0) {
@@ -57,7 +57,7 @@ export class EnterHighScoreState extends EventSource {
         }
     }
 
-    render(step) {
+    render() {
         let offset: number = 165;
         const text = (t => screen.draw.text(t, 50, offset += 35, '30pt'));
         

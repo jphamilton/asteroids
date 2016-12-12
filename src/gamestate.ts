@@ -39,11 +39,11 @@ export class GameState {
         this.highscore = highscores.length ? highscores[0].score : 0;
     }
 
-    update(step: number) {
-        this.ship.update(step);
+    update(dt: number) {
+        this.ship.update(dt);
 
         for(let i = 0; i < this.shipBullets.length; i++) {
-            this.shipBullets[i].update(step);
+            this.shipBullets[i].update(dt);
         }
 
     }
