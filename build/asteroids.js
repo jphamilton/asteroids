@@ -54,34 +54,36 @@
 	var Asteroids = (function () {
 	    function Asteroids() {
 	        var _this = this;
-	        this.state = 'demo';
+	        this.state = 'start';
 	        this.demoTimer = 0;
+	        this.demoStarted = false;
 	        this.highScoreState = new highscorestate_1.HighScoreState();
-	        this.demoState;
+	        this.demoState = new demostate_1.DemoState();
 	        this.gameState = new gamestate_1.GameState();
 	        this.initialsState = new enterhighscorestate_1.EnterHighScoreState();
-	        this.initialsState.on('done', function () { return _this.state = 'start'; });
+	        this.initialsState.on('done', function () {
+	            _this.demoState = new demostate_1.DemoState();
+	            _this.state = 'start';
+	        });
 	    }
 	    Asteroids.prototype.update = function (dt) {
-	        this.timers(dt);
 	        switch (this.state) {
 	            case 'start':
 	                this.highScoreState.update(dt);
-	                if (this.demoState) {
+	                if (this.demoStarted) {
 	                    this.demoState.update(dt);
 	                }
 	                if (keys_1.Key.isPressed(keys_1.Key.ONE)) {
 	                    this.state = 'game';
 	                }
+	                this.updateDemoTimer(dt);
 	                break;
 	            case 'demo':
-	                if (!this.demoState) {
-	                    this.demoState = new demostate_1.DemoState();
-	                }
 	                this.demoState.update(dt);
 	                if (keys_1.Key.isPressed(keys_1.Key.ONE)) {
 	                    this.state = 'game';
 	                }
+	                this.updateDemoTimer(dt);
 	                break;
 	            case 'initials':
 	                this.initialsState.update(dt);
@@ -108,7 +110,12 @@
 	        }
 	        keys_1.Key.update();
 	    };
-	    Asteroids.prototype.timers = function (dt) {
+	    Asteroids.prototype.updateDemoTimer = function (dt) {
+	        this.demoTimer += dt;
+	        if (this.demoTimer >= 10) {
+	            this.demoTimer = 0;
+	            this.state = this.state === 'demo' ? 'start' : 'demo';
+	        }
 	    };
 	    return Asteroids;
 	}());
@@ -556,35 +563,28 @@
 
 	"use strict";
 	var screen_1 = __webpack_require__(3);
-	var keys_1 = __webpack_require__(7);
+	var util_1 = __webpack_require__(14);
 	var highscores_1 = __webpack_require__(5);
+	var keys_1 = __webpack_require__(7);
 	var rocks_1 = __webpack_require__(10);
 	var alien_1 = __webpack_require__(15);
 	var explosion_1 = __webpack_require__(17);
 	var quadtree_1 = __webpack_require__(18);
-	var util_1 = __webpack_require__(14);
 	var vector_1 = __webpack_require__(13);
 	var DemoState = (function () {
 	    function DemoState() {
-	        this.blink = 0;
-	        this.showPushStart = true;
+	        this.blinkTimer = 0;
 	        this.modeTimer = 0;
 	        this.alienTimer = 0;
+	        this.showPushStart = true;
+	        this.rocks = [];
 	        this.explosions = [];
 	        this.alienBullets = [];
 	        this.debug = false;
 	        this.paused = false;
+	        this.level = 1;
 	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
-	        var speed = 200;
-	        var v = new vector_1.Vector(util_1.random(1, 90));
-	        var rock1 = new rocks_1.Rock(40, 40, v, rocks_1.RockSize.Large, speed);
-	        v = new vector_1.Vector(util_1.random(90, 180));
-	        var rock2 = new rocks_1.Rock(screen_1.default.width - 40, 40, v, rocks_1.RockSize.Large, speed);
-	        v = new vector_1.Vector(util_1.random(270, 360));
-	        var rock3 = new rocks_1.Rock(40, screen_1.default.height - 40, v, rocks_1.RockSize.Large, speed);
-	        v = new vector_1.Vector(util_1.random(180, 270));
-	        var rock4 = new rocks_1.Rock(screen_1.default.width - 40, screen_1.default.height - 40, v, rocks_1.RockSize.Large, speed);
-	        this.rocks = [rock1, rock2, rock3, rock4];
+	        this.addRocks();
 	    }
 	    DemoState.prototype.update = function (dt) {
 	        if (keys_1.Key.isPressed(keys_1.Key.DEBUG)) {
@@ -596,18 +596,93 @@
 	        if (this.paused) {
 	            return;
 	        }
+	        if (!this.alien && !this.rocks.length) {
+	            this.level++;
+	            this.addRocks();
+	        }
+	        this.updateAlienTimer(dt);
+	        this.pushStart(dt);
+	        this.checkCollisions();
+	        this.updateAllObjects(dt);
+	    };
+	    DemoState.prototype.updateAlienTimer = function (dt) {
 	        if (!this.alien) {
 	            this.alienTimer += dt;
 	        }
 	        if (this.alienTimer >= 7) {
 	            this.createBigAlien();
 	        }
-	        this.blink += dt;
-	        if (this.blink >= .4) {
-	            this.blink = 0;
+	    };
+	    DemoState.prototype.pushStart = function (dt) {
+	        this.blinkTimer += dt;
+	        if (this.blinkTimer >= .4) {
+	            this.blinkTimer = 0;
 	            this.showPushStart = !this.showPushStart;
 	        }
-	        this.updateDemo(dt);
+	    };
+	    DemoState.prototype.checkCollisions = function () {
+	        var _this = this;
+	        if (this.alien) {
+	            this.bounds = [];
+	            this.qt = new quadtree_1.Quadtree({ x: 0, y: 0, width: screen_1.default.width, height: screen_1.default.height }, 1);
+	        }
+	        this.rocks.forEach(function (rock) {
+	            if (_this.alien) {
+	                _this.qt.insert(rock);
+	            }
+	        });
+	        this.checkAlienCollision();
+	        this.checkAlienBulletCollision();
+	    };
+	    DemoState.prototype.checkAlienCollision = function () {
+	        var _this = this;
+	        if (this.alien) {
+	            var rocks = this.qt.retrieve(this.alien);
+	            rocks.forEach(function (rock) {
+	                if (rock.collided(_this.alien)) {
+	                    _this.createExplosion(_this.alien.origin.x, _this.alien.origin.y);
+	                    _this.createExplosion(rock.origin.x, rock.origin.y);
+	                    _this.splitRock(rock, _this.alien);
+	                    _this.alien = null;
+	                    _this.alienBullets = [];
+	                }
+	                if (_this.debug) {
+	                    _this.bounds.push(rock);
+	                }
+	            });
+	        }
+	    };
+	    DemoState.prototype.checkAlienBulletCollision = function () {
+	        var _this = this;
+	        this.alienBullets.forEach(function (bullet) {
+	            var rocks = [];
+	            if (_this.alien) {
+	                rocks.push.apply(rocks, _this.qt.retrieve(bullet));
+	                rocks.forEach(function (rock) {
+	                    if (rock.collided(bullet)) {
+	                        _this.createExplosion(rock.origin.x, rock.origin.y);
+	                        _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
+	                        _this.splitRock(rock, bullet);
+	                        bullet = null;
+	                    }
+	                    if (_this.debug) {
+	                        _this.bounds.push(rock);
+	                    }
+	                });
+	            }
+	            if (_this.debug) {
+	                (_a = _this.bounds).push.apply(_a, rocks);
+	            }
+	            var _a;
+	        });
+	    };
+	    DemoState.prototype.updateAllObjects = function (dt) {
+	        var objects = [this.alien].concat(this.rocks, this.alienBullets, this.explosions);
+	        objects.forEach(function (obj) {
+	            if (obj) {
+	                obj.update(dt);
+	            }
+	        });
 	    };
 	    DemoState.prototype.render = function () {
 	        this.drawBackground();
@@ -631,62 +706,16 @@
 	            });
 	        }
 	    };
-	    DemoState.prototype.updateDemo = function (dt) {
-	        var _this = this;
-	        var check = !!this.alien;
-	        if (check) {
-	            this.bounds = [];
-	            this.qt = new quadtree_1.Quadtree({ x: 0, y: 0, width: screen_1.default.width, height: screen_1.default.height }, 1);
+	    DemoState.prototype.addRocks = function () {
+	        var count = Math.min(this.level + 3, 7);
+	        var speed = 200;
+	        for (var i = 0; i < count; i++) {
+	            var v = new vector_1.Vector(util_1.random(1, 360));
+	            var x = util_1.random(40, screen_1.default.width - 40);
+	            var y = util_1.random(40, screen_1.default.height - 40);
+	            var rock = new rocks_1.Rock(x, y, v, rocks_1.RockSize.Large, speed);
+	            this.rocks.push(rock);
 	        }
-	        this.rocks.forEach(function (rock) {
-	            if (check) {
-	                _this.qt.insert(rock);
-	            }
-	        });
-	        if (this.alien) {
-	            if (check) {
-	                var rocks = this.qt.retrieve(this.alien);
-	                rocks.forEach(function (rock) {
-	                    if (rock.collided(_this.alien)) {
-	                        _this.createExplosion(_this.alien.origin.x, _this.alien.origin.y);
-	                        _this.createExplosion(rock.origin.x, rock.origin.y);
-	                        _this.splitRock(rock, _this.alien);
-	                        _this.alien = null;
-	                        _this.alienBullets = [];
-	                    }
-	                    if (_this.debug) {
-	                        _this.bounds.push(rock);
-	                    }
-	                });
-	            }
-	        }
-	        this.alienBullets.forEach(function (bullet) {
-	            var rocks = [];
-	            if (check) {
-	                rocks.push.apply(rocks, _this.qt.retrieve(bullet));
-	                rocks.forEach(function (rock) {
-	                    if (rock.collided(bullet)) {
-	                        _this.createExplosion(rock.origin.x, rock.origin.y);
-	                        _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
-	                        _this.splitRock(rock, bullet);
-	                        bullet = null;
-	                    }
-	                    if (_this.debug) {
-	                        _this.bounds.push(rock);
-	                    }
-	                });
-	            }
-	            if (_this.debug) {
-	                (_a = _this.bounds).push.apply(_a, rocks);
-	            }
-	            var _a;
-	        });
-	        var objects = [this.alien].concat(this.rocks, this.alienBullets, this.explosions);
-	        objects.forEach(function (obj) {
-	            if (obj) {
-	                obj.update(dt);
-	            }
-	        });
 	    };
 	    DemoState.prototype.createBigAlien = function () {
 	        var _this = this;

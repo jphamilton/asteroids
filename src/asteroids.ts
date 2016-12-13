@@ -7,31 +7,34 @@ import { Key } from './keys';
 
 export class Asteroids {
 
-    private state: string = 'demo';    
+    private state: string = 'start';    
     private demoTimer = 0;
     private highScoreState;
     private demoState;
     private gameState;
     private initialsState;
+    private demoStarted = false;
 
     constructor() {
         this.highScoreState = new HighScoreState();
-        this.demoState;
+        this.demoState = new DemoState();
         this.gameState = new GameState();
         this.initialsState = new EnterHighScoreState();
 
-        this.initialsState.on('done', () => this.state = 'start');
+        this.initialsState.on('done', () => {
+            // start demo state over
+            this.demoState = new DemoState();
+            this.state = 'start'
+        });
     }
 
     update(dt) {
-
-        this.timers(dt);
 
         switch(this.state) {
             case 'start':
                 this.highScoreState.update(dt);
                 
-                if (this.demoState) {
+                if (this.demoStarted) {
                     // demo runs in the background
                     // even when it is not rendered
                     this.demoState.update(dt);
@@ -41,19 +44,17 @@ export class Asteroids {
                     this.state = 'game';
                 }
                 
+                this.updateDemoTimer(dt);
                 break;
 
             case 'demo':
-                if (!this.demoState) {
-                    this.demoState = new DemoState();
-                }
-
                 this.demoState.update(dt);
 
                 if (Key.isPressed(Key.ONE)) {
                     this.state = 'game';
                 }
                  
+                this.updateDemoTimer(dt);
                 break;
 
             case 'initials':
@@ -85,15 +86,13 @@ export class Asteroids {
         Key.update();
     }
 
-    timers(dt) {
-        // if (this.state === 'demo' || this.state === 'start') {
-        //     this.demoTimer += step;
+    updateDemoTimer(dt) {
+        this.demoTimer += dt;
             
-        //     if (this.demoTimer >= 15) {
-        //         this.demoTimer = 0;
-        //         this.state = this.state === 'demo' ? 'start' : 'demo';
-        //     }
-        // }
+        if (this.demoTimer >= 10) {
+            this.demoTimer = 0;
+            this.state = this.state === 'demo' ? 'start' : 'demo';
+        }
     }
 }
 
