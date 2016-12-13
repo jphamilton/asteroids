@@ -1,5 +1,5 @@
 import screen from './screen';
-import { VECTOR } from './lut';
+import { Vector } from './vector';
 import { Object2D } from './object2d';
 
 export class Bullet extends Object2D { 
@@ -9,7 +9,7 @@ export class Bullet extends Object2D {
     constructor(x: number, y: number, angle: number) {
         super(x, y);
         
-        let v = VECTOR[angle];
+        let v = new Vector(angle);
         
         this.vx = v.x;
         this.vy = v.y;

@@ -1,3 +1,5 @@
+const LEN = 222;
+
 export class _Key {
 
     keys: boolean[];
@@ -14,10 +16,10 @@ export class _Key {
     PAUSE = 80;
 
     constructor() {
-        this.keys = new Array(222);
-        this.prev = new Array(222);
+        this.keys = new Array(LEN);
+        this.prev = new Array(LEN);
 
-        for (let i = 0; i < 222; i++) {
+        for (let i = 0; i < LEN; i++) {
             this.keys[i] = this.prev[i] = false;
         }
 
@@ -32,7 +34,7 @@ export class _Key {
     }
 
     update() {
-        for (let i = 0; i < 222; i++) {
+        for (let i = 0; i < LEN; i++) {
             this.prev[i] = this.keys[i];
         }
     }
@@ -52,42 +54,3 @@ export class _Key {
 
 export const Key = new _Key();
 
-// export class _Key {
-//     private _down: { [keyCode: number]: boolean } = {};
-
-//     LEFT = 37;
-//     UP = 38;
-//     RIGHT = 39;
-//     SHIFT = 16;  // special weapon / hyperspace
-//     CTRL = 17;   // fire
-//     ONE = 49;    // 1 player start
-//     DEBUG = 68;  // toggle debug mode
-
-//     constructor() {
-//         window.addEventListener('keydown', (event) => this.onKeydown(event), false);
-//         window.addEventListener('keyup', (event) => this.onKeyup(event), false);
-//     }
-
-//     isDown(keyCode) {
-//         return this._down[keyCode];
-//     }
-
-//     onPressed(keyCode) {
-
-//     }
-
-//     private onKeydown(event) {
-//         event.preventDefault();
-//         this._down[event.keyCode] = true;
-//     }
-
-//     private onKeyup(event) {
-//         event.preventDefault();
-//         delete this._down[event.keyCode];
-//     }
-
-
-// };
-
-
-// export const Key = new _Key();

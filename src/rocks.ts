@@ -1,6 +1,6 @@
 import { Object2D } from './object2d';
+import { Vector } from './vector';
 import { random } from './util';
-import { VECTOR } from './lut';
 
 export enum RockSize {
     Small = 5,
@@ -129,12 +129,10 @@ export class Rock extends Object2D {
             }
 
             const size = this.size === RockSize.Large ? RockSize.Medium : RockSize.Small;
-
-            let v1 = VECTOR[angle1];
-            let v2 = VECTOR[angle2];
-            let speed1 = size === RockSize.Medium ? random(200, 300) : random(200,600);
-            let speed2 = size === RockSize.Medium ? random(200, 300) : random(200,600);
-
+            const v1 = new Vector(angle1);
+            const v2 = new Vector(angle2);
+            const speed1 = size === RockSize.Medium ? random(200, 300) : random(200,600);
+            const speed2 = size === RockSize.Medium ? random(200, 300) : random(200,600);
             const rock1 = new Rock(this.origin.x, this.origin.y, v1.x, v1.y, size, speed1);
             const rock2 = new Rock(this.origin.x, this.origin.y, v2.x, v2.y, size, speed2);
             

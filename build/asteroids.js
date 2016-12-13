@@ -130,14 +130,15 @@
 	var now;
 	var delta = 0;
 	var last = timestamp();
-	var dt = 1 / 60;
+	var DT = 1 / 60;
+	var ONE_SECOND = 1000;
 	var init = function (state) {
 	    var frame = function () {
 	        now = timestamp();
-	        delta += Math.min(1, (now - last) / 1000);
-	        while (delta > dt) {
-	            state.update(dt);
-	            delta -= dt;
+	        delta += Math.min(1, (now - last) / ONE_SECOND);
+	        while (delta > DT) {
+	            state.update(DT);
+	            delta -= DT;
 	        }
 	        state.render(delta);
 	        last = now;
@@ -472,6 +473,7 @@
 /***/ function(module, exports) {
 
 	"use strict";
+	var LEN = 222;
 	var _Key = (function () {
 	    function _Key() {
 	        var _this = this;
@@ -484,9 +486,9 @@
 	        this.ONE = 49;
 	        this.DEBUG = 68;
 	        this.PAUSE = 80;
-	        this.keys = new Array(222);
-	        this.prev = new Array(222);
-	        for (var i = 0; i < 222; i++) {
+	        this.keys = new Array(LEN);
+	        this.prev = new Array(LEN);
+	        for (var i = 0; i < LEN; i++) {
 	            this.keys[i] = this.prev[i] = false;
 	        }
 	        window.onkeydown = function (event) {
@@ -497,7 +499,7 @@
 	        };
 	    }
 	    _Key.prototype.update = function () {
-	        for (var i = 0; i < 222; i++) {
+	        for (var i = 0; i < LEN; i++) {
 	            this.prev[i] = this.keys[i];
 	        }
 	    };
@@ -561,7 +563,7 @@
 	var explosion_1 = __webpack_require__(16);
 	var quadtree_1 = __webpack_require__(17);
 	var util_1 = __webpack_require__(13);
-	var lut_1 = __webpack_require__(12);
+	var vector_1 = __webpack_require__(20);
 	var DemoState = (function () {
 	    function DemoState() {
 	        this.blink = 0;
@@ -574,13 +576,13 @@
 	        this.paused = false;
 	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
 	        var speed = 200;
-	        var v = lut_1.VECTOR[util_1.random(1, 90)];
+	        var v = new vector_1.Vector(util_1.random(1, 90));
 	        var rock1 = new rocks_1.Rock(40, 40, v.x, v.y, rocks_1.RockSize.Large, speed);
-	        v = lut_1.VECTOR[util_1.random(90, 180)];
+	        v = new vector_1.Vector(util_1.random(90, 180));
 	        var rock2 = new rocks_1.Rock(screen_1.default.width - 40, 40, v.x, v.y, rocks_1.RockSize.Large, speed);
-	        v = lut_1.VECTOR[util_1.random(270, 360)];
+	        v = new vector_1.Vector(util_1.random(270, 360));
 	        var rock3 = new rocks_1.Rock(40, screen_1.default.height - 40, v.x, v.y, rocks_1.RockSize.Large, speed);
-	        v = lut_1.VECTOR[util_1.random(180, 270)];
+	        v = new vector_1.Vector(util_1.random(180, 270));
 	        var rock4 = new rocks_1.Rock(screen_1.default.width - 40, screen_1.default.height - 40, v.x, v.y, rocks_1.RockSize.Large, speed);
 	        this.rocks = [rock1, rock2, rock3, rock4];
 	    }
@@ -765,8 +767,8 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var object2d_1 = __webpack_require__(11);
+	var vector_1 = __webpack_require__(20);
 	var util_1 = __webpack_require__(13);
-	var lut_1 = __webpack_require__(12);
 	var RockSize;
 	(function (RockSize) {
 	    RockSize[RockSize["Small"] = 5] = "Small";
@@ -877,8 +879,8 @@
 	                angle2 -= 360;
 	            }
 	            var size = this.size === RockSize.Large ? RockSize.Medium : RockSize.Small;
-	            var v1 = lut_1.VECTOR[angle1];
-	            var v2 = lut_1.VECTOR[angle2];
+	            var v1 = new vector_1.Vector(angle1);
+	            var v2 = new vector_1.Vector(angle2);
 	            var speed1 = size === RockSize.Medium ? util_1.random(200, 300) : util_1.random(200, 600);
 	            var speed2 = size === RockSize.Medium ? util_1.random(200, 300) : util_1.random(200, 600);
 	            var rock1 = new Rock(this.origin.x, this.origin.y, v1.x, v1.y, size, speed1);
@@ -1059,8 +1061,6 @@
 	exports.COS = COS;
 	var SIN = {};
 	exports.SIN = SIN;
-	var VECTOR = {};
-	exports.VECTOR = VECTOR;
 	var r = Math.PI / 180;
 	var PI2 = 2 * Math.PI;
 	for (var i = 0; i <= 360; i++) {
@@ -1070,11 +1070,6 @@
 	    RAD[-i] = -i * r;
 	    COS[-i] = Math.cos(RAD[-i]);
 	    SIN[-i] = Math.sin(RAD[-i]);
-	    var t = PI2 * (i / 360);
-	    VECTOR[i] = {
-	        x: Math.cos(t),
-	        y: Math.sin(t)
-	    };
 	}
 
 
@@ -1105,6 +1100,7 @@
 	var util_1 = __webpack_require__(13);
 	var BULLET_SPEED = 600;
 	var VELOCITY = 75;
+	var BIG_ALIEN_SPEED = 225;
 	var BigAlien = (function (_super) {
 	    __extends(BigAlien, _super);
 	    function BigAlien() {
@@ -1116,11 +1112,11 @@
 	        _this.origin.y = util_1.random(100, screen_1.default.height - 100);
 	        if (_this.origin.y % 2 === 0) {
 	            _this.origin.x = 40;
-	            _this.vx = 3 * VELOCITY;
+	            _this.vx = BIG_ALIEN_SPEED;
 	        }
 	        else {
 	            _this.origin.x = screen_1.default.width - 40;
-	            _this.vx = -3 * VELOCITY;
+	            _this.vx = -BIG_ALIEN_SPEED;
 	        }
 	        _this.points = [
 	            { x: .5, y: -2 },
@@ -1188,14 +1184,14 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var screen_1 = __webpack_require__(3);
-	var lut_1 = __webpack_require__(12);
+	var vector_1 = __webpack_require__(20);
 	var object2d_1 = __webpack_require__(11);
 	var Bullet = (function (_super) {
 	    __extends(Bullet, _super);
 	    function Bullet(x, y, angle) {
 	        var _this = _super.call(this, x, y) || this;
 	        _this.life = 1.25;
-	        var v = lut_1.VECTOR[angle];
+	        var v = new vector_1.Vector(angle);
 	        _this.vx = v.x;
 	        _this.vy = v.y;
 	        return _this;
@@ -1231,7 +1227,7 @@
 	};
 	var events_1 = __webpack_require__(8);
 	var screen_1 = __webpack_require__(3);
-	var lut_1 = __webpack_require__(12);
+	var vector_1 = __webpack_require__(20);
 	var util_1 = __webpack_require__(13);
 	var VELOCITY = 150;
 	var Explosion = (function (_super) {
@@ -1241,10 +1237,8 @@
 	        _this.life = 1.25;
 	        _this.points = [];
 	        for (var i = 0; i < 15; i++) {
-	            var t = lut_1.VECTOR[util_1.random(1, 360)];
-	            var tx = t.x * Math.random() * VELOCITY;
-	            var ty = t.y * Math.random() * VELOCITY;
-	            _this.points.push({ x: x, y: y, vx: tx, vy: ty });
+	            var v = new vector_1.Vector(util_1.random(1, 360), Math.random() * VELOCITY);
+	            _this.points.push({ x: x, y: y, vx: v.x, vy: v.y });
 	        }
 	        return _this;
 	    }
@@ -1491,11 +1485,11 @@
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var keys_1 = __webpack_require__(7);
 	var screen_1 = __webpack_require__(3);
+	var keys_1 = __webpack_require__(7);
 	var object2d_1 = __webpack_require__(11);
+	var vector_1 = __webpack_require__(20);
 	var bullet_1 = __webpack_require__(15);
-	var lut_1 = __webpack_require__(12);
 	var ACCELERATION = 0.2;
 	var BULLET_SPEED = 800;
 	var FRICTION = 0.007;
@@ -1576,12 +1570,10 @@
 	        this.flame.rotate(n);
 	    };
 	    Ship.prototype.thrust = function () {
-	        var v = lut_1.VECTOR[this.angle];
-	        var tx = v.x * VELOCITY * ACCELERATION;
-	        var ty = v.y * VELOCITY * ACCELERATION;
-	        this.vx += tx;
+	        var v = new vector_1.Vector(this.angle, VELOCITY * ACCELERATION);
+	        this.vx += v.x;
 	        this.flame.vx = this.vx;
-	        this.vy += ty;
+	        this.vy += v.y;
 	        this.flame.vy = this.vy;
 	        var velocity = this.magnitude;
 	        if (velocity > MAX_ACCELERATION) {
@@ -1617,6 +1609,31 @@
 	    return Ship;
 	}(object2d_1.Object2D));
 	exports.Ship = Ship;
+
+
+/***/ },
+/* 20 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var VECTOR = {};
+	var PI2 = 2 * Math.PI;
+	for (var i = 0; i <= 360; i++) {
+	    var t = PI2 * (i / 360);
+	    VECTOR[i] = {
+	        x: Math.cos(t),
+	        y: Math.sin(t)
+	    };
+	}
+	var Vector = (function () {
+	    function Vector(angleInDegrees, velocity) {
+	        if (velocity === void 0) { velocity = 1; }
+	        this.x = VECTOR[angleInDegrees].x * velocity;
+	        this.y = VECTOR[angleInDegrees].y * velocity;
+	    }
+	    return Vector;
+	}());
+	exports.Vector = Vector;
 
 
 /***/ }

@@ -1,8 +1,8 @@
-import { Key } from './keys';
 import screen from './screen';
+import { Key } from './keys';
 import { Object2D } from './object2d';
+import { Vector } from './vector';
 import { Bullet } from './bullet';
-import { VECTOR } from './lut';
 
 const ACCELERATION: number = 0.2;
 const BULLET_SPEED: number = 800;
@@ -99,17 +99,14 @@ export class Ship extends Object2D {
     }
 
     private thrust() {
-        let v = VECTOR[this.angle];
-        let tx = v.x * VELOCITY * ACCELERATION;
-        let ty = v.y * VELOCITY * ACCELERATION;
-
-        this.vx += tx;
-        this.flame.vx = this.vx;
+        const v = new Vector(this.angle, VELOCITY * ACCELERATION);
         
-        this.vy += ty;
+        this.vx += v.x;
+        this.flame.vx = this.vx;
+        this.vy += v.y;
         this.flame.vy = this.vy;
 
-        let velocity = this.magnitude;
+        const velocity = this.magnitude;
 
         if (velocity > MAX_ACCELERATION) {
             this.vx = this.vx / velocity;

@@ -8,7 +8,7 @@ import { BigAlien } from './alien';
 import { Explosion } from './explosion';
 import { Quadtree } from './quadtree';
 import { random } from './util';
-import { VECTOR } from './lut';
+import { Vector } from './vector';
 
 export class DemoState {
 
@@ -31,16 +31,16 @@ export class DemoState {
 
         let speed = 200;
 
-        let v = VECTOR[random(1, 90)];
+        let v = new Vector(random(1, 90));
         let rock1 = new Rock(40, 40, v.x, v.y, RockSize.Large, speed);
 
-        v = VECTOR[random(90, 180)];
+        v = new Vector(random(90, 180));
         let rock2 = new Rock(screen.width - 40, 40, v.x, v.y, RockSize.Large, speed);
 
-        v = VECTOR[random(270, 360)];
+        v = new Vector(random(270, 360));
         let rock3 = new Rock(40, screen.height - 40, v.x, v.y, RockSize.Large, speed);
         
-        v = VECTOR[random(180, 270)];
+        v = new Vector(random(180, 270));
         let rock4 = new Rock(screen.width - 40, screen.height - 40, v.x, v.y, RockSize.Large, speed);
         
         this.rocks = [rock1, rock2, rock3, rock4];

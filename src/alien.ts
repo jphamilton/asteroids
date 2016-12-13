@@ -5,6 +5,7 @@ import { random } from './util';
 
 const BULLET_SPEED: number = 600;
 const VELOCITY: number = 75;
+const BIG_ALIEN_SPEED: number = 225;
 
 export class BigAlien extends Object2D {
 
@@ -21,10 +22,10 @@ export class BigAlien extends Object2D {
         
         if (this.origin.y % 2 === 0) {
             this.origin.x = 40;
-            this.vx = 3 * VELOCITY;
+            this.vx = BIG_ALIEN_SPEED;
         } else {
             this.origin.x = screen.width - 40;
-            this.vx = -3 * VELOCITY;
+            this.vx = -BIG_ALIEN_SPEED;
         }
 
         this.points = [
@@ -70,8 +71,8 @@ export class BigAlien extends Object2D {
         }
 
         // firing 
-        this.bulletTimer += dt
-        ;
+        this.bulletTimer += dt;
+
         if (this.bulletTimer >= .7) {
             let bullet = new Bullet(this.origin.x, this.origin.y, random(1, 360));
             

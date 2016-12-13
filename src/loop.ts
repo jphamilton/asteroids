@@ -5,17 +5,19 @@ const timestamp = () => {
 let now;
 let delta = 0;
 let last = timestamp();
-let dt = 1/60;
+
+const DT = 1/60;
+const ONE_SECOND = 1000;
 
 const init = (state: IGameState) => {
 
     const frame = () => {
         now = timestamp();
-        delta += Math.min(1, (now - last) / 1000);
+        delta += Math.min(1, (now - last) / ONE_SECOND);
         
-        while(delta > dt) {
-            state.update(dt);
-            delta -= dt;
+        while(delta > DT) {
+            state.update(DT);
+            delta -= DT;
         }
 
         state.render(delta);

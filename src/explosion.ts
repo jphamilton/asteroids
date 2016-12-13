@@ -2,7 +2,7 @@ import { EventSource } from './events';
 import { Key } from './keys';
 import screen from './screen';
 import { Object2D } from './object2d';
-import { VECTOR } from './lut';
+import { Vector } from './vector';
 import { random } from './util';
 
 const VELOCITY = 150;
@@ -16,10 +16,8 @@ export class Explosion extends EventSource {
         super();
 
         for(let i = 0; i < 15; i++) {
-            let t = VECTOR[random(1,360)];
-            let tx = t.x * Math.random() * VELOCITY;
-            let ty = t.y * Math.random() * VELOCITY;
-            this.points.push({x: x, y: y, vx: tx, vy: ty });
+            let v = new Vector(random(1,360), Math.random() * VELOCITY);
+            this.points.push({x: x, y: y, vx: v.x, vy: v.y });
         }
     }
 
