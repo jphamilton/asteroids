@@ -2,6 +2,12 @@
   "name": "loader",
   "version": "1.0.0",
   "description": "Asteroids",
+  "keywords": [
+      "Asteroids",
+      "Game",
+      "JavaScript",
+      "TypeScript"
+  ],
   "main": "asteroids.js",
   "scripts": {
     "build": "webpack --config webpack.config.js",
