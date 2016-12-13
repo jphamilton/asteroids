@@ -58,12 +58,12 @@ export abstract class Object2D extends EventSource implements Rect {
             this.angle -= 360;
         }
 
-        let c = COS[angle]
-        let s = SIN[angle];
+        const c = COS[angle]
+        const s = SIN[angle];
 
         this.points.forEach(p => {
-            let newX = (c * p.x) - (s * p.y);
-            let newY = (s * p.x) + (c * p.y);
+            const newX = (c * p.x) - (s * p.y);
+            const newY = (s * p.x) + (c * p.y);
             p.x = newX;
             p.y = newY;
         });

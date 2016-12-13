@@ -96,7 +96,7 @@ export class Asteroids {
     }
 }
 
-let game = new Asteroids();
+const game = new Asteroids();
 
 setTimeout(() => {
     loop(game);

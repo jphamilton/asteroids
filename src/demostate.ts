@@ -142,7 +142,7 @@ export class DemoState {
     }
 
     updateAllObjects(dt: number) {
-        let objects = [this.alien, ...this.rocks, ...this.alienBullets, ...this.explosions];
+        const objects = [this.alien, ...this.rocks, ...this.alienBullets, ...this.explosions];
         
         objects.forEach(obj => {
             if (obj) {
@@ -155,7 +155,7 @@ export class DemoState {
         this.drawBackground();
         this.drawPushStart();
 
-        let objects = [...this.rocks, this.alien, ...this.alienBullets, ...this.explosions];
+        const objects = [...this.rocks, this.alien, ...this.alienBullets, ...this.explosions];
         
         objects.forEach(obj => {
             if (obj) {
@@ -164,7 +164,10 @@ export class DemoState {
         });
 
         if (this.alien && this.debug) {
-            this.drawQuadtree();
+            if (this.qt) {
+                screen.draw.quadtree(this.qt);                
+            }
+            
             this.bounds.forEach(r => {
                 screen.draw.bounds(r, '#fc058d');
             });
@@ -215,11 +218,10 @@ export class DemoState {
     }
 
     private createExplosion(x: number, y: number) {
-        let explosion = new Explosion(x, y);
+        const explosion = new Explosion(x, y);
 
         explosion.on('expired', ()=> {
             this.explosions = this.explosions.filter(x => x !== explosion);
-            explosion = null;
         });
 
         this.explosions.push(explosion);
@@ -239,7 +241,7 @@ export class DemoState {
     }
 
     private drawPushStart() {
-        let screenX = screen.width / 2;
+        const screenX = screen.width / 2;
 
         if (this.showPushStart) {
             screen.draw.text2('push start', '30pt', (width) => {
@@ -251,19 +253,5 @@ export class DemoState {
         }
     }
 
-    private drawQuadtree() {
-        if (this.qt) {
-            let drawNodes = (nodes: Quadtree[]) => {
-                if (!nodes) {
-                    return;
-                }
-                nodes.forEach(n => {
-                    screen.draw.bounds(n.bounds);
-                    drawNodes(n.nodes);
-                });
-            }
-
-            drawNodes(this.qt.nodes);
-        }
-    }
+   
 }

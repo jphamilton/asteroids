@@ -91,13 +91,10 @@ export class Quadtree {
         
         let index = -1;
         let results = [];
-        let {
-            xmid,
-            ymid
-        } = this;
-
-        let top = (rect.y <= ymid); 
-        let bottom = (rect.y > ymid);
+        
+        const { xmid, ymid } = this;
+        const top = (rect.y <= ymid); 
+        const bottom = (rect.y > ymid);
 
         if (rect.x <= xmid) {
             if (top) {
@@ -138,13 +135,13 @@ export class Quadtree {
     };
 
     private split() {
-        let width = Math.round(this.width2);
-        let height = Math.round(this.height2);
-        let x = Math.round(this.bounds.x);
-        let y = Math.round(this.bounds.y);
+        const width = Math.round(this.width2);
+        const height = Math.round(this.height2);
+        const x = Math.round(this.bounds.x);
+        const y = Math.round(this.bounds.y);
 
-        let create = (x, y) => {
-            let bounds: Rect = {
+        const create = (x, y) => {
+            const bounds: Rect = {
                 x: x,
                 y: y,
                 width: width,

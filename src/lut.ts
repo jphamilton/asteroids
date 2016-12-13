@@ -1,12 +1,11 @@
 
 /* lookup tables */
 
-let RAD = {};
-let COS = {};
-let SIN = {};
-
-let r = Math.PI / 180;
-let PI2 = 2 * Math.PI;
+const RAD = {};
+const COS = {};
+const SIN = {};
+const r = Math.PI / 180;
+const PI2 = 2 * Math.PI;
 
 for(let i = 0; i <= 360; i++) {
     RAD[i] = i * r; 

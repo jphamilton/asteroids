@@ -69,8 +69,8 @@ export class Rock extends Object2D {
         this.vx = v.x * speed;
         this.vy = v.y * speed;
 
-        let type = random(0, 2);
-        let def = this.rocks[type];
+        const type = random(0, 2);
+        const def = this.rocks[type];
         
         this.points = def.map(p => {
             return {
@@ -100,7 +100,7 @@ export class Rock extends Object2D {
     }
 
     get direction() {
-        let radians = Math.atan2(this.vy, this.vx);
+        const radians = Math.atan2(this.vy, this.vx);
         let degrees = radians * (180 / Math.PI);
         degrees = degrees > 0.0 ? degrees : 360 + degrees;
         return Math.floor(degrees);

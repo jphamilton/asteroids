@@ -75,7 +75,7 @@ export class GameState {
     }
 
     private drawExtraLives() {
-        let lives = Math.min(this.lives, 10);
+        const lives = Math.min(this.lives, 10);
         for(let i = 0; i < lives; i++) {
             let life = this.extraLives[i];
             life.render(0);

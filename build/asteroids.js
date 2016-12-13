@@ -377,6 +377,18 @@
 	            };
 	        });
 	    };
+	    Draw.prototype.quadtree = function (tree) {
+	        var drawNodes = function (nodes) {
+	            if (!nodes) {
+	                return;
+	            }
+	            nodes.forEach(function (n) {
+	                screen_1.default.draw.bounds(n.bounds);
+	                drawNodes(n.nodes);
+	            });
+	        };
+	        drawNodes(tree.nodes);
+	    };
 	    return Draw;
 	}());
 	exports.Draw = Draw;
@@ -563,14 +575,14 @@
 
 	"use strict";
 	var screen_1 = __webpack_require__(3);
-	var util_1 = __webpack_require__(14);
+	var util_1 = __webpack_require__(10);
 	var highscores_1 = __webpack_require__(5);
 	var keys_1 = __webpack_require__(7);
-	var rocks_1 = __webpack_require__(10);
+	var rocks_1 = __webpack_require__(11);
 	var alien_1 = __webpack_require__(15);
 	var explosion_1 = __webpack_require__(17);
 	var quadtree_1 = __webpack_require__(18);
-	var vector_1 = __webpack_require__(13);
+	var vector_1 = __webpack_require__(14);
 	var DemoState = (function () {
 	    function DemoState() {
 	        this.blinkTimer = 0;
@@ -694,7 +706,9 @@
 	            }
 	        });
 	        if (this.alien && this.debug) {
-	            this.drawQuadtree();
+	            if (this.qt) {
+	                screen_1.default.draw.quadtree(this.qt);
+	            }
 	            this.bounds.forEach(function (r) {
 	                screen_1.default.draw.bounds(r, '#fc058d');
 	            });
@@ -739,7 +753,6 @@
 	        var explosion = new explosion_1.Explosion(x, y);
 	        explosion.on('expired', function () {
 	            _this.explosions = _this.explosions.filter(function (x) { return x !== explosion; });
-	            explosion = null;
 	        });
 	        this.explosions.push(explosion);
 	    };
@@ -766,20 +779,6 @@
 	            });
 	        }
 	    };
-	    DemoState.prototype.drawQuadtree = function () {
-	        if (this.qt) {
-	            var drawNodes_1 = function (nodes) {
-	                if (!nodes) {
-	                    return;
-	                }
-	                nodes.forEach(function (n) {
-	                    screen_1.default.draw.bounds(n.bounds);
-	                    drawNodes_1(n.nodes);
-	                });
-	            };
-	            drawNodes_1(this.qt.nodes);
-	        }
-	    };
 	    return DemoState;
 	}());
 	exports.DemoState = DemoState;
@@ -787,6 +786,17 @@
 
 /***/ },
 /* 10 */
+/***/ function(module, exports) {
+
+	"use strict";
+	function random(start, end) {
+	    return Math.floor(Math.random() * (end - start + 1)) + start;
+	}
+	exports.random = random;
+
+
+/***/ },
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -795,9 +805,9 @@
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
-	var object2d_1 = __webpack_require__(11);
-	var vector_1 = __webpack_require__(13);
-	var util_1 = __webpack_require__(14);
+	var object2d_1 = __webpack_require__(12);
+	var vector_1 = __webpack_require__(14);
+	var util_1 = __webpack_require__(10);
 	var RockSize;
 	(function (RockSize) {
 	    RockSize[RockSize["Small"] = 5] = "Small";
@@ -924,7 +934,7 @@
 
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -935,7 +945,7 @@
 	};
 	var screen_1 = __webpack_require__(3);
 	var events_1 = __webpack_require__(8);
-	var lut_1 = __webpack_require__(12);
+	var lut_1 = __webpack_require__(13);
 	var Object2D = (function (_super) {
 	    __extends(Object2D, _super);
 	    function Object2D(x, y) {
@@ -1080,7 +1090,7 @@
 
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1103,7 +1113,7 @@
 
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1128,17 +1138,6 @@
 
 
 /***/ },
-/* 14 */
-/***/ function(module, exports) {
-
-	"use strict";
-	function random(start, end) {
-	    return Math.floor(Math.random() * (end - start + 1)) + start;
-	}
-	exports.random = random;
-
-
-/***/ },
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -1149,12 +1148,11 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var screen_1 = __webpack_require__(3);
-	var util_1 = __webpack_require__(14);
-	var object2d_1 = __webpack_require__(11);
+	var util_1 = __webpack_require__(10);
+	var object2d_1 = __webpack_require__(12);
 	var bullet_1 = __webpack_require__(16);
-	var vector_1 = __webpack_require__(13);
+	var vector_1 = __webpack_require__(14);
 	var BULLET_SPEED = 600;
-	var VELOCITY = 75;
 	var BIG_ALIEN_SPEED = 225;
 	var BigAlien = (function (_super) {
 	    __extends(BigAlien, _super);
@@ -1238,7 +1236,7 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var screen_1 = __webpack_require__(3);
-	var object2d_1 = __webpack_require__(11);
+	var object2d_1 = __webpack_require__(12);
 	var Bullet = (function (_super) {
 	    __extends(Bullet, _super);
 	    function Bullet(x, y, v) {
@@ -1279,8 +1277,8 @@
 	};
 	var events_1 = __webpack_require__(8);
 	var screen_1 = __webpack_require__(3);
-	var vector_1 = __webpack_require__(13);
-	var util_1 = __webpack_require__(14);
+	var vector_1 = __webpack_require__(14);
+	var util_1 = __webpack_require__(10);
 	var VELOCITY = 150;
 	var Explosion = (function (_super) {
 	    __extends(Explosion, _super);
@@ -1539,8 +1537,8 @@
 	};
 	var screen_1 = __webpack_require__(3);
 	var keys_1 = __webpack_require__(7);
-	var object2d_1 = __webpack_require__(11);
-	var vector_1 = __webpack_require__(13);
+	var object2d_1 = __webpack_require__(12);
+	var vector_1 = __webpack_require__(14);
 	var bullet_1 = __webpack_require__(16);
 	var ACCELERATION = 0.2;
 	var BULLET_SPEED = 800;

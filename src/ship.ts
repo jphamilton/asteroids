@@ -135,7 +135,7 @@ export class Ship extends Object2D {
             
             // adjust for speed of ship if bullets and ship are moving in same general direction
             let speed = 0; 
-            let dot = (this.vx * bullet.vx) + (this.vy * bullet.vy);
+            const dot = (this.vx * bullet.vx) + (this.vy * bullet.vy);
             
             if (dot > 0) {
                 speed = this.magnitude;

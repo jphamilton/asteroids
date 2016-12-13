@@ -10,7 +10,7 @@ export class Draw {
     }
 
     line(p1: Point, p2: Point, color: string = VectorLine, width: number = 2) {
-        let { ctx } = this;
+        const { ctx } = this;
         
         ctx.beginPath();
         ctx.strokeStyle = color;
@@ -32,7 +32,7 @@ export class Draw {
     }
 
     rect(p1: Point, p2: Point, color: string = VectorLine) {
-        let { ctx } = this;
+        const { ctx } = this;
 
         ctx.beginPath();
         ctx.fillStyle = color; 
@@ -46,13 +46,13 @@ export class Draw {
     }
 
     background() {
-        let { ctx } = this;
+        const { ctx } = this;
 
         this.rect({ x: 0, y: 0}, { x: screen.width, y: screen.height }, '#000000');
     }
 
     bounds(rect: Rect, color: string = VectorLine) {
-        let { ctx } = this;
+        const { ctx } = this;
     
         ctx.save();
         ctx.beginPath();
@@ -69,7 +69,8 @@ export class Draw {
     }
 
     text(text: string, x: number, y: number, size: string) {
-        let { ctx } = this;
+        const { ctx } = this;
+        
         ctx.save();
         ctx.font = `${size} hyperspace`;
         ctx.textBaseline = 'middle';
@@ -80,14 +81,17 @@ export class Draw {
     }
 
     text2(text: string, size: string, cb: (width: number) => Point) {
-        let { ctx } = this;
+        const { ctx } = this;
+        
         ctx.save();
         ctx.font = `${size} hyperspace`;
         ctx.textBaseline = 'middle';
         ctx.lineWidth = 1;
         ctx.strokeStyle = VectorLine;
-        let width = ctx.measureText(text).width;
-        let point = cb(width);
+        
+        const width = ctx.measureText(text).width;
+        const point = cb(width);
+
         ctx.strokeText(text, point.x, point.y);
         ctx.restore();
     }
@@ -116,5 +120,19 @@ export class Draw {
                 y: screen.height - 20
             }
         });
+    }
+
+    quadtree(tree) {
+        const drawNodes = (nodes) => {
+            if (!nodes) {
+                return;
+            }
+            nodes.forEach(n => {
+                screen.draw.bounds(n.bounds);
+                drawNodes(n.nodes);
+            });
+        }
+
+        drawNodes(tree.nodes);
     }
 }

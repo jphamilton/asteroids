@@ -14,7 +14,7 @@ export class EventSource {
     }
 
     trigger(event: string, ...args: any[] ) {
-        let handlers = this.handlers[event] || [];
+        const handlers = this.handlers[event] || [];
         handlers.forEach(x => x(this, ...args));
     }
     

@@ -36,7 +36,7 @@ export class HighScoreState {
     }
 
     private drawHighScores() {
-        let screenX = screen.width / 2;
+        const screenX = screen.width / 2;
 
         screen.draw.text2('high scores', '30pt', (width) => {
             return {
@@ -46,8 +46,8 @@ export class HighScoreState {
         });
 
         for (let i = 0; i < highscores.length; i++) {
-            let y = 280 + (i * 40);
-            let text = `${this.pad(i + 1, ' ', 2)}.${this.pad(highscores[i].score, ' ', 6)} ${highscores[i].initials}`;
+            const y = 280 + (i * 40);
+            const text = `${this.pad(i + 1, ' ', 2)}.${this.pad(highscores[i].score, ' ', 6)} ${highscores[i].initials}`;
 
             screen.draw.text2(text, '30pt', (width) => {
                 return {
@@ -59,7 +59,7 @@ export class HighScoreState {
     }
 
     private drawPushStart() {
-        let screenX = screen.width / 2;
+        const screenX = screen.width / 2;
 
         if (this.showPushStart) {
             screen.draw.text2('push start', '30pt', (width) => {

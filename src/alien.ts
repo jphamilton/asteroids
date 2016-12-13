@@ -5,7 +5,6 @@ import { Bullet } from './bullet';
 import { Vector } from './vector';
 
 const BULLET_SPEED: number = 600;
-const VELOCITY: number = 75;
 const BIG_ALIEN_SPEED: number = 225;
 
 export class BigAlien extends Object2D {
