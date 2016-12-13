@@ -1,7 +1,8 @@
 import screen from './screen';
+import { random } from './util';
 import { Object2D } from './object2d';
 import { Bullet } from './bullet';
-import { random } from './util';
+import { Vector } from './vector';
 
 const BULLET_SPEED: number = 600;
 const VELOCITY: number = 75;
@@ -74,10 +75,8 @@ export class BigAlien extends Object2D {
         this.bulletTimer += dt;
 
         if (this.bulletTimer >= .7) {
-            let bullet = new Bullet(this.origin.x, this.origin.y, random(1, 360));
-            
-            bullet.vx *= BULLET_SPEED;
-            bullet.vy *= BULLET_SPEED;
+            const v = new Vector(random(1, 360), BULLET_SPEED);
+            const bullet = new Bullet(this.origin.x, this.origin.y, v);
             
             this.trigger('fire', bullet);
             this.bulletTimer = 0;

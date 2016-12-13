@@ -1,6 +1,7 @@
+import screen from './screen';
 import { EventSource } from './events';
 import { COS, SIN } from './lut';
-import screen from './screen';
+
 
 export abstract class Object2D extends EventSource implements Rect {
 

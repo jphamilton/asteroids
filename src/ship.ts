@@ -120,10 +120,10 @@ export class Ship extends Object2D {
 
     private fire() {
         if (this.bulletCount < MAX_BULLETS) {
-            
             this.bulletCount++;
 
-            let bullet = new Bullet(this.origin.x, this.origin.y, this.angle);
+            const v = new Vector(this.angle);
+            const bullet = new Bullet(this.origin.x, this.origin.y, v);
 
             bullet.on('expired', () => {
                 this.bulletCount--;

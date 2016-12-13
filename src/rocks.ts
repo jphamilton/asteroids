@@ -63,11 +63,11 @@ export class Rock extends Object2D {
 
     private rocks = [this.rock1, this.rock2, this.rock3];
 
-    constructor(x: number, y: number, vx: number, vy: number, size: RockSize, speed: number = 1) {
+    constructor(x: number, y: number, v: Vector, size: RockSize, speed: number = 1) {
         super(x, y);
         
-        this.vx = vx * speed;
-        this.vy = vy * speed;
+        this.vx = v.x * speed;
+        this.vy = v.y * speed;
 
         let type = random(0, 2);
         let def = this.rocks[type];
@@ -133,8 +133,8 @@ export class Rock extends Object2D {
             const v2 = new Vector(angle2);
             const speed1 = size === RockSize.Medium ? random(200, 300) : random(200,600);
             const speed2 = size === RockSize.Medium ? random(200, 300) : random(200,600);
-            const rock1 = new Rock(this.origin.x, this.origin.y, v1.x, v1.y, size, speed1);
-            const rock2 = new Rock(this.origin.x, this.origin.y, v2.x, v2.y, size, speed2);
+            const rock1 = new Rock(this.origin.x, this.origin.y, v1, size, speed1);
+            const rock2 = new Rock(this.origin.x, this.origin.y, v2, size, speed2);
             
              return [rock1, rock2]
         }

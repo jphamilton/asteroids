@@ -6,11 +6,8 @@ export class Bullet extends Object2D {
 
     life: number = 1.25;   // in seconds
     
-    constructor(x: number, y: number, angle: number) {
+    constructor(x: number, y: number, v: Vector) {
         super(x, y);
-        
-        let v = new Vector(angle);
-        
         this.vx = v.x;
         this.vy = v.y;
     }

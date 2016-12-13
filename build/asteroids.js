@@ -49,7 +49,7 @@
 	var highscorestate_1 = __webpack_require__(2);
 	var enterhighscorestate_1 = __webpack_require__(6);
 	var demostate_1 = __webpack_require__(9);
-	var gamestate_1 = __webpack_require__(18);
+	var gamestate_1 = __webpack_require__(19);
 	var keys_1 = __webpack_require__(7);
 	var Asteroids = (function () {
 	    function Asteroids() {
@@ -559,11 +559,11 @@
 	var keys_1 = __webpack_require__(7);
 	var highscores_1 = __webpack_require__(5);
 	var rocks_1 = __webpack_require__(10);
-	var alien_1 = __webpack_require__(14);
-	var explosion_1 = __webpack_require__(16);
-	var quadtree_1 = __webpack_require__(17);
-	var util_1 = __webpack_require__(13);
-	var vector_1 = __webpack_require__(20);
+	var alien_1 = __webpack_require__(15);
+	var explosion_1 = __webpack_require__(17);
+	var quadtree_1 = __webpack_require__(18);
+	var util_1 = __webpack_require__(14);
+	var vector_1 = __webpack_require__(13);
 	var DemoState = (function () {
 	    function DemoState() {
 	        this.blink = 0;
@@ -577,13 +577,13 @@
 	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
 	        var speed = 200;
 	        var v = new vector_1.Vector(util_1.random(1, 90));
-	        var rock1 = new rocks_1.Rock(40, 40, v.x, v.y, rocks_1.RockSize.Large, speed);
+	        var rock1 = new rocks_1.Rock(40, 40, v, rocks_1.RockSize.Large, speed);
 	        v = new vector_1.Vector(util_1.random(90, 180));
-	        var rock2 = new rocks_1.Rock(screen_1.default.width - 40, 40, v.x, v.y, rocks_1.RockSize.Large, speed);
+	        var rock2 = new rocks_1.Rock(screen_1.default.width - 40, 40, v, rocks_1.RockSize.Large, speed);
 	        v = new vector_1.Vector(util_1.random(270, 360));
-	        var rock3 = new rocks_1.Rock(40, screen_1.default.height - 40, v.x, v.y, rocks_1.RockSize.Large, speed);
+	        var rock3 = new rocks_1.Rock(40, screen_1.default.height - 40, v, rocks_1.RockSize.Large, speed);
 	        v = new vector_1.Vector(util_1.random(180, 270));
-	        var rock4 = new rocks_1.Rock(screen_1.default.width - 40, screen_1.default.height - 40, v.x, v.y, rocks_1.RockSize.Large, speed);
+	        var rock4 = new rocks_1.Rock(screen_1.default.width - 40, screen_1.default.height - 40, v, rocks_1.RockSize.Large, speed);
 	        this.rocks = [rock1, rock2, rock3, rock4];
 	    }
 	    DemoState.prototype.update = function (dt) {
@@ -767,8 +767,8 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var object2d_1 = __webpack_require__(11);
-	var vector_1 = __webpack_require__(20);
-	var util_1 = __webpack_require__(13);
+	var vector_1 = __webpack_require__(13);
+	var util_1 = __webpack_require__(14);
 	var RockSize;
 	(function (RockSize) {
 	    RockSize[RockSize["Small"] = 5] = "Small";
@@ -777,7 +777,7 @@
 	})(RockSize = exports.RockSize || (exports.RockSize = {}));
 	var Rock = (function (_super) {
 	    __extends(Rock, _super);
-	    function Rock(x, y, vx, vy, size, speed) {
+	    function Rock(x, y, v, size, speed) {
 	        if (speed === void 0) { speed = 1; }
 	        var _this = _super.call(this, x, y) || this;
 	        _this.rotTimer = 0;
@@ -825,8 +825,8 @@
 	            [0, -1]
 	        ];
 	        _this.rocks = [_this.rock1, _this.rock2, _this.rock3];
-	        _this.vx = vx * speed;
-	        _this.vy = vy * speed;
+	        _this.vx = v.x * speed;
+	        _this.vy = v.y * speed;
 	        var type = util_1.random(0, 2);
 	        var def = _this.rocks[type];
 	        _this.points = def.map(function (p) {
@@ -883,8 +883,8 @@
 	            var v2 = new vector_1.Vector(angle2);
 	            var speed1 = size === RockSize.Medium ? util_1.random(200, 300) : util_1.random(200, 600);
 	            var speed2 = size === RockSize.Medium ? util_1.random(200, 300) : util_1.random(200, 600);
-	            var rock1 = new Rock(this.origin.x, this.origin.y, v1.x, v1.y, size, speed1);
-	            var rock2 = new Rock(this.origin.x, this.origin.y, v2.x, v2.y, size, speed2);
+	            var rock1 = new Rock(this.origin.x, this.origin.y, v1, size, speed1);
+	            var rock2 = new Rock(this.origin.x, this.origin.y, v2, size, speed2);
 	            return [rock1, rock2];
 	        }
 	        return [];
@@ -904,9 +904,9 @@
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
+	var screen_1 = __webpack_require__(3);
 	var events_1 = __webpack_require__(8);
 	var lut_1 = __webpack_require__(12);
-	var screen_1 = __webpack_require__(3);
 	var Object2D = (function (_super) {
 	    __extends(Object2D, _super);
 	    function Object2D(x, y) {
@@ -1078,6 +1078,31 @@
 /***/ function(module, exports) {
 
 	"use strict";
+	var VECTOR = {};
+	var PI2 = 2 * Math.PI;
+	for (var i = 0; i <= 360; i++) {
+	    var t = PI2 * (i / 360);
+	    VECTOR[i] = {
+	        x: Math.cos(t),
+	        y: Math.sin(t)
+	    };
+	}
+	var Vector = (function () {
+	    function Vector(angleInDegrees, velocity) {
+	        if (velocity === void 0) { velocity = 1; }
+	        this.x = VECTOR[angleInDegrees].x * velocity;
+	        this.y = VECTOR[angleInDegrees].y * velocity;
+	    }
+	    return Vector;
+	}());
+	exports.Vector = Vector;
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	"use strict";
 	function random(start, end) {
 	    return Math.floor(Math.random() * (end - start + 1)) + start;
 	}
@@ -1085,7 +1110,7 @@
 
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1095,9 +1120,10 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var screen_1 = __webpack_require__(3);
+	var util_1 = __webpack_require__(14);
 	var object2d_1 = __webpack_require__(11);
-	var bullet_1 = __webpack_require__(15);
-	var util_1 = __webpack_require__(13);
+	var bullet_1 = __webpack_require__(16);
+	var vector_1 = __webpack_require__(13);
 	var BULLET_SPEED = 600;
 	var VELOCITY = 75;
 	var BIG_ALIEN_SPEED = 225;
@@ -1153,9 +1179,8 @@
 	        }
 	        this.bulletTimer += dt;
 	        if (this.bulletTimer >= .7) {
-	            var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, util_1.random(1, 360));
-	            bullet.vx *= BULLET_SPEED;
-	            bullet.vy *= BULLET_SPEED;
+	            var v = new vector_1.Vector(util_1.random(1, 360), BULLET_SPEED);
+	            var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
 	            this.trigger('fire', bullet);
 	            this.bulletTimer = 0;
 	        }
@@ -1174,7 +1199,7 @@
 
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1184,14 +1209,12 @@
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
 	var screen_1 = __webpack_require__(3);
-	var vector_1 = __webpack_require__(20);
 	var object2d_1 = __webpack_require__(11);
 	var Bullet = (function (_super) {
 	    __extends(Bullet, _super);
-	    function Bullet(x, y, angle) {
+	    function Bullet(x, y, v) {
 	        var _this = _super.call(this, x, y) || this;
 	        _this.life = 1.25;
-	        var v = new vector_1.Vector(angle);
 	        _this.vx = v.x;
 	        _this.vy = v.y;
 	        return _this;
@@ -1216,7 +1239,7 @@
 
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1227,8 +1250,8 @@
 	};
 	var events_1 = __webpack_require__(8);
 	var screen_1 = __webpack_require__(3);
-	var vector_1 = __webpack_require__(20);
-	var util_1 = __webpack_require__(13);
+	var vector_1 = __webpack_require__(13);
+	var util_1 = __webpack_require__(14);
 	var VELOCITY = 150;
 	var Explosion = (function (_super) {
 	    __extends(Explosion, _super);
@@ -1264,7 +1287,7 @@
 
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1418,11 +1441,11 @@
 
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	var ship_1 = __webpack_require__(19);
+	var ship_1 = __webpack_require__(20);
 	var screen_1 = __webpack_require__(3);
 	var highscores_1 = __webpack_require__(5);
 	var GameState = (function () {
@@ -1476,7 +1499,7 @@
 
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1488,8 +1511,8 @@
 	var screen_1 = __webpack_require__(3);
 	var keys_1 = __webpack_require__(7);
 	var object2d_1 = __webpack_require__(11);
-	var vector_1 = __webpack_require__(20);
-	var bullet_1 = __webpack_require__(15);
+	var vector_1 = __webpack_require__(13);
+	var bullet_1 = __webpack_require__(16);
 	var ACCELERATION = 0.2;
 	var BULLET_SPEED = 800;
 	var FRICTION = 0.007;
@@ -1589,7 +1612,8 @@
 	        var _this = this;
 	        if (this.bulletCount < MAX_BULLETS) {
 	            this.bulletCount++;
-	            var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, this.angle);
+	            var v = new vector_1.Vector(this.angle);
+	            var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
 	            bullet.on('expired', function () {
 	                _this.bulletCount--;
 	            });
@@ -1609,31 +1633,6 @@
 	    return Ship;
 	}(object2d_1.Object2D));
 	exports.Ship = Ship;
-
-
-/***/ },
-/* 20 */
-/***/ function(module, exports) {
-
-	"use strict";
-	var VECTOR = {};
-	var PI2 = 2 * Math.PI;
-	for (var i = 0; i <= 360; i++) {
-	    var t = PI2 * (i / 360);
-	    VECTOR[i] = {
-	        x: Math.cos(t),
-	        y: Math.sin(t)
-	    };
-	}
-	var Vector = (function () {
-	    function Vector(angleInDegrees, velocity) {
-	        if (velocity === void 0) { velocity = 1; }
-	        this.x = VECTOR[angleInDegrees].x * velocity;
-	        this.y = VECTOR[angleInDegrees].y * velocity;
-	    }
-	    return Vector;
-	}());
-	exports.Vector = Vector;
 
 
 /***/ }
