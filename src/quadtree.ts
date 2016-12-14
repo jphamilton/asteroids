@@ -17,6 +17,10 @@ export class Quadtree {
     }
 
     insert(rect: Rect) {
+        if (!rect) {
+            return;
+        }
+        
         let i = 0;
         let indices: number[];
 

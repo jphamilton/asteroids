@@ -4,7 +4,7 @@ import { Object2D } from './object2d';
 import { Vector } from './vector';
 import { Bullet } from './bullet';
 
-const ACCELERATION: number = 0.2;
+const ACCELERATION: number = 0.1;
 const BULLET_SPEED: number = 800;
 const FRICTION: number = 0.007;
 const ROTATION: number = 5;
@@ -100,20 +100,12 @@ export class Ship extends Object2D {
 
     private thrust() {
         const v = new Vector(this.angle, VELOCITY * ACCELERATION);
-        
-        this.vx += v.x;
-        this.flame.vx = this.vx;
-        this.vy += v.y;
-        this.flame.vy = this.vy;
-
         const velocity = this.magnitude;
 
-        if (velocity > MAX_ACCELERATION) {
-            this.vx = this.vx / velocity;
-            this.vy = this.vy / velocity;
-            this.vx *= MAX_ACCELERATION;
-            this.vy *= MAX_ACCELERATION;
+        if (velocity <= MAX_ACCELERATION) {
+            this.vx += v.x;
             this.flame.vx = this.vx;
+            this.vy += v.y;
             this.flame.vy = this.vy;
         }
     }

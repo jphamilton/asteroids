@@ -30,4 +30,9 @@ export class Bullet extends Object2D {
     draw() {
         screen.draw.point({x: this.origin.x, y: this.origin.y});
     }
+
+    expire() {
+        this.life = 0;
+        this.trigger('expire');
+    }
 }

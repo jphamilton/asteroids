@@ -53,7 +53,11 @@ export class Draw {
 
     bounds(rect: Rect, color: string = VectorLine) {
         const { ctx } = this;
-    
+        
+        if (!rect) {
+            return;
+        }
+
         ctx.save();
         ctx.beginPath();
         ctx.strokeStyle = color;
@@ -123,6 +127,10 @@ export class Draw {
     }
 
     quadtree(tree) {
+        if (!tree) {
+            return;
+        }
+        
         const drawNodes = (nodes) => {
             if (!nodes) {
                 return;

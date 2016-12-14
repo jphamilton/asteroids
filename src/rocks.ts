@@ -106,7 +106,7 @@ export class Rock extends Object2D {
         return Math.floor(degrees);
     }
 
-    split(obj: Object2D): Rock[] {
+    split(): Rock[] {
         if (this.size > RockSize.Small) {
 
             let angle1 = random(this.direction, this.direction + 80);
@@ -131,8 +131,8 @@ export class Rock extends Object2D {
             const size = this.size === RockSize.Large ? RockSize.Medium : RockSize.Small;
             const v1 = new Vector(angle1);
             const v2 = new Vector(angle2);
-            const speed1 = size === RockSize.Medium ? random(200, 300) : random(200,600);
-            const speed2 = size === RockSize.Medium ? random(200, 300) : random(200,600);
+            const speed1 = size === RockSize.Medium ? random(150, 250) : random(250, 350);
+            const speed2 = size === RockSize.Medium ? random(150, 250) : random(250, 350);
             const rock1 = new Rock(this.origin.x, this.origin.y, v1, size, speed1);
             const rock2 = new Rock(this.origin.x, this.origin.y, v2, size, speed2);
             

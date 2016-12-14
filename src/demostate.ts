@@ -77,18 +77,20 @@ export class DemoState {
 
     checkCollisions() {
         if (this.alien) {
+            
             this.bounds = [];
             this.qt = new Quadtree(
                 {x: 0, y: 0, width: screen.width, height: screen.height}, 
                 1
             );
-        }
 
-        this.rocks.forEach(rock => {
-            if (this.alien) {
-                this.qt.insert(rock);
-            }
-        });
+            this.rocks.forEach(rock => {
+                if (this.alien) {
+                    this.qt.insert(rock);
+                }
+            });
+
+        }
 
         this.checkAlienCollision();
         this.checkAlienBulletCollision();
@@ -102,7 +104,7 @@ export class DemoState {
                 if (rock.collided(this.alien)) {
                     this.createExplosion(this.alien.origin.x, this.alien.origin.y);
                     this.createExplosion(rock.origin.x, rock.origin.y);
-                    this.splitRock(rock, this.alien);
+                    this.splitRock(rock);
                     this.alien = null;
                     this.alienBullets = [];
                 } 
@@ -124,7 +126,7 @@ export class DemoState {
                     if (rock.collided(bullet)) {
                         this.createExplosion(rock.origin.x, rock.origin.y);
                         this.alienBullets = this.alienBullets.filter(x => x !== bullet);
-                        this.splitRock(rock, bullet);
+                        this.splitRock(rock);
                         bullet = null;
                     } 
 
@@ -135,7 +137,7 @@ export class DemoState {
             }
 
             if (this.debug) {
-                this.bounds.push(...rocks);
+                this.bounds.push(...rocks, this.alien);
             }
 
         });
@@ -227,9 +229,9 @@ export class DemoState {
         this.explosions.push(explosion);
     }
 
-    private splitRock(rock: Rock, obj: Object2D) {
+    private splitRock(rock: Rock) {
         this.rocks = this.rocks.filter(x => x !== rock);
-        this.rocks.push(...rock.split(obj));
+        this.rocks.push(...rock.split());
         rock = null;
     }
 

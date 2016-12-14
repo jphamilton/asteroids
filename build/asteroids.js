@@ -54,7 +54,7 @@
 	var Asteroids = (function () {
 	    function Asteroids() {
 	        var _this = this;
-	        this.state = 'start';
+	        this.state = 'demo';
 	        this.demoTimer = 0;
 	        this.demoStarted = false;
 	        this.highScoreState = new highscorestate_1.HighScoreState();
@@ -111,11 +111,6 @@
 	        keys_1.Key.update();
 	    };
 	    Asteroids.prototype.updateDemoTimer = function (dt) {
-	        this.demoTimer += dt;
-	        if (this.demoTimer >= 10) {
-	            this.demoTimer = 0;
-	            this.state = this.state === 'demo' ? 'start' : 'demo';
-	        }
 	    };
 	    return Asteroids;
 	}());
@@ -244,6 +239,8 @@
 	var Screen = (function () {
 	    function Screen() {
 	        var _this = this;
+	        this.x = 0;
+	        this.y = 0;
 	        this.canvas = document.getElementById('canvas');
 	        this.ctx = this.canvas.getContext('2d');
 	        this.draw = new draw_1.Draw(this.ctx);
@@ -257,6 +254,8 @@
 	        this.canvas.height = document.body.clientHeight;
 	        this.width = this.canvas.width;
 	        this.height = this.canvas.height;
+	        this.width2 = this.width / 2;
+	        this.height2 = this.height / 2;
 	    };
 	    return Screen;
 	}());
@@ -317,6 +316,9 @@
 	    Draw.prototype.bounds = function (rect, color) {
 	        if (color === void 0) { color = VectorLine; }
 	        var ctx = this.ctx;
+	        if (!rect) {
+	            return;
+	        }
 	        ctx.save();
 	        ctx.beginPath();
 	        ctx.strokeStyle = color;
@@ -378,6 +380,9 @@
 	        });
 	    };
 	    Draw.prototype.quadtree = function (tree) {
+	        if (!tree) {
+	            return;
+	        }
 	        var drawNodes = function (nodes) {
 	            if (!nodes) {
 	                return;
@@ -637,12 +642,12 @@
 	        if (this.alien) {
 	            this.bounds = [];
 	            this.qt = new quadtree_1.Quadtree({ x: 0, y: 0, width: screen_1.default.width, height: screen_1.default.height }, 1);
+	            this.rocks.forEach(function (rock) {
+	                if (_this.alien) {
+	                    _this.qt.insert(rock);
+	                }
+	            });
 	        }
-	        this.rocks.forEach(function (rock) {
-	            if (_this.alien) {
-	                _this.qt.insert(rock);
-	            }
-	        });
 	        this.checkAlienCollision();
 	        this.checkAlienBulletCollision();
 	    };
@@ -654,7 +659,7 @@
 	                if (rock.collided(_this.alien)) {
 	                    _this.createExplosion(_this.alien.origin.x, _this.alien.origin.y);
 	                    _this.createExplosion(rock.origin.x, rock.origin.y);
-	                    _this.splitRock(rock, _this.alien);
+	                    _this.splitRock(rock);
 	                    _this.alien = null;
 	                    _this.alienBullets = [];
 	                }
@@ -674,7 +679,7 @@
 	                    if (rock.collided(bullet)) {
 	                        _this.createExplosion(rock.origin.x, rock.origin.y);
 	                        _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
-	                        _this.splitRock(rock, bullet);
+	                        _this.splitRock(rock);
 	                        bullet = null;
 	                    }
 	                    if (_this.debug) {
@@ -683,7 +688,7 @@
 	                });
 	            }
 	            if (_this.debug) {
-	                (_a = _this.bounds).push.apply(_a, rocks);
+	                (_a = _this.bounds).push.apply(_a, rocks.concat([_this.alien]));
 	            }
 	            var _a;
 	        });
@@ -756,9 +761,9 @@
 	        });
 	        this.explosions.push(explosion);
 	    };
-	    DemoState.prototype.splitRock = function (rock, obj) {
+	    DemoState.prototype.splitRock = function (rock) {
 	        this.rocks = this.rocks.filter(function (x) { return x !== rock; });
-	        (_a = this.rocks).push.apply(_a, rock.split(obj));
+	        (_a = this.rocks).push.apply(_a, rock.split());
 	        rock = null;
 	        var _a;
 	    };
@@ -901,7 +906,7 @@
 	        enumerable: true,
 	        configurable: true
 	    });
-	    Rock.prototype.split = function (obj) {
+	    Rock.prototype.split = function () {
 	        if (this.size > RockSize.Small) {
 	            var angle1 = util_1.random(this.direction, this.direction + 80);
 	            var angle2 = util_1.random(this.direction - 80, this.direction);
@@ -920,8 +925,8 @@
 	            var size = this.size === RockSize.Large ? RockSize.Medium : RockSize.Small;
 	            var v1 = new vector_1.Vector(angle1);
 	            var v2 = new vector_1.Vector(angle2);
-	            var speed1 = size === RockSize.Medium ? util_1.random(200, 300) : util_1.random(200, 600);
-	            var speed2 = size === RockSize.Medium ? util_1.random(200, 300) : util_1.random(200, 600);
+	            var speed1 = size === RockSize.Medium ? util_1.random(150, 250) : util_1.random(250, 350);
+	            var speed2 = size === RockSize.Medium ? util_1.random(150, 250) : util_1.random(250, 350);
 	            var rock1 = new Rock(this.origin.x, this.origin.y, v1, size, speed1);
 	            var rock2 = new Rock(this.origin.x, this.origin.y, v2, size, speed2);
 	            return [rock1, rock2];
@@ -1045,12 +1050,18 @@
 	        get: function () {
 	            return this.origin.x + this._xmin;
 	        },
+	        set: function (x) {
+	            this.origin.x = x;
+	        },
 	        enumerable: true,
 	        configurable: true
 	    });
 	    Object.defineProperty(Object2D.prototype, "y", {
 	        get: function () {
 	            return this.origin.y + this._ymin;
+	        },
+	        set: function (y) {
+	            this.origin.y = y;
 	        },
 	        enumerable: true,
 	        configurable: true
@@ -1260,6 +1271,10 @@
 	    Bullet.prototype.draw = function () {
 	        screen_1.default.draw.point({ x: this.origin.x, y: this.origin.y });
 	    };
+	    Bullet.prototype.expire = function () {
+	        this.life = 0;
+	        this.trigger('expire');
+	    };
 	    return Bullet;
 	}(object2d_1.Object2D));
 	exports.Bullet = Bullet;
@@ -1336,6 +1351,9 @@
 	    }
 	    Quadtree.prototype.insert = function (rect) {
 	        var _this = this;
+	        if (!rect) {
+	            return;
+	        }
 	        var i = 0;
 	        var indices;
 	        if (this.nodes.length) {
@@ -1472,52 +1490,233 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var keys_1 = __webpack_require__(7);
 	var ship_1 = __webpack_require__(20);
+	var rocks_1 = __webpack_require__(11);
+	var explosion_1 = __webpack_require__(17);
+	var vector_1 = __webpack_require__(14);
+	var quadtree_1 = __webpack_require__(18);
 	var screen_1 = __webpack_require__(3);
 	var highscores_1 = __webpack_require__(5);
+	var util_1 = __webpack_require__(10);
 	var GameState = (function () {
 	    function GameState() {
-	        var _this = this;
 	        this.level = 1;
 	        this.score = 0;
 	        this.lives = 3;
 	        this.shipBullets = [];
+	        this.explosions = [];
 	        this.extraLives = [];
-	        this.ship = new ship_1.Ship(screen_1.default.width / 2, screen_1.default.height / 2);
+	        this.debug = false;
+	        this.paused = false;
+	        this.rocks = [];
+	        this.bounds = [];
+	        this.shipTimer = 0;
+	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
+	        this.init();
+	    }
+	    GameState.prototype.init = function () {
+	        this.qt = new quadtree_1.Quadtree(screen_1.default);
+	        this.addShip();
+	        for (var i = 0; i < this.lives; i++) {
+	            var life = new ship_1.Ship(80 + (i * 20), 55);
+	            this.extraLives.push(life);
+	        }
+	        this.addRocks();
+	    };
+	    GameState.prototype.addShip = function () {
+	        var _this = this;
+	        this.ship = new ship_1.Ship(screen_1.default.width2, screen_1.default.height2);
 	        this.ship.on('fire', function (ship, bullet) {
 	            bullet.on('expired', function () {
 	                _this.shipBullets = _this.shipBullets.filter(function (x) { return x !== bullet; });
 	            });
 	            _this.shipBullets.push(bullet);
 	        });
-	        for (var i = 0; i < this.lives; i++) {
-	            var life = new ship_1.Ship(80 + (i * 20), 55);
-	            this.extraLives.push(life);
-	        }
-	        this.highscore = highscores_1.highscores.length ? highscores_1.highscores[0].score : 0;
-	    }
+	    };
 	    GameState.prototype.update = function (dt) {
-	        this.ship.update(dt);
-	        for (var i = 0; i < this.shipBullets.length; i++) {
-	            this.shipBullets[i].update(dt);
+	        if (keys_1.Key.isPressed(keys_1.Key.DEBUG)) {
+	            this.debug = !this.debug;
 	        }
+	        if (keys_1.Key.isPressed(keys_1.Key.PAUSE)) {
+	            this.paused = !this.paused;
+	        }
+	        if (this.paused) {
+	            return;
+	        }
+	        if (this.shipTimer || (!this.ship && this.lives && !this.explosions.length)) {
+	            this.tryPlaceShip(dt);
+	        }
+	        if (!this.rocks.length && this.lives && !this.explosions.length) {
+	            this.level++;
+	            this.addRocks();
+	        }
+	        this.checkCollisions();
+	        var objects = [this.ship].concat(this.shipBullets, this.rocks, this.explosions);
+	        objects.forEach(function (obj) {
+	            if (obj) {
+	                obj.update(dt);
+	            }
+	        });
 	    };
 	    GameState.prototype.render = function (delta) {
+	        this.renderBackground();
+	        var objects = [this.ship].concat(this.shipBullets, this.rocks, this.explosions);
+	        objects.forEach(function (obj) {
+	            if (obj) {
+	                obj.render();
+	            }
+	        });
+	    };
+	    GameState.prototype.renderBackground = function () {
 	        screen_1.default.draw.background();
 	        screen_1.default.draw.copyright();
 	        screen_1.default.draw.scorePlayer1(this.score);
 	        screen_1.default.draw.highscore(this.highscore);
 	        this.drawExtraLives();
-	        this.ship.render();
-	        for (var i = 0; i < this.shipBullets.length; i++) {
-	            this.shipBullets[i].render();
+	        if (this.debug) {
+	            screen_1.default.draw.text2('debug mode', '12pt', function (width) {
+	                return { x: screen_1.default.width - width - 10, y: screen_1.default.height - 40 };
+	            });
+	            if (this.debug && this.bounds) {
+	                screen_1.default.draw.quadtree(this.qt);
+	                this.bounds.forEach(function (r) {
+	                    screen_1.default.draw.bounds(r, '#fc058d');
+	                });
+	            }
+	            if (!this.ship && this.lives) {
+	                var rect = {
+	                    x: screen_1.default.width2 - 80,
+	                    y: screen_1.default.height2 - 80,
+	                    width: 160,
+	                    height: 160
+	                };
+	                screen_1.default.draw.bounds(rect, '#00ff00');
+	            }
 	        }
 	    };
 	    GameState.prototype.drawExtraLives = function () {
 	        var lives = Math.min(this.lives, 10);
 	        for (var i = 0; i < lives; i++) {
 	            var life = this.extraLives[i];
-	            life.render(0);
+	            life.render();
+	        }
+	    };
+	    GameState.prototype.addRocks = function () {
+	        var count = Math.min(this.level + 3, 7);
+	        var speed = 150;
+	        for (var i = 0; i < count; i++) {
+	            var zone = util_1.random(1, 4);
+	            var v = new vector_1.Vector(util_1.random(1, 360));
+	            var x = void 0;
+	            var y = void 0;
+	            switch (zone) {
+	                case 1:
+	                    x = util_1.random(40, screen_1.default.width - 40);
+	                    y = util_1.random(40, 80);
+	                    break;
+	                case 2:
+	                    x = util_1.random(screen_1.default.width - 80, screen_1.default.width - 40);
+	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
+	                    break;
+	                case 3:
+	                    x = util_1.random(40, screen_1.default.width - 40);
+	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
+	                    break;
+	                default:
+	                    x = util_1.random(40, 80);
+	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
+	                    break;
+	            }
+	            var rock = new rocks_1.Rock(x, y, v, rocks_1.RockSize.Large, speed);
+	            this.rocks.push(rock);
+	        }
+	    };
+	    GameState.prototype.shipDestroyed = function () {
+	        this.lives--;
+	        this.ship = null;
+	    };
+	    GameState.prototype.checkCollisions = function () {
+	        var _this = this;
+	        var check = !!this.ship || !this.shipBullets;
+	        if (!check) {
+	            return;
+	        }
+	        this.bounds = [];
+	        this.qt = new quadtree_1.Quadtree(screen_1.default);
+	        this.rocks.forEach(function (rock) {
+	            if (_this.ship) {
+	                _this.qt.insert(rock);
+	            }
+	        });
+	        var rocks = this.qt.retrieve(this.ship);
+	        rocks.forEach(function (rock) {
+	            if (rock.collided(_this.ship)) {
+	                _this.createExplosion(_this.ship.origin.x, _this.ship.origin.y);
+	                _this.createExplosion(rock.origin.x, rock.origin.y);
+	                _this.scoreRock(rock);
+	                _this.splitRock(rock);
+	                _this.shipDestroyed();
+	            }
+	            if (_this.debug) {
+	                _this.bounds.push(rock);
+	            }
+	        });
+	        this.shipBullets.forEach(function (bullet) {
+	            var rocks = [];
+	            rocks.push.apply(rocks, _this.qt.retrieve(bullet));
+	            rocks.forEach(function (rock) {
+	                if (rock.collided(bullet)) {
+	                    _this.createExplosion(rock.origin.x, rock.origin.y);
+	                    _this.scoreRock(rock);
+	                    bullet.expire();
+	                    _this.splitRock(rock);
+	                }
+	                if (_this.debug) {
+	                    _this.bounds.push(rock);
+	                }
+	            });
+	            if (_this.debug) {
+	                (_a = _this.bounds).push.apply(_a, rocks.concat([_this.ship]));
+	            }
+	            var _a;
+	        });
+	    };
+	    GameState.prototype.scoreRock = function (rock) {
+	        this.score += rock.size === rocks_1.RockSize.Large ? 20 : rock.size === rocks_1.RockSize.Medium ? 50 : 100;
+	    };
+	    GameState.prototype.splitRock = function (rock) {
+	        this.rocks = this.rocks.filter(function (x) { return x !== rock; });
+	        (_a = this.rocks).push.apply(_a, rock.split());
+	        rock = null;
+	        var _a;
+	    };
+	    GameState.prototype.createExplosion = function (x, y) {
+	        var _this = this;
+	        var explosion = new explosion_1.Explosion(x, y);
+	        explosion.on('expired', function () {
+	            _this.explosions = _this.explosions.filter(function (x) { return x !== explosion; });
+	        });
+	        this.explosions.push(explosion);
+	    };
+	    GameState.prototype.tryPlaceShip = function (dt) {
+	        this.shipTimer += dt;
+	        if (this.shipTimer <= 2) {
+	            return;
+	        }
+	        var rect = {
+	            x: screen_1.default.width2 - 80,
+	            y: screen_1.default.height2 - 80,
+	            width: 160,
+	            height: 160
+	        };
+	        var collided = false;
+	        this.rocks.forEach(function (rock) {
+	            collided = collided || rock.collided(rect);
+	        });
+	        if (!collided) {
+	            this.shipTimer = 0;
+	            this.addShip();
 	        }
 	    };
 	    return GameState;
@@ -1540,7 +1739,7 @@
 	var object2d_1 = __webpack_require__(12);
 	var vector_1 = __webpack_require__(14);
 	var bullet_1 = __webpack_require__(16);
-	var ACCELERATION = 0.2;
+	var ACCELERATION = 0.1;
 	var BULLET_SPEED = 800;
 	var FRICTION = 0.007;
 	var ROTATION = 5;
@@ -1621,17 +1820,11 @@
 	    };
 	    Ship.prototype.thrust = function () {
 	        var v = new vector_1.Vector(this.angle, VELOCITY * ACCELERATION);
-	        this.vx += v.x;
-	        this.flame.vx = this.vx;
-	        this.vy += v.y;
-	        this.flame.vy = this.vy;
 	        var velocity = this.magnitude;
-	        if (velocity > MAX_ACCELERATION) {
-	            this.vx = this.vx / velocity;
-	            this.vy = this.vy / velocity;
-	            this.vx *= MAX_ACCELERATION;
-	            this.vy *= MAX_ACCELERATION;
+	        if (velocity <= MAX_ACCELERATION) {
+	            this.vx += v.x;
 	            this.flame.vx = this.vx;
+	            this.vy += v.y;
 	            this.flame.vy = this.vy;
 	        }
 	    };

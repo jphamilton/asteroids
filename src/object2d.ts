@@ -114,8 +114,16 @@ export abstract class Object2D extends EventSource implements Rect {
         return this.origin.x + this._xmin;
     }
 
+    set x(x: number) {
+        this.origin.x = x; 
+    }
+
     get y(): number {
         return this.origin.y + this._ymin;
+    }
+
+    set y(y: number) {
+        this.origin.y = y;
     }
 
     get width(): number {

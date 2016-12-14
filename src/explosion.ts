@@ -21,7 +21,7 @@ export class Explosion extends EventSource {
         }
     }
 
-    update(dt) {
+    update(dt: number) {
         this.points.forEach(point => {
             point.x += point.vx * dt;
             point.y += point.vy * dt;
@@ -34,7 +34,7 @@ export class Explosion extends EventSource {
         }
     }
 
-    render(dt) {
+    render(dt?: number) {
         this.points.forEach(point => {
            screen.draw.point(point, `rgba(255,255,255,${this.life})`);
         });

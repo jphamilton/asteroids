@@ -1,12 +1,16 @@
 import { Draw } from './draw';
 
-export class Screen {
+export class Screen implements Rect {
 
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
+    x: number = 0;
+    y: number = 0;
     width: number;
     height: number;
     draw: Draw;
+    width2: number;
+    height2: number;
 
     constructor() {
         this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -24,6 +28,8 @@ export class Screen {
         this.canvas.height = document.body.clientHeight; 
         this.width = this.canvas.width;
         this.height = this.canvas.height;
+        this.width2 = this.width / 2;
+        this.height2 = this.height / 2;
     }
 
 }

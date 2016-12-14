@@ -7,7 +7,7 @@ import { Key } from './keys';
 
 export class Asteroids {
 
-    private state: string = 'start';    
+    private state: string = 'demo';//'start';    
     private demoTimer = 0;
     private highScoreState;
     private demoState;
@@ -87,12 +87,12 @@ export class Asteroids {
     }
 
     updateDemoTimer(dt) {
-        this.demoTimer += dt;
+        // this.demoTimer += dt;
             
-        if (this.demoTimer >= 10) {
-            this.demoTimer = 0;
-            this.state = this.state === 'demo' ? 'start' : 'demo';
-        }
+        // if (this.demoTimer >= 10) {
+        //     this.demoTimer = 0;
+        //     this.state = this.state === 'demo' ? 'start' : 'demo';
+        // }
     }
 }
 
