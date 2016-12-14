@@ -37,6 +37,7 @@ export class Ship extends Object2D {
 
     private moving: boolean = false;
     private bulletCount: number = 0;
+    private bulletTimer: number = 0;
     private flame: Flame;
 
     constructor(x: number, y: number) {
@@ -80,8 +81,12 @@ export class Ship extends Object2D {
             this.rotate(ROTATION);
         }
 
-        if (Key.isPressed(Key.CTRL)) {
+        if (Key.isDown(Key.CTRL)) {
             this.fire();
+        }
+
+        if (this.bulletTimer > 0) {
+            this.bulletTimer -= dt;
         }
 
         // slow down ship over time
@@ -111,7 +116,8 @@ export class Ship extends Object2D {
     }
 
     private fire() {
-        if (this.bulletCount < MAX_BULLETS) {
+        if (this.bulletTimer <= 0 && this.bulletCount < MAX_BULLETS) {
+            this.bulletTimer = .2;
             this.bulletCount++;
 
             const v = new Vector(this.angle);

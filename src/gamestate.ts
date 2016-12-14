@@ -1,4 +1,5 @@
 import { Key } from './keys';
+import { EventSource } from './events';
 import { Object2D } from './object2d';
 import { Ship } from './ship';
 import { Rock, RockSize } from './rocks';
@@ -12,7 +13,7 @@ import { random } from './util';
 
 // manages game objects, score, collisions, etc.
 // todo: refactor this to a Player class, leaving common stuff like score
-export class GameState {
+export class GameState extends EventSource {
 
     level: number = 1;
     score: number = 0;
@@ -21,7 +22,7 @@ export class GameState {
     ship: Ship;
     shipBullets: Bullet[] = [];
     explosions: Explosion[] = [];    
-    extraLives: Object2D[] = [];
+    extraLifeScore: number = 0;
     highscore: number;
     
     debug: boolean = false;
@@ -34,25 +35,18 @@ export class GameState {
     shipTimer: number = 0;
 
     constructor() {
-        this.highscore = highscores.length ? highscores[0].score : 0;
+        super();
+        this.highscore = highscores.top.score;
         this.init();
     }
 
     init() {
-        this.qt = new Quadtree(screen);
-
-        this.addShip();
-
-        for(let i = 0; i < this.lives; i++) {
-            let life = new Ship(80 + (i * 20), 55);
-            this.extraLives.push(life);
-        }
-
+        this.addShip(screen.width2, screen.height2);
         this.addRocks();
     }
 
-    addShip() {
-        this.ship = new Ship(screen.width2, screen.height2);
+    addShip(x, y) {
+        this.ship = new Ship(x, y);
         
         this.ship.on('fire', (ship, bullet) => {
 
@@ -73,21 +67,31 @@ export class GameState {
             this.paused = !this.paused; 
         }
         
+        if (Key.isPressed(Key.SPACE)) {
+            this.hyperspace(); 
+        }
+
         if (this.paused) {
             return;
         }
 
         // place ship after crash
-        if (this.shipTimer || (!this.ship && this.lives && !this.explosions.length)) { // need to check for aliens later
+        if (this.shipTimer || (!this.ship && this.lives && !this.explosions.length)) { // check for aliens later
             this.tryPlaceShip(dt);
         }
         
         // check for next level
-        if (!this.rocks.length && this.lives && !this.explosions.length) { // need to check for aliens later
+        if (!this.rocks.length && this.lives && !this.explosions.length) { // check for aliens later
             this.level++;
             this.addRocks();
         }
-        
+
+        // game over
+        if (!this.lives && !this.explosions.length) { // check for aliens later
+            this.trigger('done', this.score);
+            return;
+        }
+
         this.checkCollisions();
 
         const objects = [this.ship, ...this.shipBullets, ...this.rocks, ...this.explosions];
@@ -111,6 +115,9 @@ export class GameState {
             }
         });
 
+        if (this.ship && this.debug) {
+            screen.draw.text(this.ship.angle.toString(), this.ship.origin.x + 20, this.ship.origin.y + 20, '10pt');
+        }
     }
 
     private renderBackground() {
@@ -146,12 +153,11 @@ export class GameState {
 
             if (!this.ship && this.lives) {
                 let rect: Rect = {
-                    x: screen.width2 - 80,
-                    y: screen.height2 - 80,
-                    width: 160,
-                    height: 160
+                    x: screen.width2 - 120,
+                    y: screen.height2 - 120,
+                    width: 240,
+                    height: 240
                 }
-
                 
                 screen.draw.bounds(rect, '#00ff00');
             }
@@ -162,7 +168,7 @@ export class GameState {
     private drawExtraLives() {
         const lives = Math.min(this.lives, 10);
         for(let i = 0; i < lives; i++) {
-            let life = this.extraLives[i];
+            let life = new Ship(80 + (i * 20), 55);
             life.render();
         }
     }
@@ -204,6 +210,7 @@ export class GameState {
     private shipDestroyed() {
         this.lives--;
         this.ship = null;
+        this.shipBullets = [];
     }
 
     private checkCollisions() {
@@ -215,13 +222,14 @@ export class GameState {
 
         this.bounds = [];
         
-        this.qt = new Quadtree(screen);
+        this.qt = new Quadtree(
+                {x: 0, y: 0, width: screen.width, height: screen.height}, 
+                1
+            );
 
         // add rocks
         this.rocks.forEach(rock => {
-            if (this.ship) {
-                this.qt.insert(rock);
-            }
+            this.qt.insert(rock);
         });
 
         // check ship to rock collisions
@@ -267,7 +275,17 @@ export class GameState {
     }
 
     private scoreRock(rock: Rock) {
-        this.score += rock.size === RockSize.Large ? 20 : rock.size === RockSize.Medium ? 50 : 100;
+        let amt = rock.size === RockSize.Large ? 20 : rock.size === RockSize.Medium ? 50 : 100;
+        this.score += amt;
+        this.extraLifeScore += amt;
+
+        if (this.score > this.highscore) {
+            this.highscore = this.score;
+        }
+
+        if (this.extraLifeScore >= 10000) {
+            this.lives++;
+        }
     }
     
     private splitRock(rock: Rock) {
@@ -294,10 +312,10 @@ export class GameState {
         }
 
         let rect: Rect = {
-            x: screen.width2 - 80,
-            y: screen.height2 - 80,
-            width: 160,
-            height: 160
+            x: screen.width2 - 120,
+            y: screen.height2 - 120,
+            width: 240,
+            height: 240
         }
 
         let collided = false;
@@ -308,8 +326,23 @@ export class GameState {
 
         if (!collided) {
             this.shipTimer = 0;
-            this.addShip();
+            this.addShip(screen.width2, screen.height2);
         }
 
+    }
+
+    private hyperspace() {
+        let x = random(40, screen.width - 40);
+        let y = random(40, screen.height - 40);
+        let angle = this.ship.angle;
+        this.addShip(x, y);
+
+        if (this.ship.angle > angle) {
+            this.ship.rotate(this.ship.angle - angle)
+        } else if (this.ship.angle < angle) {
+            this.ship.rotate(this.ship.angle - angle)
+        }
+
+        this.ship.rotate(angle);
     }
 }

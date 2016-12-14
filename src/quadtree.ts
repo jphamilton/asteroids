@@ -93,9 +93,7 @@ export class Quadtree {
             return [];
         }
         
-        let index = -1;
-        let results = [];
-        
+        const results = [];
         const { xmid, ymid } = this;
         const top = (rect.y <= ymid); 
         const bottom = (rect.y > ymid);

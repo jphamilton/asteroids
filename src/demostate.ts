@@ -28,7 +28,7 @@ export class DemoState {
     level: number = 1;
 
     constructor() {
-        this.highscore = highscores.length ? highscores[0].score : 0;
+        this.highscore = highscores.scores.length ? highscores.top.score : 0;
         this.addRocks();
     }
 

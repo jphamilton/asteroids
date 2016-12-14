@@ -5,7 +5,6 @@ const RAD = {};
 const COS = {};
 const SIN = {};
 const r = Math.PI / 180;
-const PI2 = 2 * Math.PI;
 
 for(let i = 0; i <= 360; i++) {
     RAD[i] = i * r; 

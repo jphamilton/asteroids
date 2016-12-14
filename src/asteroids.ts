@@ -1,4 +1,5 @@
 import { loop } from './loop';
+import { highscores } from './highscores';
 import { HighScoreState } from './highscorestate';
 import { EnterHighScoreState } from './enterhighscorestate';
 import { DemoState } from './demostate';
@@ -7,25 +8,42 @@ import { Key } from './keys';
 
 export class Asteroids {
 
-    private state: string = 'demo';//'start';    
+    private state: string = 'start';    
     private demoTimer = 0;
     private highScoreState;
     private demoState;
     private gameState;
     private initialsState;
-    private demoStarted = false;
+    private demoStarted;
 
     constructor() {
+        this.init();
+    }
+
+    init() {
+
         this.highScoreState = new HighScoreState();
         this.demoState = new DemoState();
         this.gameState = new GameState();
-        this.initialsState = new EnterHighScoreState();
+        //this.initialsState = new EnterHighScoreState();
 
-        this.initialsState.on('done', () => {
-            // start demo state over
-            this.demoState = new DemoState();
-            this.state = 'start'
+        this.gameState.on('done', (source, score) => {
+            this.init();
+            
+            if (highscores.qualifies(score)) {
+                this.initialsState = new EnterHighScoreState(score);
+                
+                this.initialsState.on('done', () => {
+                    this.state = 'start'
+                });
+
+                this.state = 'initials';
+            } else {
+                this.state = 'start';
+            }
         });
+
+        this.demoStarted = false;
     }
 
     update(dt) {
@@ -87,12 +105,12 @@ export class Asteroids {
     }
 
     updateDemoTimer(dt) {
-        // this.demoTimer += dt;
+        this.demoTimer += dt;
             
-        // if (this.demoTimer >= 10) {
-        //     this.demoTimer = 0;
-        //     this.state = this.state === 'demo' ? 'start' : 'demo';
-        // }
+        if (this.demoTimer >= 10) {
+            this.demoTimer = 0;
+            this.state = this.state === 'demo' ? 'start' : 'demo';
+        }
     }
 }
 

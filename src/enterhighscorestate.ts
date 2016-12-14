@@ -12,15 +12,15 @@ export class EnterHighScoreState extends EventSource {
     score: number;
     initials: string[];
     
-    constructor() {
+    constructor(score: number) {
         super();
+        this.score = score;
         this.init();
     }
 
     init() {
         this.position = 0;
         this.index = 1;
-        this.score = 0;
         this.initials = ['a', '_', '_'];
     }
 
@@ -45,9 +45,8 @@ export class EnterHighScoreState extends EventSource {
             this.position++;
             
             if (this.position >= 3) {
-                
-                // save highscore here
-
+                console.log(this.score, this.initials.join(''));
+                highscores.save(this.score, this.initials.join(''));
                 this.init();
                 this.trigger('done');
             }
@@ -62,7 +61,7 @@ export class EnterHighScoreState extends EventSource {
         const text = (t => screen.draw.text(t, 50, offset += 35, '30pt'));
         
         screen.draw.background();
-        screen.draw.highscore(highscores[0].score);
+        screen.draw.highscore(highscores.top.score);
         screen.draw.scorePlayer1(this.score);
         screen.draw.copyright();
 
@@ -71,7 +70,7 @@ export class EnterHighScoreState extends EventSource {
         text('push rotate to select letter');
         text('push hyperspace when letter is correct');
 
-        screen.draw.text2(this.initials.join(''), '60pt', (width) => {
+        screen.draw.text3(this.initials.join(''), '60pt', (width) => {
             return { x: (screen.width / 2) - width, y: screen.height / 2 };
         });
     }

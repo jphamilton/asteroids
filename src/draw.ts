@@ -1,7 +1,7 @@
 import { highscores } from './highscores';
 import screen from './screen';
 
-const VectorLine = 'rgba(255,255,255,.8)';
+const VectorLine = 'rgba(255,255,255,1)';
 
 export class Draw {
 
@@ -46,8 +46,6 @@ export class Draw {
     }
 
     background() {
-        const { ctx } = this;
-
         this.rect({ x: 0, y: 0}, { x: screen.width, y: screen.height }, '#000000');
     }
 
@@ -97,6 +95,22 @@ export class Draw {
         const point = cb(width);
 
         ctx.strokeText(text, point.x, point.y);
+        ctx.restore();
+    }
+
+    text3(text: string, size: string, cb: (width: number) => Point) {
+        const { ctx } = this;
+        
+        ctx.save();
+        ctx.font = `${size} hyperspace`;
+        ctx.textBaseline = 'middle';
+        ctx.lineWidth = 2;
+        ctx.fillStyle = VectorLine;
+        
+        const width = ctx.measureText(text).width;
+        const point = cb(width);
+
+        ctx.fillText(text, point.x, point.y);
         ctx.restore();
     }
 

@@ -10,7 +10,7 @@ export class HighScoreState {
     highscore: number;
 
     constructor() {
-        this.highscore = highscores.length ? highscores[0].score : 0;
+        this.highscore = highscores.top.score;
     }
 
     update(dt) {
@@ -45,9 +45,9 @@ export class HighScoreState {
             }
         });
 
-        for (let i = 0; i < highscores.length; i++) {
+        for (let i = 0; i < highscores.scores.length; i++) {
             const y = 280 + (i * 40);
-            const text = `${this.pad(i + 1, ' ', 2)}.${this.pad(highscores[i].score, ' ', 6)} ${highscores[i].initials}`;
+            const text = `${this.pad(i + 1, ' ', 2)}.${this.pad(highscores.scores[i].score, ' ', 6)} ${highscores.scores[i].initials}`;
 
             screen.draw.text2(text, '30pt', (width) => {
                 return {
