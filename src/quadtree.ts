@@ -58,6 +58,10 @@ export class Quadtree {
     }
 
     retrieve(rect: Rect) {
+        if (!rect) {
+            return [];
+        }
+        
         let indices = this.getIndex(rect);
         let result = this.objects;
 

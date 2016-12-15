@@ -1,19 +1,25 @@
 import screen from './screen';
 import { random } from './util';
 import { Object2D } from './object2d';
+import { Ship } from './ship';
 import { Bullet } from './bullet';
 import { Vector } from './vector';
 
 const BULLET_SPEED: number = 600;
 const BIG_ALIEN_SPEED: number = 225;
+const SMALL_ALIEN_SPEED: number = 300;
 
-export class BigAlien extends Object2D {
+
+abstract class Alien extends Object2D {
 
     moveTimer: number = 0;
     bulletTimer: number = .7;
     moveTime: number = 2;
     
-    constructor() {
+    abstract score: number;
+    abstract fire(): void;
+
+    constructor(speed) {
         super(0, 0);
 
         this.vy = 0;
@@ -22,10 +28,10 @@ export class BigAlien extends Object2D {
         
         if (this.origin.y % 2 === 0) {
             this.origin.x = 40;
-            this.vx = BIG_ALIEN_SPEED;
+            this.vx = speed;
         } else {
             this.origin.x = screen.width - 40;
-            this.vx = -BIG_ALIEN_SPEED;
+            this.vx = -speed;
         }
 
         this.points = [
@@ -39,8 +45,6 @@ export class BigAlien extends Object2D {
             { x: -.5, y: -2},
             { x: .5, y: -2}
         ];
-
-        this.scale(7);
     }
 
     update(dt: number) {
@@ -74,11 +78,7 @@ export class BigAlien extends Object2D {
         this.bulletTimer += dt;
 
         if (this.bulletTimer >= .7) {
-            const v = new Vector(random(1, 360), BULLET_SPEED);
-            const bullet = new Bullet(this.origin.x, this.origin.y, v);
-            
-            this.trigger('fire', bullet);
-            this.bulletTimer = 0;
+            this.fire();
         }
 
     }
@@ -93,3 +93,48 @@ export class BigAlien extends Object2D {
         screen.draw.shape([this.points[2], this.points[5]], this.origin.x, this.origin.y);
     }
 }
+
+// Mr. Bill
+export class BigAlien extends Alien {
+
+    score: number = 200;
+
+    constructor() {
+        super(BIG_ALIEN_SPEED);
+        this.scale(7);
+    }
+
+    fire() {
+        const v = new Vector(random(1, 360), BULLET_SPEED);
+        const bullet = new Bullet(this.origin.x, this.origin.y, v);
+        this.trigger('fire', bullet);
+        this.bulletTimer = 0;
+    }
+}
+
+// Sluggo
+export class SmallAlien extends Alien {
+
+    score: number = 1000;
+
+    constructor(private ship: Ship) {
+        super(SMALL_ALIEN_SPEED);
+        this.scale(5);
+    }
+
+    fire() {
+        if (this.ship) {
+            // target ship
+
+        } else {
+            // random fire
+            const v = new Vector(random(1, 360), BULLET_SPEED);
+            const bullet = new Bullet(this.origin.x, this.origin.y, v);
+            this.trigger('fire', bullet);
+            this.bulletTimer = 0;
+        }
+    }
+}
+            
+            
+            

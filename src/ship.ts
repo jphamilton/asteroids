@@ -6,6 +6,7 @@ import { Bullet } from './bullet';
 
 const ACCELERATION: number = 0.1;
 const BULLET_SPEED: number = 800;
+const BULLET_TIME: number = .15;
 const FRICTION: number = 0.007;
 const ROTATION: number = 5;
 const MAX_ACCELERATION: number = 1100;
@@ -107,7 +108,7 @@ export class Ship extends Object2D {
         const v = new Vector(this.angle, VELOCITY * ACCELERATION);
         const velocity = this.magnitude;
 
-        if (velocity <= MAX_ACCELERATION) {
+        if (velocity < MAX_ACCELERATION) {
             this.vx += v.x;
             this.flame.vx = this.vx;
             this.vy += v.y;
@@ -117,7 +118,7 @@ export class Ship extends Object2D {
 
     private fire() {
         if (this.bulletTimer <= 0 && this.bulletCount < MAX_BULLETS) {
-            this.bulletTimer = .2;
+            this.bulletTimer = BULLET_TIME;
             this.bulletCount++;
 
             const v = new Vector(this.angle);

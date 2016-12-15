@@ -2,11 +2,12 @@ import { Key } from './keys';
 import { EventSource } from './events';
 import { Object2D } from './object2d';
 import { Ship } from './ship';
+import { BigAlien, SmallAlien } from './alien';
 import { Rock, RockSize } from './rocks';
 import { Bullet } from './bullet';
 import { Explosion } from './explosion';
 import { Vector } from './vector';
-import { Quadtree } from './quadtree';
+import { Collisions } from './collisions';
 import screen from './screen';
 import { highscores } from './highscores';
 import { random } from './util';
@@ -15,25 +16,28 @@ import { random } from './util';
 // todo: refactor this to a Player class, leaving common stuff like score
 export class GameState extends EventSource {
 
-    level: number = 1;
+    level: number = 0;
+    extraLifeScore: number = 0;
+    highscore: number;
     score: number = 0;
     lives: number = 3;
     
     ship: Ship;
     shipBullets: Bullet[] = [];
-    explosions: Explosion[] = [];    
-    extraLifeScore: number = 0;
-    highscore: number;
-    
-    debug: boolean = false;
-    paused: boolean = false;
-    qt: Quadtree;
-
+    alien: any;
+    alienBullets: Bullet[] = [];
+    explosions: Explosion[] = [];
     rocks: Rock[] = [];
     bounds: Rect[] = [];
-
+    
     shipTimer: number = 0;
+    alienTimer: number = 0;
+    levelTimer: number = 0;
 
+    debug: boolean = false;
+    paused: boolean = false;
+    collisions: Collisions;
+    
     constructor() {
         super();
         this.highscore = highscores.top.score;
@@ -42,20 +46,14 @@ export class GameState extends EventSource {
 
     init() {
         this.addShip(screen.width2, screen.height2);
-        this.addRocks();
+        this.startLevel();
     }
 
-    addShip(x, y) {
-        this.ship = new Ship(x, y);
-        
-        this.ship.on('fire', (ship, bullet) => {
-
-            bullet.on('expired', () => {
-                this.shipBullets = this.shipBullets.filter(x => x !== bullet);
-            });
-
-            this.shipBullets.push(bullet);
-        });
+    startLevel() {
+        this.level++;
+        this.levelTimer = 0;
+        this.alienTimer = random(10, 15);
+        this.addRocks();
     }
 
     update(dt: number) {
@@ -75,26 +73,32 @@ export class GameState extends EventSource {
             return;
         }
 
+        this.levelTimer += dt;
+
+        // alien?
+        this.handleAlien(dt);
+
         // place ship after crash
-        if (this.shipTimer || (!this.ship && this.lives && !this.explosions.length)) { // check for aliens later
+        if (this.shipTimer || (!this.ship && this.lives && !this.explosions.length)) { //&& !this.alien)) { 
             this.tryPlaceShip(dt);
         }
         
         // check for next level
-        if (!this.rocks.length && this.lives && !this.explosions.length) { // check for aliens later
-            this.level++;
-            this.addRocks();
+        if (!this.rocks.length && this.lives && !this.explosions.length) { // && !this.alien) { 
+            this.startLevel();
         }
 
         // game over
-        if (!this.lives && !this.explosions.length) { // check for aliens later
+        if (!this.lives && !this.explosions.length) { // && !this.alien) { 
             this.trigger('done', this.score);
             return;
         }
 
+        // collisions
         this.checkCollisions();
 
-        const objects = [this.ship, ...this.shipBullets, ...this.rocks, ...this.explosions];
+        // update all objects
+        const objects = [this.ship, this.alien, ...this.shipBullets, ...this.alienBullets, ...this.rocks, ...this.explosions];
 
         objects.forEach(obj => {
             if (obj) {
@@ -104,23 +108,19 @@ export class GameState extends EventSource {
     }
 
     render(delta: number) {
-        this.renderBackground();
+        this.renderStatic();
 
-        // render objects
-        const objects = [this.ship, ...this.shipBullets, ...this.rocks, ...this.explosions];
+        // render all objects
+        const objects = [this.ship, this.alien, ...this.shipBullets, ...this.alienBullets, ...this.rocks, ...this.explosions];
 
         objects.forEach(obj => {
             if (obj) {
                 obj.render();
             }
         });
-
-        if (this.ship && this.debug) {
-            screen.draw.text(this.ship.angle.toString(), this.ship.origin.x + 20, this.ship.origin.y + 20, '10pt');
-        }
     }
 
-    private renderBackground() {
+    private renderStatic() {
         // black background
         screen.draw.background();
 
@@ -138,31 +138,45 @@ export class GameState extends EventSource {
 
         // debug stuff
         if (this.debug) {
-            
-            screen.draw.text2('debug mode', '12pt', (width) => {
-                return { x: screen.width - width - 10, y: screen.height - 40 };
-            });
-
-            if (this.debug && this.bounds) {
-                screen.draw.quadtree(this.qt);                
-
-                this.bounds.forEach(r => {
-                    screen.draw.bounds(r, '#fc058d');
-                });
-            }
-
-            if (!this.ship && this.lives) {
-                let rect: Rect = {
-                    x: screen.width2 - 120,
-                    y: screen.height2 - 120,
-                    width: 240,
-                    height: 240
-                }
-                
-                screen.draw.bounds(rect, '#00ff00');
-            }
-
+            this.renderDebug();
         }
+    }
+
+    private renderDebug() {
+        screen.draw.text2('debug mode', '12pt', (width) => {
+            return { x: screen.width - width - 10, y: screen.height - 40 };
+        });
+
+        //screen.draw.quadtree(this.collisions.tree);
+
+        if (this.bounds) {
+            this.bounds.forEach(r => {
+                screen.draw.bounds(r, '#fc058d');
+            });
+        }
+
+        if (!this.ship && this.lives) {
+            let rect: Rect = {
+                x: screen.width2 - 120,
+                y: screen.height2 - 120,
+                width: 240,
+                height: 240
+            }
+            
+            screen.draw.bounds(rect, '#00ff00');
+        }
+
+        if (this.ship) {
+            screen.draw.text(this.ship.angle.toString(), this.ship.origin.x + 20, this.ship.origin.y + 20, '10pt');
+        }
+
+        const date = new Date(null);
+        date.setSeconds(this.levelTimer);
+
+        screen.draw.text2(date.toISOString().substr(11, 8), '12pt', (width) => {
+            return { x: 10, y: screen.height - 40 };
+        });
+    
     }
 
     private drawExtraLives() {
@@ -171,6 +185,167 @@ export class GameState extends EventSource {
             let life = new Ship(80 + (i * 20), 55);
             life.render();
         }
+    }
+
+    handleAlien(dt: number) {
+        if (!this.alien) {
+            this.alienTimer -= dt;
+            
+            if (this.alienTimer <= 0) {
+                this.addAlien();
+                this.alienTimer = random(10, 15);
+            }
+        }
+    }
+
+    addShip(x: number, y: number) {
+        this.ship = new Ship(x, y);
+        
+        this.ship.on('fire', (ship, bullet) => {
+
+            bullet.on('expired', () => {
+                this.shipBullets = this.shipBullets.filter(x => x !== bullet);
+            });
+
+            this.shipBullets.push(bullet);
+        });
+    }
+
+    private shipDestroyed() {
+        this.lives--;
+        this.ship = null;
+        this.shipBullets = [];
+    }
+
+    private checkCollisions() {
+        const check = !!this.ship || !!this.shipBullets.length || !!this.alien || !!this.alienBullets.length;
+
+        if (!check) {
+            return;
+        }
+
+        this.bounds = [];
+        
+        this.collisions = new Collisions();
+
+        this.collisions.check([this.ship], this.rocks, (ship, rock) => {
+            this.addScore(rock.score);
+            this.createExplosion(ship.origin.x, ship.origin.y);
+            this.createExplosion(rock.origin.x, rock.origin.y);
+            this.splitRock(rock);
+            this.shipDestroyed();
+        }, (ship, rock) => {
+            if (this.debug) {
+                this.bounds.push(rock);
+            }
+        });
+
+        this.collisions.check(this.shipBullets, this.rocks, (bullet, rock) => {
+            this.addScore(rock.score);
+            this.createExplosion(rock.origin.x, rock.origin.y);
+            bullet.expire();
+            this.splitRock(rock);
+        }, (bullet, rock) => {
+            if (this.debug) {
+                this.bounds.push(rock);
+            }
+        });
+
+        this.collisions.check(this.shipBullets, [this.alien], (bullet, alien) => {
+            this.addScore(alien.score)
+            this.createExplosion(alien.origin.x, alien.origin.y);
+            bullet.expire();
+            this.alienBullets = [];
+            this.alien = null;
+        }, (bullet, alien) => {
+            if (this.debug) {
+                this.bounds.push(alien);
+            }
+        });
+
+        this.collisions.check([this.ship], [this.alien], (ship, alien) => {
+            this.addScore(alien.score)
+            this.createExplosion(ship.origin.x, ship.origin.y);
+            this.createExplosion(alien.origin.x, alien.origin.y);
+            this.shipBullets = [];
+            this.alienBullets = [];
+            this.alien = null;
+            this.ship = null;
+        }, (ship, alien) => {
+            if (this.debug) {
+                this.bounds.push(alien);
+            }
+        });
+
+        this.collisions.check(this.alienBullets, this.rocks, (bullet, rock) => {
+            this.createExplosion(rock.origin.x, rock.origin.y);
+            this.splitRock(rock);
+        }, (bullet, rock) => {
+            if (this.debug) {
+                this.bounds.push(rock);
+            }
+        });
+
+        this.collisions.check(this.alienBullets, [this.ship], (bullet, ship) => {
+            this.createExplosion(ship.origin.x, ship.origin.y);
+            this.ship = null;
+            this.shipBullets = [];
+        }, (bullet, ship) => {
+            if (this.debug) {
+                this.bounds.push(ship);
+            }
+        });
+    }
+
+    private addScore(score) {
+        this.score += score;
+        this.extraLifeScore += score;
+
+        if (this.score > this.highscore) {
+            this.highscore = this.score;
+        }
+
+        if (this.extraLifeScore >= 10000) {
+            this.lives++;
+            this.extraLifeScore = 0;
+        }
+    }
+
+    private addAlien() {
+        const levelMax = Math.min(this.level, 7);
+
+        if (this.score > 40000) {
+        
+            this.alien = new SmallAlien(this.ship);
+        
+        } else {
+
+            // if (this.level === 1) {
+            //     if (this.levelTimer < 120000) {
+            //         this.alien = new BigAlien();
+            //     }
+
+
+            // }
+
+            this.alien = new BigAlien();
+        }
+
+        this.alien.on('expired', () => {
+            this.alien.destroy();
+            this.alien = null;
+            this.alienBullets.forEach(b => b.destroy());
+            this.alienBullets = [];
+        });
+
+        this.alien.on('fire', (alien, bullet: Bullet) => {
+            
+            bullet.on('expired', () => {
+                this.alienBullets = this.alienBullets.filter(x => x !== bullet);
+            });
+
+            this.alienBullets.push(bullet);
+        });
     }
 
     private addRocks() {
@@ -207,87 +382,6 @@ export class GameState extends EventSource {
         } 
     }
 
-    private shipDestroyed() {
-        this.lives--;
-        this.ship = null;
-        this.shipBullets = [];
-    }
-
-    private checkCollisions() {
-        const check = !!this.ship || !this.shipBullets;
-
-        if (!check) {
-            return;
-        }
-
-        this.bounds = [];
-        
-        this.qt = new Quadtree(
-                {x: 0, y: 0, width: screen.width, height: screen.height}, 
-                1
-            );
-
-        // add rocks
-        this.rocks.forEach(rock => {
-            this.qt.insert(rock);
-        });
-
-        // check ship to rock collisions
-        let rocks = <Rock[]>this.qt.retrieve(this.ship);
-        
-        rocks.forEach(rock => {
-            if (rock.collided(this.ship)) {
-                this.createExplosion(this.ship.origin.x, this.ship.origin.y);
-                this.createExplosion(rock.origin.x, rock.origin.y);
-                this.scoreRock(rock);
-                this.splitRock(rock);
-                this.shipDestroyed();
-            } 
-
-            if (this.debug) {
-                this.bounds.push(rock);
-            }
-        });
-
-        // check ship bullet to rock collisions
-        this.shipBullets.forEach(bullet => {
-            let rocks = [];
-            rocks.push(...this.qt.retrieve(bullet));
-            
-            rocks.forEach(rock => {
-                if (rock.collided(bullet)) {
-                    this.createExplosion(rock.origin.x, rock.origin.y);
-                    this.scoreRock(rock);
-                    bullet.expire();
-                    this.splitRock(rock);
-                } 
-
-                if (this.debug) {
-                    this.bounds.push(rock);
-                }
-            });
-
-            if (this.debug) {
-                this.bounds.push(...rocks, this.ship);
-            }
-
-        });
-    }
-
-    private scoreRock(rock: Rock) {
-        let amt = rock.size === RockSize.Large ? 20 : rock.size === RockSize.Medium ? 50 : 100;
-        this.score += amt;
-        this.extraLifeScore += amt;
-
-        if (this.score > this.highscore) {
-            this.highscore = this.score;
-        }
-
-        if (this.extraLifeScore >= 10000) {
-            this.lives++;
-        }
-    }
-    
     private splitRock(rock: Rock) {
         this.rocks = this.rocks.filter(x => x !== rock);
         this.rocks.push(...rock.split());
@@ -324,6 +418,10 @@ export class GameState extends EventSource {
             collided = collided || rock.collided(rect);
         });
 
+        if (this.alien) {
+            collided = collided || this.alien.collided(rect);
+        }
+
         if (!collided) {
             this.shipTimer = 0;
             this.addShip(screen.width2, screen.height2);
@@ -334,13 +432,14 @@ export class GameState extends EventSource {
     private hyperspace() {
         let x = random(40, screen.width - 40);
         let y = random(40, screen.height - 40);
-        let angle = this.ship.angle;
-        this.addShip(x, y);
+        let angle = this.ship.angle; 
+        
+        this.addShip(x, y); 
 
         if (this.ship.angle > angle) {
-            this.ship.rotate(this.ship.angle - angle)
+            angle = -(this.ship.angle - angle);
         } else if (this.ship.angle < angle) {
-            this.ship.rotate(this.ship.angle - angle)
+            angle = angle - this.ship.angle;
         }
 
         this.ship.rotate(angle);

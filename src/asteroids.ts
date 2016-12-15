@@ -6,6 +6,8 @@ import { DemoState } from './demostate';
 import { GameState } from './gamestate';
 import { Key } from './keys';
 
+const DEMO_TIME = 15;
+
 export class Asteroids {
 
     private state: string = 'start';    
@@ -25,8 +27,7 @@ export class Asteroids {
         this.highScoreState = new HighScoreState();
         this.demoState = new DemoState();
         this.gameState = new GameState();
-        //this.initialsState = new EnterHighScoreState();
-
+        
         this.gameState.on('done', (source, score) => {
             this.init();
             
@@ -107,8 +108,9 @@ export class Asteroids {
     updateDemoTimer(dt) {
         this.demoTimer += dt;
             
-        if (this.demoTimer >= 10) {
+        if (this.demoTimer >= DEMO_TIME) {
             this.demoTimer = 0;
+            // switch back and forth between highscore screen and demo screen
             this.state = this.state === 'demo' ? 'start' : 'demo';
         }
     }

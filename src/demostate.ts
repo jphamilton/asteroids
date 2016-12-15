@@ -14,7 +14,7 @@ export class DemoState {
 
     blinkTimer: number = 0;
     modeTimer: number = 0;
-    alienTimer: number = 0;
+    alienTimer: number = 7;
     showPushStart: boolean = true;
     highscore: number;
     rocks: Object2D[] = [];
@@ -58,11 +58,12 @@ export class DemoState {
 
     updateAlienTimer(dt: number) {
         if (!this.alien) {
-            this.alienTimer += dt;
+            this.alienTimer -= dt;
         }
 
-        if (this.alienTimer >= 7) {
-            this.createBigAlien();
+        if (this.alienTimer <= 0) {
+            this.addAlien();
+            this.alienTimer = 7;
         }
     }
 
@@ -197,7 +198,7 @@ export class DemoState {
         } 
     }
 
-    private createBigAlien() {
+    private addAlien() {
         this.alien = new BigAlien();
 
         this.alien.on('expired', () => {
