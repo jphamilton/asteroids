@@ -7,17 +7,20 @@ import { Vector } from './vector';
 
 const BULLET_SPEED: number = 600;
 const BIG_ALIEN_SPEED: number = 225;
-const SMALL_ALIEN_SPEED: number = 300;
+const SMALL_ALIEN_SPEED: number = 250;
 
 
 abstract class Alien extends Object2D {
 
     moveTimer: number = 0;
-    bulletTimer: number = .7;
-    moveTime: number = 2;
+    moveTime: number = 1;
+    bulletTimer: number = 0;
+    bulletTime: number = .7;
+    
     
     abstract score: number;
     abstract fire(): void;
+    abstract destroy(): void;
 
     constructor(speed) {
         super(0, 0);
@@ -71,14 +74,14 @@ abstract class Alien extends Object2D {
             }
             
             this.moveTimer = 0;
-            this.moveTime++;
         }
 
         // firing 
         this.bulletTimer += dt;
 
-        if (this.bulletTimer >= .7) {
+        if (this.bulletTimer >= this.bulletTime) {
             this.fire();
+            this.bulletTimer = 0;
         }
 
     }
@@ -108,32 +111,44 @@ export class BigAlien extends Alien {
         const v = new Vector(random(1, 360), BULLET_SPEED);
         const bullet = new Bullet(this.origin.x, this.origin.y, v);
         this.trigger('fire', bullet);
-        this.bulletTimer = 0;
     }
+
+    destroy() {
+
+    }    
 }
 
 // Sluggo
 export class SmallAlien extends Alien {
 
     score: number = 1000;
+    bulletTime: number = .6;
 
     constructor(private ship: Ship) {
         super(SMALL_ALIEN_SPEED);
-        this.scale(5);
+        this.scale(4);
     }
 
     fire() {
         if (this.ship) {
             // target ship
 
+            // temp
+            const v = new Vector(random(1, 360), BULLET_SPEED);
+            const bullet = new Bullet(this.origin.x, this.origin.y, v);
+            this.trigger('fire', bullet);
         } else {
             // random fire
             const v = new Vector(random(1, 360), BULLET_SPEED);
             const bullet = new Bullet(this.origin.x, this.origin.y, v);
             this.trigger('fire', bullet);
-            this.bulletTimer = 0;
         }
     }
+
+    destroy() {
+        this.ship = null;
+    }
+
 }
             
             

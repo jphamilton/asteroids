@@ -79,17 +79,17 @@ export class GameState extends EventSource {
         this.handleAlien(dt);
 
         // place ship after crash
-        if (this.shipTimer || (!this.ship && this.lives && !this.explosions.length)) { //&& !this.alien)) { 
+        if (this.shipTimer || (!this.ship && this.lives && !this.explosions.length)) { 
             this.tryPlaceShip(dt);
         }
         
         // check for next level
-        if (!this.rocks.length && this.lives && !this.explosions.length) { // && !this.alien) { 
+        if (!this.rocks.length && this.lives && !this.explosions.length && !this.alien) {  
             this.startLevel();
         }
 
         // game over
-        if (!this.lives && !this.explosions.length) { // && !this.alien) { 
+        if (!this.lives && !this.explosions.length && !this.alien) {  
             this.trigger('done', this.score);
             return;
         }
@@ -295,6 +295,19 @@ export class GameState extends EventSource {
                 this.bounds.push(ship);
             }
         });
+
+        this.collisions.check([this.alien], this.rocks, (alien, rock) => {
+            this.createExplosion(alien.origin.x, alien.origin.y);
+            this.createExplosion(rock.origin.x, rock.origin.y);
+            this.splitRock(rock);
+            this.alien = null;
+            this.alienBullets = [];
+        }, (alien, rock) => {
+            if (this.debug) {
+                this.bounds.push(rock);
+            }
+        });
+
     }
 
     private addScore(score) {
@@ -312,7 +325,7 @@ export class GameState extends EventSource {
     }
 
     private addAlien() {
-        const levelMax = Math.min(this.level, 7);
+        const lvl = Math.min(this.level, 7);
 
         if (this.score > 40000) {
         
@@ -320,15 +333,24 @@ export class GameState extends EventSource {
         
         } else {
 
-            // if (this.level === 1) {
-            //     if (this.levelTimer < 120000) {
-            //         this.alien = new BigAlien();
-            //     }
+            if (lvl === 1) {
+                if (this.levelTimer < 90) {
+                    this.alien = new BigAlien();
+                } else {
+                    if (random(1,3) % 2 === 0) {
+                        this.alien = new BigAlien();
+                    } else {
+                         this.alien = new SmallAlien(this.ship);
+                    }
+                }
 
+            } else {
 
-            // }
+                // come up with rules later
+                this.alien = new BigAlien();
+            }
 
-            this.alien = new BigAlien();
+            
         }
 
         this.alien.on('expired', () => {

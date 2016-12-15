@@ -1231,23 +1231,24 @@
 	var vector_1 = __webpack_require__(14);
 	var BULLET_SPEED = 600;
 	var BIG_ALIEN_SPEED = 225;
-	var BigAlien = (function (_super) {
-	    __extends(BigAlien, _super);
-	    function BigAlien() {
+	var SMALL_ALIEN_SPEED = 250;
+	var Alien = (function (_super) {
+	    __extends(Alien, _super);
+	    function Alien(speed) {
 	        var _this = _super.call(this, 0, 0) || this;
 	        _this.moveTimer = 0;
-	        _this.bulletTimer = .7;
-	        _this.moveTime = 2;
-	        _this.score = 200;
+	        _this.moveTime = 1;
+	        _this.bulletTimer = 0;
+	        _this.bulletTime = .7;
 	        _this.vy = 0;
 	        _this.origin.y = util_1.random(100, screen_1.default.height - 100);
 	        if (_this.origin.y % 2 === 0) {
 	            _this.origin.x = 40;
-	            _this.vx = BIG_ALIEN_SPEED;
+	            _this.vx = speed;
 	        }
 	        else {
 	            _this.origin.x = screen_1.default.width - 40;
-	            _this.vx = -BIG_ALIEN_SPEED;
+	            _this.vx = -speed;
 	        }
 	        _this.points = [
 	            { x: .5, y: -2 },
@@ -1260,10 +1261,9 @@
 	            { x: -.5, y: -2 },
 	            { x: .5, y: -2 }
 	        ];
-	        _this.scale(7);
 	        return _this;
 	    }
-	    BigAlien.prototype.update = function (dt) {
+	    Alien.prototype.update = function (dt) {
 	        this.move(dt);
 	        if (this.origin.x >= screen_1.default.width - 5 || this.origin.x <= 5) {
 	            this.trigger('expired');
@@ -1280,27 +1280,69 @@
 	                this.vy = this.origin.x % 2 === 0 ? this.vx : -this.vx;
 	            }
 	            this.moveTimer = 0;
-	            this.moveTime++;
 	        }
 	        this.bulletTimer += dt;
-	        if (this.bulletTimer >= .7) {
-	            var v = new vector_1.Vector(util_1.random(1, 360), BULLET_SPEED);
-	            var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
-	            this.trigger('fire', bullet);
+	        if (this.bulletTimer >= this.bulletTime) {
+	            this.fire();
 	            this.bulletTimer = 0;
 	        }
 	    };
-	    BigAlien.prototype.render = function () {
+	    Alien.prototype.render = function () {
 	        this.draw();
 	    };
-	    BigAlien.prototype.draw = function () {
+	    Alien.prototype.draw = function () {
 	        _super.prototype.draw.call(this);
 	        screen_1.default.draw.shape([this.points[1], this.points[6]], this.origin.x, this.origin.y);
 	        screen_1.default.draw.shape([this.points[2], this.points[5]], this.origin.x, this.origin.y);
 	    };
-	    return BigAlien;
+	    return Alien;
 	}(object2d_1.Object2D));
+	var BigAlien = (function (_super) {
+	    __extends(BigAlien, _super);
+	    function BigAlien() {
+	        var _this = _super.call(this, BIG_ALIEN_SPEED) || this;
+	        _this.score = 200;
+	        _this.scale(7);
+	        return _this;
+	    }
+	    BigAlien.prototype.fire = function () {
+	        var v = new vector_1.Vector(util_1.random(1, 360), BULLET_SPEED);
+	        var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
+	        this.trigger('fire', bullet);
+	    };
+	    BigAlien.prototype.destroy = function () {
+	    };
+	    return BigAlien;
+	}(Alien));
 	exports.BigAlien = BigAlien;
+	var SmallAlien = (function (_super) {
+	    __extends(SmallAlien, _super);
+	    function SmallAlien(ship) {
+	        var _this = _super.call(this, SMALL_ALIEN_SPEED) || this;
+	        _this.ship = ship;
+	        _this.score = 1000;
+	        _this.bulletTime = .6;
+	        _this.scale(4);
+	        return _this;
+	    }
+	    SmallAlien.prototype.fire = function () {
+	        if (this.ship) {
+	            var v = new vector_1.Vector(util_1.random(1, 360), BULLET_SPEED);
+	            var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
+	            this.trigger('fire', bullet);
+	        }
+	        else {
+	            var v = new vector_1.Vector(util_1.random(1, 360), BULLET_SPEED);
+	            var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
+	            this.trigger('fire', bullet);
+	        }
+	    };
+	    SmallAlien.prototype.destroy = function () {
+	        this.ship = null;
+	    };
+	    return SmallAlien;
+	}(Alien));
+	exports.SmallAlien = SmallAlien;
 
 
 /***/ },
@@ -1625,10 +1667,10 @@
 	        if (this.shipTimer || (!this.ship && this.lives && !this.explosions.length)) {
 	            this.tryPlaceShip(dt);
 	        }
-	        if (!this.rocks.length && this.lives && !this.explosions.length) {
+	        if (!this.rocks.length && this.lives && !this.explosions.length && !this.alien) {
 	            this.startLevel();
 	        }
-	        if (!this.lives && !this.explosions.length) {
+	        if (!this.lives && !this.explosions.length && !this.alien) {
 	            this.trigger('done', this.score);
 	            return;
 	        }
@@ -1712,52 +1754,6 @@
 	            _this.shipBullets.push(bullet);
 	        });
 	    };
-	    GameState.prototype.addAlien = function () {
-	        var _this = this;
-	        this.alien = new alien_1.BigAlien();
-	        this.alien.on('expired', function () {
-	            _this.alien.destroy();
-	            _this.alien = null;
-	            _this.alienBullets.forEach(function (b) { return b.destroy(); });
-	            _this.alienBullets = [];
-	        });
-	        this.alien.on('fire', function (alien, bullet) {
-	            bullet.on('expired', function () {
-	                _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
-	            });
-	            _this.alienBullets.push(bullet);
-	        });
-	    };
-	    GameState.prototype.addRocks = function () {
-	        var count = Math.min(this.level + 3, 7);
-	        var speed = 150;
-	        for (var i = 0; i < count; i++) {
-	            var zone = util_1.random(1, 4);
-	            var v = new vector_1.Vector(util_1.random(1, 360));
-	            var x = void 0;
-	            var y = void 0;
-	            switch (zone) {
-	                case 1:
-	                    x = util_1.random(40, screen_1.default.width - 40);
-	                    y = util_1.random(40, 80);
-	                    break;
-	                case 2:
-	                    x = util_1.random(screen_1.default.width - 80, screen_1.default.width - 40);
-	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
-	                    break;
-	                case 3:
-	                    x = util_1.random(40, screen_1.default.width - 40);
-	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
-	                    break;
-	                default:
-	                    x = util_1.random(40, 80);
-	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
-	                    break;
-	            }
-	            var rock = new rocks_1.Rock(x, y, v, rocks_1.RockSize.Large, speed);
-	            this.rocks.push(rock);
-	        }
-	    };
 	    GameState.prototype.shipDestroyed = function () {
 	        this.lives--;
 	        this.ship = null;
@@ -1833,6 +1829,17 @@
 	                _this.bounds.push(ship);
 	            }
 	        });
+	        this.collisions.check([this.alien], this.rocks, function (alien, rock) {
+	            _this.createExplosion(alien.origin.x, alien.origin.y);
+	            _this.createExplosion(rock.origin.x, rock.origin.y);
+	            _this.splitRock(rock);
+	            _this.alien = null;
+	            _this.alienBullets = [];
+	        }, function (alien, rock) {
+	            if (_this.debug) {
+	                _this.bounds.push(rock);
+	            }
+	        });
 	    };
 	    GameState.prototype.addScore = function (score) {
 	        this.score += score;
@@ -1843,6 +1850,52 @@
 	        if (this.extraLifeScore >= 10000) {
 	            this.lives++;
 	            this.extraLifeScore = 0;
+	        }
+	    };
+	    GameState.prototype.addAlien = function () {
+	        var _this = this;
+	        this.alien = new alien_1.SmallAlien(this.ship);
+	        this.alien.on('expired', function () {
+	            _this.alien.destroy();
+	            _this.alien = null;
+	            _this.alienBullets.forEach(function (b) { return b.destroy(); });
+	            _this.alienBullets = [];
+	        });
+	        this.alien.on('fire', function (alien, bullet) {
+	            bullet.on('expired', function () {
+	                _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
+	            });
+	            _this.alienBullets.push(bullet);
+	        });
+	    };
+	    GameState.prototype.addRocks = function () {
+	        var count = Math.min(this.level + 3, 7);
+	        var speed = 150;
+	        for (var i = 0; i < count; i++) {
+	            var zone = util_1.random(1, 4);
+	            var v = new vector_1.Vector(util_1.random(1, 360));
+	            var x = void 0;
+	            var y = void 0;
+	            switch (zone) {
+	                case 1:
+	                    x = util_1.random(40, screen_1.default.width - 40);
+	                    y = util_1.random(40, 80);
+	                    break;
+	                case 2:
+	                    x = util_1.random(screen_1.default.width - 80, screen_1.default.width - 40);
+	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
+	                    break;
+	                case 3:
+	                    x = util_1.random(40, screen_1.default.width - 40);
+	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
+	                    break;
+	                default:
+	                    x = util_1.random(40, 80);
+	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
+	                    break;
+	            }
+	            var rock = new rocks_1.Rock(x, y, v, rocks_1.RockSize.Large, speed);
+	            this.rocks.push(rock);
 	        }
 	    };
 	    GameState.prototype.splitRock = function (rock) {
