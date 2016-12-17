@@ -13,6 +13,6 @@ This is an attempt to recreate the classic arcade game, Asteroids.
 
 ## Screenshots
 
-![Sceenshot 1](https://jphamilton.github.com/asteroids/assets/1.png)
 ![Sceenshot 2](https://jphamilton.github.com/asteroids/assets/2.png)
+![Sceenshot 1](https://jphamilton.github.com/asteroids/assets/1.png)
 ![Sceenshot 3](https://jphamilton.github.com/asteroids/assets/3.png)

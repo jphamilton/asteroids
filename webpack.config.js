@@ -8,9 +8,19 @@ module.exports = {
   resolve: {
     extensions: ['', '.webpack.js', '.web.js', '.ts', '.js']
   },
-//   plugins: [
-//     new webpack.optimize.UglifyJsPlugin()
-//   ],
+  plugins: [
+    new webpack.optimize.UglifyJsPlugin(
+        {
+            minimize: true,
+            sourceMap: false,
+            output: {
+                comments: false
+            },
+            compressor: {
+                warnings: false
+            }
+        })
+  ],
   module: {
     loaders: [
       { test: /\.ts$/, loader: 'ts' }
