@@ -64,6 +64,7 @@ export class HighScoreState {
             screen.draw.pushStart();
         }
     }
+    
     private pad(text: any, char, count) {
         text = text.toString();
         while (text.length < count) {

@@ -62,7 +62,6 @@
 	})(States || (States = {}));
 	var Asteroids = (function () {
 	    function Asteroids() {
-	        this.attractTimer = 0;
 	        this.lastScore = 0;
 	        this.init();
 	    }
@@ -72,6 +71,7 @@
 	        this.highScoreState = new highscorestate_1.HighScoreState(this.lastScore);
 	        this.attractState = new attractstate_1.AttractState(this.lastScore);
 	        this.gameState = new gamestate_1.GameState();
+	        this.attractTimer = 0;
 	        this.gameState.on('done', function (source, score) {
 	            _this.lastScore = score;
 	            if (highscores_1.highscores.qualifies(score)) {
@@ -2104,7 +2104,7 @@
 	var bullet_1 = __webpack_require__(16);
 	var ACCELERATION = 0.1;
 	var BULLET_SPEED = 800;
-	var BULLET_TIME = .15;
+	var BULLET_TIME = .1;
 	var FRICTION = 0.007;
 	var ROTATION = 5;
 	var MAX_ACCELERATION = 1100;

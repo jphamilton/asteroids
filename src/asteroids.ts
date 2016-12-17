@@ -18,7 +18,7 @@ enum States {
 export class Asteroids {
 
     private state: States;    
-    private attractTimer = 0;
+    private attractTimer;
     private lastScore = 0;
     private highScoreState;
     private attractState;
@@ -36,7 +36,8 @@ export class Asteroids {
         this.highScoreState = new HighScoreState(this.lastScore);
         this.attractState = new AttractState(this.lastScore);
         this.gameState = new GameState();
-        
+        this.attractTimer = 0;
+                
         this.gameState.on('done', (source, score) => {
             this.lastScore = score;
 

@@ -6,7 +6,7 @@ import { Bullet } from './bullet';
 
 const ACCELERATION: number = 0.1;
 const BULLET_SPEED: number = 800;
-const BULLET_TIME: number = .15;
+const BULLET_TIME: number = .1;
 const FRICTION: number = 0.007;
 const ROTATION: number = 5;
 const MAX_ACCELERATION: number = 1100;
