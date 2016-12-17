@@ -5,11 +5,11 @@ This is an attempt to recreate the classic arcade game, Asteroids.
 
 
 ## Controls
-    * Press 1 for Player 1 start
-    * Left/Right arrow to rotate
-    * Up arrow to thrust
-    * Ctrl to fire
-    * Space for hyperspace
+* Press 1 for Player 1 start
+* Left/Right arrow to rotate
+* Up arrow to thrust
+* Ctrl to fire
+* Space for hyperspace
 
 ## Screenshots
 
