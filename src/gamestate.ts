@@ -147,8 +147,6 @@ export class GameState extends EventSource {
             return { x: screen.width - width - 10, y: screen.height - 40 };
         });
 
-        //screen.draw.quadtree(this.collisions.tree);
-
         if (this.bounds) {
             this.bounds.forEach(r => {
                 screen.draw.bounds(r, '#fc058d');
@@ -181,8 +179,10 @@ export class GameState extends EventSource {
 
     private drawExtraLives() {
         const lives = Math.min(this.lives, 10);
+        let life = new Ship(0, 0);
         for(let i = 0; i < lives; i++) {
-            let life = new Ship(80 + (i * 20), 55);
+            life.origin.x = 80 + (i * 20);
+            life.origin.y = 55;
             life.render();
         }
     }
@@ -212,9 +212,23 @@ export class GameState extends EventSource {
     }
 
     private shipDestroyed() {
+        this.createExplosion(this.ship.origin.x, this.ship.origin.y);
         this.lives--;
         this.ship = null;
         this.shipBullets = [];
+    }
+
+    private alienDestroyed() {
+        this.createExplosion(this.alien.origin.x, this.alien.origin.y);
+        this.alien = null;
+        this.alienBullets = [];
+    }
+
+    private rockDestroyed(rock: Rock) {
+        this.createExplosion(rock.origin.x, rock.origin.y);
+        this.rocks = this.rocks.filter(x => x !== rock);
+        this.rocks.push(...rock.split());
+        rock = null;
     }
 
     private checkCollisions() {
@@ -230,9 +244,7 @@ export class GameState extends EventSource {
 
         this.collisions.check([this.ship], this.rocks, (ship, rock) => {
             this.addScore(rock.score);
-            this.createExplosion(ship.origin.x, ship.origin.y);
-            this.createExplosion(rock.origin.x, rock.origin.y);
-            this.splitRock(rock);
+            this.rockDestroyed(rock);
             this.shipDestroyed();
         }, (ship, rock) => {
             if (this.debug) {
@@ -242,9 +254,8 @@ export class GameState extends EventSource {
 
         this.collisions.check(this.shipBullets, this.rocks, (bullet, rock) => {
             this.addScore(rock.score);
-            this.createExplosion(rock.origin.x, rock.origin.y);
-            bullet.expire();
-            this.splitRock(rock);
+            this.rockDestroyed(rock);
+            bullet.destroy();
         }, (bullet, rock) => {
             if (this.debug) {
                 this.bounds.push(rock);
@@ -253,10 +264,8 @@ export class GameState extends EventSource {
 
         this.collisions.check(this.shipBullets, [this.alien], (bullet, alien) => {
             this.addScore(alien.score)
-            this.createExplosion(alien.origin.x, alien.origin.y);
-            bullet.expire();
-            this.alienBullets = [];
-            this.alien = null;
+            this.alienDestroyed();
+            bullet.destroy();
         }, (bullet, alien) => {
             if (this.debug) {
                 this.bounds.push(alien);
@@ -265,12 +274,8 @@ export class GameState extends EventSource {
 
         this.collisions.check([this.ship], [this.alien], (ship, alien) => {
             this.addScore(alien.score)
-            this.createExplosion(ship.origin.x, ship.origin.y);
-            this.createExplosion(alien.origin.x, alien.origin.y);
-            this.shipBullets = [];
-            this.alienBullets = [];
-            this.alien = null;
-            this.ship = null;
+            this.alienDestroyed();
+            this.shipDestroyed();
         }, (ship, alien) => {
             if (this.debug) {
                 this.bounds.push(alien);
@@ -278,8 +283,7 @@ export class GameState extends EventSource {
         });
 
         this.collisions.check(this.alienBullets, this.rocks, (bullet, rock) => {
-            this.createExplosion(rock.origin.x, rock.origin.y);
-            this.splitRock(rock);
+            this.rockDestroyed(rock);
         }, (bullet, rock) => {
             if (this.debug) {
                 this.bounds.push(rock);
@@ -287,9 +291,8 @@ export class GameState extends EventSource {
         });
 
         this.collisions.check(this.alienBullets, [this.ship], (bullet, ship) => {
-            this.createExplosion(ship.origin.x, ship.origin.y);
-            this.ship = null;
-            this.shipBullets = [];
+            this.shipDestroyed();
+            bullet.destroy();
         }, (bullet, ship) => {
             if (this.debug) {
                 this.bounds.push(ship);
@@ -297,17 +300,13 @@ export class GameState extends EventSource {
         });
 
         this.collisions.check([this.alien], this.rocks, (alien, rock) => {
-            this.createExplosion(alien.origin.x, alien.origin.y);
-            this.createExplosion(rock.origin.x, rock.origin.y);
-            this.splitRock(rock);
-            this.alien = null;
-            this.alienBullets = [];
+            this.alienDestroyed();
+            this.rockDestroyed(rock);
         }, (alien, rock) => {
             if (this.debug) {
                 this.bounds.push(rock);
             }
         });
-
     }
 
     private addScore(score) {
@@ -325,33 +324,30 @@ export class GameState extends EventSource {
     }
 
     private addAlien() {
-        const lvl = Math.min(this.level, 7);
+        // const lvl = Math.min(this.level, 7);
 
-        if (this.score > 40000) {
+        // if (this.score > 40000) {
         
-            this.alien = new SmallAlien(this.ship);
+        //     this.alien = new SmallAlien(this.ship);
         
-        } else {
+        // } else {
 
-            if (lvl === 1) {
-                if (this.levelTimer < 90) {
-                    this.alien = new BigAlien();
-                } else {
-                    if (random(1,3) % 2 === 0) {
-                        this.alien = new BigAlien();
-                    } else {
-                         this.alien = new SmallAlien(this.ship);
-                    }
-                }
+        //     if (lvl === 1) {
+        //         if (this.levelTimer < 90) {
+        //             this.alien = new BigAlien();
+        //         } else {
+        //             if (random(1,3) % 2 === 0) {
+        //                 this.alien = new BigAlien();
+        //             } else {
+                          this.alien = new SmallAlien(this.ship);
+        //             }
+        //         }
 
-            } else {
-
-                // come up with rules later
-                this.alien = new BigAlien();
-            }
-
-            
-        }
+        //     } else {
+        //         // come up with rules later
+        //         this.alien = new BigAlien();
+        //     } 
+        // }
 
         this.alien.on('expired', () => {
             this.alien.destroy();
@@ -402,12 +398,6 @@ export class GameState extends EventSource {
             const rock = new Rock(x, y, v, RockSize.Large, speed);
             this.rocks.push(rock);
         } 
-    }
-
-    private splitRock(rock: Rock) {
-        this.rocks = this.rocks.filter(x => x !== rock);
-        this.rocks.push(...rock.split());
-        rock = null;
     }
 
     private createExplosion(x: number, y: number) {

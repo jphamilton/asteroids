@@ -9,7 +9,7 @@ export class HighScoreState {
     showPushStart: boolean = true;
     highscore: number;
 
-    constructor() {
+    constructor(private score) {
         this.highscore = highscores.top.score;
     }
 
@@ -30,7 +30,7 @@ export class HighScoreState {
 
     private drawBackground() {
         screen.draw.background();
-        screen.draw.scorePlayer1(0);
+        screen.draw.scorePlayer1(this.score);
         screen.draw.highscore(this.highscore);
         screen.draw.copyright();
     }

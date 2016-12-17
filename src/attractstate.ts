@@ -10,7 +10,7 @@ import { Explosion } from './explosion';
 import { Quadtree } from './quadtree';
 import { Vector } from './vector';
 
-export class DemoState {
+export class AttractState {
 
     blinkTimer: number = 0;
     modeTimer: number = 0;
@@ -27,7 +27,7 @@ export class DemoState {
     paused: boolean = false;
     level: number = 1;
 
-    constructor() {
+    constructor(private score) {
         this.highscore = highscores.scores.length ? highscores.top.score : 0;
         this.addRocks();
     }
@@ -238,7 +238,7 @@ export class DemoState {
 
     private drawBackground() {
         screen.draw.background();
-        screen.draw.scorePlayer1(0);
+        screen.draw.scorePlayer1(this.score);
         screen.draw.highscore(this.highscore);
         screen.draw.copyright();
     }
