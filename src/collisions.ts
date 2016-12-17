@@ -32,8 +32,12 @@ export class Collisions {
             candidates.push(...this.tree.retrieve(source));
             
             candidates.forEach(candidate => {
+                
+                // AABB first
                 if (candidate.collided(source)) {
-                    cb(source, candidate);
+                    if (this.pointsInPolygon(source, candidate)) {
+                        cb(source, candidate);
+                    }
                 } else if (dcb) {
                     dcb(source, candidate);
                 }
@@ -43,4 +47,33 @@ export class Collisions {
 
     }
 
+    private pointsInPolygon(source: Object2D, target: Object2D): boolean {
+        let vert1 = source.vertices;
+        let vert2 = target.vertices;
+
+        for (let i = 0, l = vert2.length; i < l; i++) {
+            if (this.pointInPoly(vert1, vert2[i])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // credit: Nathan Mercer http://alienryderflex.com/polygon/
+    private pointInPoly(points: Point[], t: Point): boolean {
+        let j = points.length - 1;
+        let c = 0;
+
+        for(let i = 0, l = points.length; i < l; i++) {
+            if ((points[i].y < t.y && points[j].y >= t.y  || points[j].y < t.y && points[i].y >= t.y) && 
+                (points[i].x <= t.x || points[j].x <= t.x)) {
+                c ^= (points[i].x + (t.y - points[i].y) / (points[j].y - points[i].y) * (points[j].x - points[i].x) < t.x as any);    
+            }
+            j = i;
+        }
+
+        return c % 2 === 0;
+    }
 }
+

@@ -35,4 +35,8 @@ export class Bullet extends Object2D {
         this.life = 0;
         this.trigger('expire');
     }
+
+    get vertices(): Point[] {
+        return [this.origin];
+    }
 }

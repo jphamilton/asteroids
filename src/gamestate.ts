@@ -33,7 +33,9 @@ export class GameState extends EventSource {
     shipTimer: number = 0;
     alienTimer: number = 0;
     levelTimer: number = 0;
-
+    gameOverTimer: number = 0;
+    gameOver: boolean = false;
+    started: boolean = false;
     debug: boolean = false;
     paused: boolean = false;
     collisions: Collisions;
@@ -41,7 +43,7 @@ export class GameState extends EventSource {
     constructor() {
         super();
         this.highscore = highscores.top.score;
-        this.init();
+        //this.init();
     }
 
     init() {
@@ -74,24 +76,46 @@ export class GameState extends EventSource {
         }
 
         this.levelTimer += dt;
+        
+        if (this.gameOver) {
+            this.gameOverTimer += dt;
+
+            if (this.gameOverTimer >= 5) {
+                this.trigger('done', this.score);
+            }
+        }
+
+        if (!this.started) {
+            if (this.levelTimer >= 2) {
+                this.init();
+                this.started = true;
+            }
+            return;
+        }
 
         // alien?
-        this.handleAlien(dt);
+        this.updateAlienTimer(dt);
 
-        // place ship after crash
-        if (this.shipTimer || (!this.ship && this.lives && !this.explosions.length)) { 
-            this.tryPlaceShip(dt);
+        if (!this.gameOver) {
+            
+            // place ship after crash
+            if (this.shipTimer || (!this.ship && this.lives && !this.explosions.length)) { 
+                this.tryPlaceShip(dt);
+            }
+            
+            // check for next level
+            if (!this.rocks.length && this.lives && !this.explosions.length && !this.alien) {  
+                this.startLevel();
+            }
+
         }
         
-        // check for next level
-        if (!this.rocks.length && this.lives && !this.explosions.length && !this.alien) {  
-            this.startLevel();
-        }
 
         // game over
-        if (!this.lives && !this.explosions.length && !this.alien) {  
-            this.trigger('done', this.score);
-            return;
+        //if (!this.lives && !this.explosions.length && !this.alien) {  
+        if (!this.lives) {  
+            //this.trigger('done', this.score);
+            this.gameOver = true;
         }
 
         // collisions
@@ -135,6 +159,15 @@ export class GameState extends EventSource {
 
         // extra lives
         this.drawExtraLives();
+
+        // player 1
+        if (!this.started) {
+            screen.draw.player1();
+        }
+
+        if (this.gameOver) {
+            screen.draw.gameOver();
+        }
 
         // debug stuff
         if (this.debug) {
@@ -187,7 +220,7 @@ export class GameState extends EventSource {
         }
     }
 
-    handleAlien(dt: number) {
+    updateAlienTimer(dt: number) {
         if (!this.alien) {
             this.alienTimer -= dt;
             
@@ -324,30 +357,30 @@ export class GameState extends EventSource {
     }
 
     private addAlien() {
-        // const lvl = Math.min(this.level, 7);
+        const lvl = Math.min(this.level, 7);
 
-        // if (this.score > 40000) {
+        if (this.score > 40000) {
         
-        //     this.alien = new SmallAlien(this.ship);
+            this.alien = new SmallAlien(this.ship);
         
-        // } else {
+        } else {
 
-        //     if (lvl === 1) {
-        //         if (this.levelTimer < 90) {
-        //             this.alien = new BigAlien();
-        //         } else {
-        //             if (random(1,3) % 2 === 0) {
-        //                 this.alien = new BigAlien();
-        //             } else {
-                          this.alien = new SmallAlien(this.ship);
-        //             }
-        //         }
+            if (lvl === 1) {
+                if (this.levelTimer < 90) {
+                    this.alien = new BigAlien();
+                } else {
+                    if (random(1,3) % 2 === 0) {
+                        this.alien = new SmallAlien(this.ship);
+                    } else {
+                        this.alien = new BigAlien();
+                    }
+                }
 
-        //     } else {
-        //         // come up with rules later
-        //         this.alien = new BigAlien();
-        //     } 
-        // }
+            } else {
+                // come up with rules later
+                this.alien = new BigAlien();
+            } 
+        }
 
         this.alien.on('expired', () => {
             this.alien.destroy();

@@ -125,16 +125,52 @@ export class Draw {
         while (text.length < 2) text = '0' + text;
         this.text2(text, '12pt', (width) => {
             return {
-                x: (screen.width / 2) - (width / 2),
+                x: screen.width2 - (width / 2),
                 y: 20
             }
         });
     }
 
-    copyright() {
-        this.text2(String.fromCharCode(169) + ' 1979 Atari INC', '12pt', (width) => {
+    oneCoinOnePlay() {
+        this.text2('1  coin  1  play', '24pt', (width) => {
             return {
-                x: (screen.width / 2) - (width / 2),
+                x: screen.width2 - (width / 2),
+                y: screen.height - 120
+            }
+        });
+    }
+
+    pushStart() {
+        screen.draw.text2('push start', '30pt', (width) => {
+            return {
+                x: screen.width2 - (width / 2),
+                y: 120
+            }
+        });
+    }
+
+    player1() {
+        screen.draw.text2('player 1', '30pt', (width) => {
+            return {
+                x: screen.width2 - (width / 2),
+                y: 140
+            }
+        });
+    }
+
+    gameOver() {
+        screen.draw.text2('game over', '30pt', (width) => {
+            return {
+                x: screen.width2 - (width / 2),
+                y: 180
+            }
+        });
+    }
+
+    copyright() {
+        this.text2(String.fromCharCode(169) + ' 1979 atari inc', '12pt', (width) => {
+            return {
+                x: screen.width2 - (width / 2),
                 y: screen.height - 20
             }
         });

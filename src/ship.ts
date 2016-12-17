@@ -74,8 +74,16 @@ export class Ship extends Object2D {
             this.moving = false;
         }
 
+        if (Key.isPressed(Key.LEFT)) {
+            this.rotate(-1);
+        }
+
         if (Key.isDown(Key.LEFT)) {
             this.rotate(-ROTATION);
+        }
+
+        if (Key.isPressed(Key.RIGHT)) {
+            this.rotate(1);
         }
 
         if (Key.isDown(Key.RIGHT)) {

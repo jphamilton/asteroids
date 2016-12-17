@@ -134,6 +134,15 @@ export abstract class Object2D extends EventSource implements Rect {
         return this._height;
     }
     
+    get vertices(): Point[] {
+        return this.points.map(p => {
+            return {
+                x: this.origin.x + p.x,
+                y: this.origin.y + p.y
+            }
+        });
+    }
+
     collided(rect2: Rect) {
         if (rect2 && this.x < rect2.x + rect2.width &&
             this.x + this.width > rect2.x &&

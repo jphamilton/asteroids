@@ -31,6 +31,7 @@ export class HighScoreState {
     private drawBackground() {
         screen.draw.background();
         screen.draw.scorePlayer1(this.score);
+        screen.draw.oneCoinOnePlay();
         screen.draw.highscore(this.highscore);
         screen.draw.copyright();
     }
@@ -58,19 +59,11 @@ export class HighScoreState {
         }
     }
 
-    private drawPushStart() {
-        const screenX = screen.width / 2;
-
+    drawPushStart() {
         if (this.showPushStart) {
-            screen.draw.text2('push start', '30pt', (width) => {
-                return {
-                    x: screenX - (width / 2),
-                    y: 120
-                }
-            });
+            screen.draw.pushStart();
         }
     }
-
     private pad(text: any, char, count) {
         text = text.toString();
         while (text.length < count) {

@@ -49,8 +49,8 @@
 	var highscores_1 = __webpack_require__(2);
 	var highscorestate_1 = __webpack_require__(3);
 	var enterhighscorestate_1 = __webpack_require__(6);
-	var attractstate_1 = __webpack_require__(22);
-	var gamestate_1 = __webpack_require__(19);
+	var attractstate_1 = __webpack_require__(9);
+	var gamestate_1 = __webpack_require__(20);
 	var keys_1 = __webpack_require__(7);
 	var ATTRACT_TIME = 15;
 	var States;
@@ -255,6 +255,7 @@
 	    HighScoreState.prototype.drawBackground = function () {
 	        screen_1.default.draw.background();
 	        screen_1.default.draw.scorePlayer1(this.score);
+	        screen_1.default.draw.oneCoinOnePlay();
 	        screen_1.default.draw.highscore(this.highscore);
 	        screen_1.default.draw.copyright();
 	    };
@@ -282,14 +283,8 @@
 	        }
 	    };
 	    HighScoreState.prototype.drawPushStart = function () {
-	        var screenX = screen_1.default.width / 2;
 	        if (this.showPushStart) {
-	            screen_1.default.draw.text2('push start', '30pt', function (width) {
-	                return {
-	                    x: screenX - (width / 2),
-	                    y: 120
-	                };
-	            });
+	            screen_1.default.draw.pushStart();
 	        }
 	    };
 	    HighScoreState.prototype.pad = function (text, char, count) {
@@ -451,15 +446,47 @@
 	            text = '0' + text;
 	        this.text2(text, '12pt', function (width) {
 	            return {
-	                x: (screen_1.default.width / 2) - (width / 2),
+	                x: screen_1.default.width2 - (width / 2),
 	                y: 20
 	            };
 	        });
 	    };
-	    Draw.prototype.copyright = function () {
-	        this.text2(String.fromCharCode(169) + ' 1979 Atari INC', '12pt', function (width) {
+	    Draw.prototype.oneCoinOnePlay = function () {
+	        this.text2('1  coin  1  play', '24pt', function (width) {
 	            return {
-	                x: (screen_1.default.width / 2) - (width / 2),
+	                x: screen_1.default.width2 - (width / 2),
+	                y: screen_1.default.height - 120
+	            };
+	        });
+	    };
+	    Draw.prototype.pushStart = function () {
+	        screen_1.default.draw.text2('push start', '30pt', function (width) {
+	            return {
+	                x: screen_1.default.width2 - (width / 2),
+	                y: 120
+	            };
+	        });
+	    };
+	    Draw.prototype.player1 = function () {
+	        screen_1.default.draw.text2('player 1', '30pt', function (width) {
+	            return {
+	                x: screen_1.default.width2 - (width / 2),
+	                y: 140
+	            };
+	        });
+	    };
+	    Draw.prototype.gameOver = function () {
+	        screen_1.default.draw.text2('game over', '30pt', function (width) {
+	            return {
+	                x: screen_1.default.width2 - (width / 2),
+	                y: 180
+	            };
+	        });
+	    };
+	    Draw.prototype.copyright = function () {
+	        this.text2(String.fromCharCode(169) + ' 1979 atari inc', '12pt', function (width) {
+	            return {
+	                x: screen_1.default.width2 - (width / 2),
 	                y: screen_1.default.height - 20
 	            };
 	        });
@@ -643,7 +670,183 @@
 
 
 /***/ },
-/* 9 */,
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var screen_1 = __webpack_require__(4);
+	var util_1 = __webpack_require__(10);
+	var highscores_1 = __webpack_require__(2);
+	var rocks_1 = __webpack_require__(11);
+	var alien_1 = __webpack_require__(15);
+	var explosion_1 = __webpack_require__(17);
+	var collisions_1 = __webpack_require__(18);
+	var vector_1 = __webpack_require__(14);
+	var AttractState = (function () {
+	    function AttractState(score) {
+	        this.score = score;
+	        this.level = 0;
+	        this.rocks = [];
+	        this.explosions = [];
+	        this.alienBullets = [];
+	        this.showPushStart = true;
+	        this.levelTimer = 0;
+	        this.pushStartTimer = 0;
+	        this.modeTimer = 0;
+	        this.alienTimer = 7;
+	        this.highscore = highscores_1.highscores.scores.length ? highscores_1.highscores.top.score : 0;
+	        this.init();
+	    }
+	    AttractState.prototype.init = function () {
+	        this.startLevel();
+	    };
+	    AttractState.prototype.startLevel = function () {
+	        this.level++;
+	        this.levelTimer = 0;
+	        this.alienTimer = util_1.random(5, 10);
+	        this.addRocks();
+	    };
+	    AttractState.prototype.update = function (dt) {
+	        this.levelTimer += dt;
+	        this.updateAlienTimer(dt);
+	        if (!this.rocks.length && !this.explosions.length && !this.alien) {
+	            this.startLevel();
+	        }
+	        this.updatePushStartTimer(dt);
+	        this.checkCollisions();
+	        var objects = [this.alien].concat(this.rocks, this.alienBullets, this.explosions);
+	        objects.forEach(function (obj) {
+	            if (obj) {
+	                obj.update(dt);
+	            }
+	        });
+	    };
+	    AttractState.prototype.updateAlienTimer = function (dt) {
+	        if (!this.alien) {
+	            this.alienTimer -= dt;
+	            if (this.alienTimer <= 0) {
+	                this.addAlien();
+	                this.alienTimer = util_1.random(5, 10);
+	            }
+	        }
+	    };
+	    AttractState.prototype.updatePushStartTimer = function (dt) {
+	        this.pushStartTimer += dt;
+	        if (this.pushStartTimer >= .4) {
+	            this.pushStartTimer = 0;
+	            this.showPushStart = !this.showPushStart;
+	        }
+	    };
+	    AttractState.prototype.alienDestroyed = function () {
+	        this.createExplosion(this.alien.origin.x, this.alien.origin.y);
+	        this.alien = null;
+	        this.alienBullets = [];
+	    };
+	    AttractState.prototype.rockDestroyed = function (rock) {
+	        this.createExplosion(rock.origin.x, rock.origin.y);
+	        this.rocks = this.rocks.filter(function (x) { return x !== rock; });
+	        (_a = this.rocks).push.apply(_a, rock.split());
+	        rock = null;
+	        var _a;
+	    };
+	    AttractState.prototype.checkCollisions = function () {
+	        var _this = this;
+	        var check = !!this.alien || !!this.alienBullets.length;
+	        if (!check) {
+	            return;
+	        }
+	        this.collisions = new collisions_1.Collisions();
+	        this.collisions.check([this.alien], this.rocks, function (alien, rock) {
+	            _this.alienDestroyed();
+	            _this.rockDestroyed(rock);
+	        });
+	        this.collisions.check(this.alienBullets, this.rocks, function (bullet, rock) {
+	            _this.rockDestroyed(rock);
+	        });
+	    };
+	    AttractState.prototype.render = function () {
+	        this.drawBackground();
+	        this.drawPushStart();
+	        var objects = this.rocks.concat([this.alien], this.alienBullets, this.explosions);
+	        objects.forEach(function (obj) {
+	            if (obj) {
+	                obj.render();
+	            }
+	        });
+	    };
+	    AttractState.prototype.addRocks = function () {
+	        var count = Math.min(this.level + 3, 7);
+	        var speed = 150;
+	        for (var i = 0; i < count; i++) {
+	            var zone = util_1.random(1, 4);
+	            var v = new vector_1.Vector(util_1.random(1, 360));
+	            var x = void 0;
+	            var y = void 0;
+	            switch (zone) {
+	                case 1:
+	                    x = util_1.random(40, screen_1.default.width - 40);
+	                    y = util_1.random(40, 80);
+	                    break;
+	                case 2:
+	                    x = util_1.random(screen_1.default.width - 80, screen_1.default.width - 40);
+	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
+	                    break;
+	                case 3:
+	                    x = util_1.random(40, screen_1.default.width - 40);
+	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
+	                    break;
+	                default:
+	                    x = util_1.random(40, 80);
+	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
+	                    break;
+	            }
+	            var rock = new rocks_1.Rock(x, y, v, rocks_1.RockSize.Large, speed);
+	            this.rocks.push(rock);
+	        }
+	    };
+	    AttractState.prototype.addAlien = function () {
+	        var _this = this;
+	        this.alien = new alien_1.BigAlien();
+	        this.alien.on('expired', function () {
+	            _this.alien.destroy();
+	            _this.alien = null;
+	            _this.alienBullets.forEach(function (b) { return b.destroy(); });
+	            _this.alienBullets = [];
+	        });
+	        this.alien.on('fire', function (alien, bullet) {
+	            bullet.on('expired', function () {
+	                _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
+	            });
+	            _this.alienBullets.push(bullet);
+	        });
+	        this.alienTimer = 0;
+	    };
+	    AttractState.prototype.createExplosion = function (x, y) {
+	        var _this = this;
+	        var explosion = new explosion_1.Explosion(x, y);
+	        explosion.on('expired', function () {
+	            _this.explosions = _this.explosions.filter(function (x) { return x !== explosion; });
+	        });
+	        this.explosions.push(explosion);
+	    };
+	    AttractState.prototype.drawBackground = function () {
+	        screen_1.default.draw.background();
+	        screen_1.default.draw.scorePlayer1(this.score);
+	        screen_1.default.draw.oneCoinOnePlay();
+	        screen_1.default.draw.highscore(this.highscore);
+	        screen_1.default.draw.copyright();
+	    };
+	    AttractState.prototype.drawPushStart = function () {
+	        if (this.showPushStart) {
+	            screen_1.default.draw.pushStart();
+	        }
+	    };
+	    return AttractState;
+	}());
+	exports.AttractState = AttractState;
+
+
+/***/ },
 /* 10 */
 /***/ function(module, exports) {
 
@@ -735,7 +938,7 @@
 	        });
 	        _this.size = size;
 	        _this.rotate(util_1.random(1, 90));
-	        _this.rot = util_1.random(1, 10) % 2 === 0 ? 1 : -1;
+	        _this.rot = util_1.random(.01, 1) % 2 === 0 ? 1 : -1;
 	        _this.timeToRot = util_1.random(1, 5);
 	        return _this;
 	    }
@@ -937,6 +1140,19 @@
 	    Object.defineProperty(Object2D.prototype, "height", {
 	        get: function () {
 	            return this._height;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(Object2D.prototype, "vertices", {
+	        get: function () {
+	            var _this = this;
+	            return this.points.map(function (p) {
+	                return {
+	                    x: _this.origin.x + p.x,
+	                    y: _this.origin.y + p.y
+	                };
+	            });
 	        },
 	        enumerable: true,
 	        configurable: true
@@ -1190,6 +1406,13 @@
 	        this.life = 0;
 	        this.trigger('expire');
 	    };
+	    Object.defineProperty(Bullet.prototype, "vertices", {
+	        get: function () {
+	            return [this.origin];
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    return Bullet;
 	}(object2d_1.Object2D));
 	exports.Bullet = Bullet;
@@ -1245,6 +1468,73 @@
 
 /***/ },
 /* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var screen_1 = __webpack_require__(4);
+	var quadtree_1 = __webpack_require__(19);
+	var Collisions = (function () {
+	    function Collisions() {
+	        this.tree = new quadtree_1.Quadtree({
+	            x: 0,
+	            y: 0,
+	            width: screen_1.default.width,
+	            height: screen_1.default.height
+	        }, 1);
+	    }
+	    Collisions.prototype.check = function (sources, targets, cb, dcb) {
+	        var _this = this;
+	        if (!sources || !sources.length || !targets || !targets.length) {
+	            return;
+	        }
+	        this.tree.clear();
+	        targets.forEach(function (target) {
+	            _this.tree.insert(target);
+	        });
+	        sources.forEach(function (source) {
+	            var candidates = [];
+	            candidates.push.apply(candidates, _this.tree.retrieve(source));
+	            candidates.forEach(function (candidate) {
+	                if (candidate.collided(source)) {
+	                    if (_this.pointsInPolygon(source, candidate)) {
+	                        cb(source, candidate);
+	                    }
+	                }
+	                else if (dcb) {
+	                    dcb(source, candidate);
+	                }
+	            });
+	        });
+	    };
+	    Collisions.prototype.pointsInPolygon = function (source, target) {
+	        var vert1 = source.vertices;
+	        var vert2 = target.vertices;
+	        for (var i = 0, l = vert2.length; i < l; i++) {
+	            if (this.pointInPoly(vert1, vert2[i])) {
+	                return true;
+	            }
+	        }
+	        return false;
+	    };
+	    Collisions.prototype.pointInPoly = function (points, t) {
+	        var j = points.length - 1;
+	        var c = 0;
+	        for (var i = 0, l = points.length; i < l; i++) {
+	            if ((points[i].y < t.y && points[j].y >= t.y || points[j].y < t.y && points[i].y >= t.y) &&
+	                (points[i].x <= t.x || points[j].x <= t.x)) {
+	                c ^= points[i].x + (t.y - points[i].y) / (points[j].y - points[i].y) * (points[j].x - points[i].x) < t.x;
+	            }
+	            j = i;
+	        }
+	        return c % 2 === 0;
+	    };
+	    return Collisions;
+	}());
+	exports.Collisions = Collisions;
+
+
+/***/ },
+/* 19 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1403,7 +1693,7 @@
 
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1414,12 +1704,12 @@
 	};
 	var keys_1 = __webpack_require__(7);
 	var events_1 = __webpack_require__(8);
-	var ship_1 = __webpack_require__(20);
+	var ship_1 = __webpack_require__(21);
 	var alien_1 = __webpack_require__(15);
 	var rocks_1 = __webpack_require__(11);
 	var explosion_1 = __webpack_require__(17);
 	var vector_1 = __webpack_require__(14);
-	var collisions_1 = __webpack_require__(21);
+	var collisions_1 = __webpack_require__(18);
 	var screen_1 = __webpack_require__(4);
 	var highscores_1 = __webpack_require__(2);
 	var util_1 = __webpack_require__(10);
@@ -1439,10 +1729,12 @@
 	        _this.shipTimer = 0;
 	        _this.alienTimer = 0;
 	        _this.levelTimer = 0;
+	        _this.gameOverTimer = 0;
+	        _this.gameOver = false;
+	        _this.started = false;
 	        _this.debug = false;
 	        _this.paused = false;
 	        _this.highscore = highscores_1.highscores.top.score;
-	        _this.init();
 	        return _this;
 	    }
 	    GameState.prototype.init = function () {
@@ -1469,16 +1761,30 @@
 	            return;
 	        }
 	        this.levelTimer += dt;
-	        this.handleAlien(dt);
-	        if (this.shipTimer || (!this.ship && this.lives && !this.explosions.length)) {
-	            this.tryPlaceShip(dt);
+	        if (this.gameOver) {
+	            this.gameOverTimer += dt;
+	            if (this.gameOverTimer >= 5) {
+	                this.trigger('done', this.score);
+	            }
 	        }
-	        if (!this.rocks.length && this.lives && !this.explosions.length && !this.alien) {
-	            this.startLevel();
-	        }
-	        if (!this.lives && !this.explosions.length && !this.alien) {
-	            this.trigger('done', this.score);
+	        if (!this.started) {
+	            if (this.levelTimer >= 2) {
+	                this.init();
+	                this.started = true;
+	            }
 	            return;
+	        }
+	        this.updateAlienTimer(dt);
+	        if (!this.gameOver) {
+	            if (this.shipTimer || (!this.ship && this.lives && !this.explosions.length)) {
+	                this.tryPlaceShip(dt);
+	            }
+	            if (!this.rocks.length && this.lives && !this.explosions.length && !this.alien) {
+	                this.startLevel();
+	            }
+	        }
+	        if (!this.lives) {
+	            this.gameOver = true;
 	        }
 	        this.checkCollisions();
 	        var objects = [this.ship, this.alien].concat(this.shipBullets, this.alienBullets, this.rocks, this.explosions);
@@ -1503,6 +1809,12 @@
 	        screen_1.default.draw.scorePlayer1(this.score);
 	        screen_1.default.draw.highscore(this.highscore);
 	        this.drawExtraLives();
+	        if (!this.started) {
+	            screen_1.default.draw.player1();
+	        }
+	        if (this.gameOver) {
+	            screen_1.default.draw.gameOver();
+	        }
 	        if (this.debug) {
 	            this.renderDebug();
 	        }
@@ -1543,7 +1855,7 @@
 	            life.render();
 	        }
 	    };
-	    GameState.prototype.handleAlien = function (dt) {
+	    GameState.prototype.updateAlienTimer = function (dt) {
 	        if (!this.alien) {
 	            this.alienTimer -= dt;
 	            if (this.alienTimer <= 0) {
@@ -1661,7 +1973,28 @@
 	    };
 	    GameState.prototype.addAlien = function () {
 	        var _this = this;
-	        this.alien = new alien_1.SmallAlien(this.ship);
+	        var lvl = Math.min(this.level, 7);
+	        if (this.score > 40000) {
+	            this.alien = new alien_1.SmallAlien(this.ship);
+	        }
+	        else {
+	            if (lvl === 1) {
+	                if (this.levelTimer < 90) {
+	                    this.alien = new alien_1.BigAlien();
+	                }
+	                else {
+	                    if (util_1.random(1, 3) % 2 === 0) {
+	                        this.alien = new alien_1.SmallAlien(this.ship);
+	                    }
+	                    else {
+	                        this.alien = new alien_1.BigAlien();
+	                    }
+	                }
+	            }
+	            else {
+	                this.alien = new alien_1.BigAlien();
+	            }
+	        }
 	        this.alien.on('expired', function () {
 	            _this.alien.destroy();
 	            _this.alien = null;
@@ -1755,7 +2088,7 @@
 
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1830,8 +2163,14 @@
 	        else {
 	            this.moving = false;
 	        }
+	        if (keys_1.Key.isPressed(keys_1.Key.LEFT)) {
+	            this.rotate(-1);
+	        }
 	        if (keys_1.Key.isDown(keys_1.Key.LEFT)) {
 	            this.rotate(-ROTATION);
+	        }
+	        if (keys_1.Key.isPressed(keys_1.Key.RIGHT)) {
+	            this.rotate(1);
 	        }
 	        if (keys_1.Key.isDown(keys_1.Key.RIGHT)) {
 	            this.rotate(ROTATION);
@@ -1889,266 +2228,6 @@
 	    return Ship;
 	}(object2d_1.Object2D));
 	exports.Ship = Ship;
-
-
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var screen_1 = __webpack_require__(4);
-	var quadtree_1 = __webpack_require__(18);
-	var Collisions = (function () {
-	    function Collisions() {
-	        this.tree = new quadtree_1.Quadtree({
-	            x: 0,
-	            y: 0,
-	            width: screen_1.default.width,
-	            height: screen_1.default.height
-	        }, 1);
-	    }
-	    Collisions.prototype.check = function (sources, targets, cb, dcb) {
-	        var _this = this;
-	        if (!sources || !sources.length || !targets || !targets.length) {
-	            return;
-	        }
-	        this.tree.clear();
-	        targets.forEach(function (target) {
-	            _this.tree.insert(target);
-	        });
-	        sources.forEach(function (source) {
-	            var candidates = [];
-	            candidates.push.apply(candidates, _this.tree.retrieve(source));
-	            candidates.forEach(function (candidate) {
-	                if (candidate.collided(source)) {
-	                    cb(source, candidate);
-	                }
-	                else if (dcb) {
-	                    dcb(source, candidate);
-	                }
-	            });
-	        });
-	    };
-	    return Collisions;
-	}());
-	exports.Collisions = Collisions;
-
-
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	var screen_1 = __webpack_require__(4);
-	var util_1 = __webpack_require__(10);
-	var highscores_1 = __webpack_require__(2);
-	var keys_1 = __webpack_require__(7);
-	var rocks_1 = __webpack_require__(11);
-	var alien_1 = __webpack_require__(15);
-	var explosion_1 = __webpack_require__(17);
-	var quadtree_1 = __webpack_require__(18);
-	var vector_1 = __webpack_require__(14);
-	var AttractState = (function () {
-	    function AttractState(score) {
-	        this.score = score;
-	        this.blinkTimer = 0;
-	        this.modeTimer = 0;
-	        this.alienTimer = 7;
-	        this.showPushStart = true;
-	        this.rocks = [];
-	        this.explosions = [];
-	        this.alienBullets = [];
-	        this.debug = false;
-	        this.paused = false;
-	        this.level = 1;
-	        this.highscore = highscores_1.highscores.scores.length ? highscores_1.highscores.top.score : 0;
-	        this.addRocks();
-	    }
-	    AttractState.prototype.update = function (dt) {
-	        if (keys_1.Key.isPressed(keys_1.Key.DEBUG)) {
-	            this.debug = !this.debug;
-	        }
-	        if (keys_1.Key.isPressed(keys_1.Key.PAUSE)) {
-	            this.paused = !this.paused;
-	        }
-	        if (this.paused) {
-	            return;
-	        }
-	        if (!this.alien && !this.rocks.length) {
-	            this.level++;
-	            this.addRocks();
-	        }
-	        this.updateAlienTimer(dt);
-	        this.pushStart(dt);
-	        this.checkCollisions();
-	        this.updateAllObjects(dt);
-	    };
-	    AttractState.prototype.updateAlienTimer = function (dt) {
-	        if (!this.alien) {
-	            this.alienTimer -= dt;
-	        }
-	        if (this.alienTimer <= 0) {
-	            this.addAlien();
-	            this.alienTimer = 7;
-	        }
-	    };
-	    AttractState.prototype.pushStart = function (dt) {
-	        this.blinkTimer += dt;
-	        if (this.blinkTimer >= .4) {
-	            this.blinkTimer = 0;
-	            this.showPushStart = !this.showPushStart;
-	        }
-	    };
-	    AttractState.prototype.checkCollisions = function () {
-	        var _this = this;
-	        if (this.alien) {
-	            this.bounds = [];
-	            this.qt = new quadtree_1.Quadtree({ x: 0, y: 0, width: screen_1.default.width, height: screen_1.default.height }, 1);
-	            this.rocks.forEach(function (rock) {
-	                if (_this.alien) {
-	                    _this.qt.insert(rock);
-	                }
-	            });
-	        }
-	        this.checkAlienCollision();
-	        this.checkAlienBulletCollision();
-	    };
-	    AttractState.prototype.checkAlienCollision = function () {
-	        var _this = this;
-	        if (this.alien) {
-	            var rocks = this.qt.retrieve(this.alien);
-	            rocks.forEach(function (rock) {
-	                if (rock.collided(_this.alien)) {
-	                    _this.createExplosion(_this.alien.origin.x, _this.alien.origin.y);
-	                    _this.createExplosion(rock.origin.x, rock.origin.y);
-	                    _this.splitRock(rock);
-	                    _this.alien = null;
-	                    _this.alienBullets = [];
-	                }
-	                if (_this.debug) {
-	                    _this.bounds.push(rock);
-	                }
-	            });
-	        }
-	    };
-	    AttractState.prototype.checkAlienBulletCollision = function () {
-	        var _this = this;
-	        this.alienBullets.forEach(function (bullet) {
-	            var rocks = [];
-	            if (_this.alien) {
-	                rocks.push.apply(rocks, _this.qt.retrieve(bullet));
-	                rocks.forEach(function (rock) {
-	                    if (rock.collided(bullet)) {
-	                        _this.createExplosion(rock.origin.x, rock.origin.y);
-	                        _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
-	                        _this.splitRock(rock);
-	                        bullet = null;
-	                    }
-	                    if (_this.debug) {
-	                        _this.bounds.push(rock);
-	                    }
-	                });
-	            }
-	            if (_this.debug) {
-	                (_a = _this.bounds).push.apply(_a, rocks.concat([_this.alien]));
-	            }
-	            var _a;
-	        });
-	    };
-	    AttractState.prototype.updateAllObjects = function (dt) {
-	        var objects = [this.alien].concat(this.rocks, this.alienBullets, this.explosions);
-	        objects.forEach(function (obj) {
-	            if (obj) {
-	                obj.update(dt);
-	            }
-	        });
-	    };
-	    AttractState.prototype.render = function () {
-	        this.drawBackground();
-	        this.drawPushStart();
-	        var objects = this.rocks.concat([this.alien], this.alienBullets, this.explosions);
-	        objects.forEach(function (obj) {
-	            if (obj) {
-	                obj.render();
-	            }
-	        });
-	        if (this.alien && this.debug) {
-	            if (this.qt) {
-	                screen_1.default.draw.quadtree(this.qt);
-	            }
-	            this.bounds.forEach(function (r) {
-	                screen_1.default.draw.bounds(r, '#fc058d');
-	            });
-	        }
-	        this.bounds = [];
-	        if (this.debug) {
-	            screen_1.default.draw.text2('debug mode', '12pt', function (width) {
-	                return { x: screen_1.default.width - width - 10, y: screen_1.default.height - 40 };
-	            });
-	        }
-	    };
-	    AttractState.prototype.addRocks = function () {
-	        var count = Math.min(this.level + 3, 7);
-	        var speed = 200;
-	        for (var i = 0; i < count; i++) {
-	            var v = new vector_1.Vector(util_1.random(1, 360));
-	            var x = util_1.random(40, screen_1.default.width - 40);
-	            var y = util_1.random(40, screen_1.default.height - 40);
-	            var rock = new rocks_1.Rock(x, y, v, rocks_1.RockSize.Large, speed);
-	            this.rocks.push(rock);
-	        }
-	    };
-	    AttractState.prototype.addAlien = function () {
-	        var _this = this;
-	        this.alien = new alien_1.BigAlien();
-	        this.alien.on('expired', function () {
-	            _this.alien.destroy();
-	            _this.alien = null;
-	            _this.alienBullets.forEach(function (b) { return b.destroy(); });
-	            _this.alienBullets = [];
-	        });
-	        this.alien.on('fire', function (alien, bullet) {
-	            bullet.on('expired', function () {
-	                _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
-	            });
-	            _this.alienBullets.push(bullet);
-	        });
-	        this.alienTimer = 0;
-	    };
-	    AttractState.prototype.createExplosion = function (x, y) {
-	        var _this = this;
-	        var explosion = new explosion_1.Explosion(x, y);
-	        explosion.on('expired', function () {
-	            _this.explosions = _this.explosions.filter(function (x) { return x !== explosion; });
-	        });
-	        this.explosions.push(explosion);
-	    };
-	    AttractState.prototype.splitRock = function (rock) {
-	        this.rocks = this.rocks.filter(function (x) { return x !== rock; });
-	        (_a = this.rocks).push.apply(_a, rock.split());
-	        rock = null;
-	        var _a;
-	    };
-	    AttractState.prototype.drawBackground = function () {
-	        screen_1.default.draw.background();
-	        screen_1.default.draw.scorePlayer1(this.score);
-	        screen_1.default.draw.highscore(this.highscore);
-	        screen_1.default.draw.copyright();
-	    };
-	    AttractState.prototype.drawPushStart = function () {
-	        var screenX = screen_1.default.width / 2;
-	        if (this.showPushStart) {
-	            screen_1.default.draw.text2('push start', '30pt', function (width) {
-	                return {
-	                    x: screenX - (width / 2),
-	                    y: 120
-	                };
-	            });
-	        }
-	    };
-	    return AttractState;
-	}());
-	exports.AttractState = AttractState;
 
 
 /***/ }

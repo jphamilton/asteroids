@@ -81,7 +81,7 @@ export class Rock extends Object2D {
 
         this.size = size;
         this.rotate(random(1, 90));
-        this.rot = random(1, 10) % 2 === 0 ? 1 : -1;
+        this.rot = random(.01, 1) % 2 === 0 ? 1 : -1;
         this.timeToRot = random(1,5);
     }
 

@@ -7,151 +7,111 @@ import { Bullet } from './bullet';
 import { Rock, RockSize } from './rocks';
 import { BigAlien } from './alien';
 import { Explosion } from './explosion';
-import { Quadtree } from './quadtree';
+import { Collisions } from './collisions';
 import { Vector } from './vector';
 
 export class AttractState {
 
-    blinkTimer: number = 0;
-    modeTimer: number = 0;
-    alienTimer: number = 7;
-    showPushStart: boolean = true;
+    level: number = 0;
     highscore: number;
-    rocks: Object2D[] = [];
+    rocks: Rock[] = [];
     explosions: IGameState[] = [];
     alienBullets: Bullet[] = [];
     alien: BigAlien;
-    debug: boolean = false;
-    qt: Quadtree;
-    bounds: Rect[];
-    paused: boolean = false;
-    level: number = 1;
+    collisions: Collisions;
+    showPushStart: boolean = true;
+    levelTimer: number = 0;
+    pushStartTimer: number = 0;
+    modeTimer: number = 0;
+    alienTimer: number = 7;
 
     constructor(private score) {
         this.highscore = highscores.scores.length ? highscores.top.score : 0;
+        this.init();
+    }
+
+    init() {
+        this.startLevel();
+    }
+
+    startLevel() {
+        this.level++;
+        this.levelTimer = 0;
+        this.alienTimer = random(5, 10);
         this.addRocks();
     }
 
     update(dt) {
-        if (Key.isPressed(Key.DEBUG)) {
-            this.debug = !this.debug; 
-        }
+        this.levelTimer += dt;
 
-        if (Key.isPressed(Key.PAUSE)) {
-            this.paused = !this.paused; 
-        }
-        
-        if (this.paused) {
-            return;
-        }
-
-        if (!this.alien && !this.rocks.length) {
-            this.level++;
-            this.addRocks();
-        }
-        
         this.updateAlienTimer(dt);
-        this.pushStart(dt);
+
+        if (!this.rocks.length && !this.explosions.length && !this.alien) {  
+            this.startLevel();
+        }
+
+        this.updatePushStartTimer(dt);
         this.checkCollisions();
-        this.updateAllObjects(dt);
-    }
 
-    updateAlienTimer(dt: number) {
-        if (!this.alien) {
-            this.alienTimer -= dt;
-        }
-
-        if (this.alienTimer <= 0) {
-            this.addAlien();
-            this.alienTimer = 7;
-        }
-    }
-
-    pushStart(dt: number) {
-        this.blinkTimer += dt;
-
-        if (this.blinkTimer >= .4) {
-            this.blinkTimer = 0;
-            this.showPushStart = !this.showPushStart;
-        }
-    }
-
-    checkCollisions() {
-        if (this.alien) {
-            
-            this.bounds = [];
-            this.qt = new Quadtree(
-                {x: 0, y: 0, width: screen.width, height: screen.height}, 
-                1
-            );
-
-            this.rocks.forEach(rock => {
-                if (this.alien) {
-                    this.qt.insert(rock);
-                }
-            });
-
-        }
-
-        this.checkAlienCollision();
-        this.checkAlienBulletCollision();
-    }
-
-    checkAlienCollision() {
-        if (this.alien) {
-            let rocks = <Rock[]>this.qt.retrieve(this.alien);
-            
-            rocks.forEach(rock => {
-                if (rock.collided(this.alien)) {
-                    this.createExplosion(this.alien.origin.x, this.alien.origin.y);
-                    this.createExplosion(rock.origin.x, rock.origin.y);
-                    this.splitRock(rock);
-                    this.alien = null;
-                    this.alienBullets = [];
-                } 
-
-                if (this.debug) {
-                    this.bounds.push(rock);
-                }
-            });
-        }
-    }
-    
-    checkAlienBulletCollision() {
-        this.alienBullets.forEach(bullet => {
-            let rocks = [];
-            
-            if (this.alien) {
-                rocks.push(...this.qt.retrieve(bullet));
-                rocks.forEach(rock => {
-                    if (rock.collided(bullet)) {
-                        this.createExplosion(rock.origin.x, rock.origin.y);
-                        this.alienBullets = this.alienBullets.filter(x => x !== bullet);
-                        this.splitRock(rock);
-                        bullet = null;
-                    } 
-
-                    if (this.debug) {
-                        this.bounds.push(rock);
-                    }
-                });
-            }
-
-            if (this.debug) {
-                this.bounds.push(...rocks, this.alien);
-            }
-
-        });
-    }
-
-    updateAllObjects(dt: number) {
         const objects = [this.alien, ...this.rocks, ...this.alienBullets, ...this.explosions];
         
         objects.forEach(obj => {
             if (obj) {
                 obj.update(dt);
             }
-        })
+        });
+    }
+
+    updateAlienTimer(dt: number) {
+        if (!this.alien) {
+            this.alienTimer -= dt;
+
+            if (this.alienTimer <= 0) {
+                this.addAlien();
+                this.alienTimer = random(5, 10);
+            }
+        }
+    }
+
+    updatePushStartTimer(dt: number) {
+        this.pushStartTimer += dt;
+
+        if (this.pushStartTimer >= .4) {
+            this.pushStartTimer = 0;
+            this.showPushStart = !this.showPushStart;
+        }
+    }
+
+    private alienDestroyed() {
+        this.createExplosion(this.alien.origin.x, this.alien.origin.y);
+        this.alien = null;
+        this.alienBullets = [];
+    }
+
+    private rockDestroyed(rock: Rock) {
+        this.createExplosion(rock.origin.x, rock.origin.y);
+        this.rocks = this.rocks.filter(x => x !== rock);
+        this.rocks.push(...rock.split());
+        rock = null;
+    }
+
+    checkCollisions() {
+        const check = !!this.alien || !!this.alienBullets.length;
+
+        if (!check) {
+            return;
+        }
+
+        this.collisions = new Collisions();
+
+        this.collisions.check([this.alien], this.rocks, (alien, rock) => {
+            this.alienDestroyed();
+            this.rockDestroyed(rock);
+        });
+
+        this.collisions.check(this.alienBullets, this.rocks, (bullet, rock) => {
+            this.rockDestroyed(rock);
+        });
     }
 
     render() {
@@ -165,34 +125,37 @@ export class AttractState {
                 obj.render();
             }
         });
-
-        if (this.alien && this.debug) {
-            if (this.qt) {
-                screen.draw.quadtree(this.qt);                
-            }
-            
-            this.bounds.forEach(r => {
-                screen.draw.bounds(r, '#fc058d');
-            });
-        }
-
-        this.bounds = [];
-        
-        if (this.debug) {
-            screen.draw.text2('debug mode', '12pt', (width) => {
-                return { x: screen.width - width - 10, y: screen.height - 40 };
-            });
-        }
     }
 
     private addRocks() {
         const count = Math.min(this.level + 3, 7);
-        const speed = 200;
+        const speed = 150;
 
         for(let i = 0; i < count; i++) {
+            const zone = random(1,4);
             const v = new Vector(random(1, 360));
-            const x = random(40, screen.width - 40); 
-            const y = random(40, screen.height - 40); 
+            let x;
+            let y;
+
+            switch (zone) {
+                case 1:
+                    x = random(40, screen.width - 40); 
+                    y = random(40, 80); 
+                    break;
+                case 2:
+                    x = random(screen.width - 80, screen.width - 40);
+                    y = random(screen.height - 40, screen.height - 40);
+                    break;
+                case 3:
+                    x = random(40, screen.width - 40);
+                    y = random(screen.height - 40, screen.height - 40); 
+                    break;
+                default:
+                    x = random(40, 80);
+                    y = random(screen.height - 40, screen.height - 40);
+                    break;
+            }
+
             const rock = new Rock(x, y, v, RockSize.Large, speed);
             this.rocks.push(rock);
         } 
@@ -230,29 +193,17 @@ export class AttractState {
         this.explosions.push(explosion);
     }
 
-    private splitRock(rock: Rock) {
-        this.rocks = this.rocks.filter(x => x !== rock);
-        this.rocks.push(...rock.split());
-        rock = null;
-    }
-
     private drawBackground() {
         screen.draw.background();
         screen.draw.scorePlayer1(this.score);
+        screen.draw.oneCoinOnePlay();
         screen.draw.highscore(this.highscore);
         screen.draw.copyright();
     }
 
     private drawPushStart() {
-        const screenX = screen.width / 2;
-
         if (this.showPushStart) {
-            screen.draw.text2('push start', '30pt', (width) => {
-                return {
-                    x: screenX - (width / 2),
-                    y: 120
-                }
-            });
+            screen.draw.pushStart();
         }
     }
 
