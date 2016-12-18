@@ -6,7 +6,7 @@ export class AttractMode {
 
     showPushStart: boolean = true;
     pushStartTimer: number = 0;
-
+    
     constructor(private state: State) {
         this.init();
     }
@@ -19,7 +19,7 @@ export class AttractMode {
 
     update(dt) {
         this.state.levelTimer += dt;
-
+    
         this.state.updateAlienTimer(dt);
 
         if (!this.state.rocks.length && !this.state.explosions.length && !this.state.alien) {  

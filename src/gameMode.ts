@@ -4,12 +4,64 @@ import { Collisions } from './collisions';
 import screen from './screen';
 import { random } from './util';
 import { State } from './state';
+import { thumpLo, thumpHi } from './sounds';
+
+class Thumper {
+    thumpBeatTimer: number;
+    thumpBeat: number;
+    thumpTimer: number;
+    thumpTime: number;
+    lo: boolean;
+    max: boolean;
+
+    constructor() {
+        this.reset();
+    }
+
+    reset() {
+        this.thumpBeatTimer = 0;
+        this.thumpBeat = 1;
+        this.thumpTimer = 0;
+        this.thumpTime = 10;
+        this.lo = true;
+        this.max = false;
+    }
+
+    update(dt: number) {
+        this.thumpTimer += dt;
+        this.thumpBeatTimer += dt;
+
+        if (this.thumpBeatTimer >= this.thumpBeat) {
+            if (this.lo) {
+                thumpLo.play();
+            } else {
+                thumpHi.play();
+            }
+
+            this.lo = !this.lo;
+            this.thumpBeatTimer = 0;
+        }
+
+        if (!this.max && this.thumpTimer >= this.thumpTime) {
+            this.thumpBeat -= .2;
+            
+            if (this.thumpBeat <= .2) {
+                this.thumpBeat = .2;
+                this.max = true;
+            }
+            
+            this.thumpTimer = 0;
+        }
+    }    
+}
+
 
 export class GameMode extends EventSource {
 
     debug: boolean = false;
     bounds: Rect[] = [];
-    
+    thumper: Thumper;
+
     constructor(private state: State) {
         super();
     }
@@ -17,6 +69,7 @@ export class GameMode extends EventSource {
     init() {
         this.state.addShip(screen.width2, screen.height2);
         this.state.startLevel();
+        this.thumper = new Thumper();
     }
 
     update(dt: number) {
@@ -38,6 +91,10 @@ export class GameMode extends EventSource {
 
         this.state.levelTimer += dt;
         
+        if (this.thumper && this.state.ship) {
+            this.thumper.update(dt);
+        }
+
         if (this.state.gameOver) {
             this.state.gameOverTimer += dt;
 
@@ -67,6 +124,7 @@ export class GameMode extends EventSource {
             // check for next level
             if (this.state.shouldCheckForNextLevel()) {  
                 this.state.startLevel();
+                this.thumper.reset();
             }
 
         }
@@ -89,6 +147,8 @@ export class GameMode extends EventSource {
 
     render(delta: number) {
         this.renderStatic();
+
+        // if ship then THUMP baby
 
         this.state.objects.forEach(obj => {
             if (obj) {

@@ -1,6 +1,7 @@
 import { Object2D } from './object2d';
 import { Vector } from './vector';
 import { random } from './util';
+import { largeExplosion, mediumExplosion, smallExplosion } from './sounds';
 
 export enum RockSize {
     Small = 5,
@@ -107,6 +108,22 @@ export class Rock extends Object2D {
     }
 
     split(): Rock[] {
+        console.log('sound should play');
+
+        switch(this.size) {
+            case RockSize.Large:
+                largeExplosion.play();
+                break;
+
+            case RockSize.Medium:
+                mediumExplosion.play();
+                break;
+
+            case RockSize.Small:
+                smallExplosion.play();
+                break;
+        }
+
         if (this.size > RockSize.Small) {
 
             let angle1 = random(this.direction, this.direction + 80);

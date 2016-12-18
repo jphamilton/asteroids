@@ -3,19 +3,20 @@ import { Bullet } from './bullet';
 import { Alien, SmallAlien, BigAlien } from './alien';
 import { Explosion } from './explosion';
 import { Rock, RockSize } from './rocks';
-
 import { Object2D } from './object2d';
 import { Vector } from './vector';
-
 import { random } from './util';
 import screen from './screen';
+import { largeAlien, largeExplosion, extraLife } from './sounds';
+
+const EXTRA_LIFE = 10000;
 
 export class State {
     level: number = 0;
     extraLifeScore: number = 0;
     highscore: number; 
     score: number = 0;
-    lives: number = 3;
+    lives: number = 3; 
     
     ship: Ship;
     shipBullets: Bullet[] = [];
@@ -106,6 +107,7 @@ export class State {
     }
 
     shipDestroyed() {
+        largeExplosion.play();
         this.createExplosion(this.ship.origin.x, this.ship.origin.y);
         this.lives--;
         this.ship = null;
@@ -113,6 +115,8 @@ export class State {
     }
 
     alienDestroyed() {
+        largeAlien.stop();
+        largeExplosion.play();
         this.createExplosion(this.alien.origin.x, this.alien.origin.y);
         this.alien = null;
         this.alienBullets = [];
@@ -126,32 +130,33 @@ export class State {
     }
 
     addAlien() {
-        const lvl = Math.min(this.level, 7);
+        // const lvl = Math.min(this.level, 7);
 
-        if (this.score > 40000) {
+        // if (this.score > 40000) {
         
-            this.alien = new SmallAlien(this.ship);
+        //     this.alien = new SmallAlien(this.ship);
         
-        } else {
+        // } else {
 
-            if (lvl === 1) {
-                if (this.levelTimer < 90) {
-                    this.alien = new BigAlien();
-                } else {
-                    if (random(1,3) % 2 === 0) {
-                        this.alien = new SmallAlien(this.ship);
-                    } else {
-                        this.alien = new BigAlien();
-                    }
-                }
+        //     if (lvl === 1) {
+        //         if (this.levelTimer < 90) {
+        //             this.alien = new BigAlien();
+        //         } else {
+        //             if (random(1,3) % 2 === 0) {
+        //                 this.alien = new SmallAlien(this.ship);
+        //             } else {
+        //                 this.alien = new BigAlien();
+        //             }
+        //         }
 
-            } else {
-                // come up with rules later
-                this.alien = new BigAlien();
-            } 
-        }
+        //     } else {
+        //         // come up with rules later
+                 this.alien = new BigAlien();
+        //     } 
+        // }
 
         this.alien.on('expired', () => {
+            largeAlien.stop();
             this.alien.destroy();
             this.alien = null;
             this.alienBullets.forEach(b => b.destroy());
@@ -166,6 +171,8 @@ export class State {
 
             this.alienBullets.push(bullet);
         });
+
+        largeAlien.play();
     }   
 
     hyperspace() {
@@ -202,9 +209,10 @@ export class State {
             this.highscore = this.score;
         }
 
-        if (this.extraLifeScore >= 10000) {
+        if (this.extraLifeScore >= EXTRA_LIFE) {
             this.lives++;
             this.extraLifeScore = 0;
+            extraLife.play();
         }
     }
 

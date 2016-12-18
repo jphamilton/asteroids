@@ -3,6 +3,7 @@ import { Key } from './keys';
 import { Object2D } from './object2d';
 import { Vector } from './vector';
 import { Bullet } from './bullet';
+import { fire, thrust } from './sounds';
 
 const ACCELERATION: number = 0.1;
 const BULLET_SPEED: number = 800;
@@ -122,10 +123,16 @@ export class Ship extends Object2D {
             this.vy += v.y;
             this.flame.vy = this.vy;
         }
+
+        thrust.play();
     }
 
     private fire() {
         if (this.bulletTimer <= 0 && this.bulletCount < MAX_BULLETS) {
+            
+            //fire.stop();
+            fire.play();
+
             this.bulletTimer = BULLET_TIME;
             this.bulletCount++;
 

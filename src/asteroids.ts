@@ -6,6 +6,7 @@ import { AttractMode } from './attractMode';
 import { GameMode } from './gameMode';
 import { Key } from './keys';
 import { State } from './state';
+import { Sound } from './sounds';
 
 const ATTRACT_TIME = 15;
 
@@ -32,7 +33,9 @@ export class Asteroids {
     }
 
     init(state?: State) {
-
+        
+        Sound.off();
+        
         this.mode = Modes.Start;
         this.highScoreMode = new HighScoreMode(this.lastScore);
         this.attractMode = new AttractMode(state || new State(highscores.top.score));
@@ -49,6 +52,7 @@ export class Asteroids {
                     this.init(state);
                 });
 
+                Sound.off();
                 this.mode = Modes.Initials;
             } else {
                 this.init(state);
@@ -71,20 +75,22 @@ export class Asteroids {
                 }
 
                 if (Key.isPressed(Key.ONE)) {
+                    Sound.on();
                     this.mode = Modes.Game;
+                } else {
+                    this.updateAttractTimer(dt);
                 }
-                
-                this.updateAttractTimer(dt);
                 break;
 
             case Modes.Attract:
                 this.attractMode.update(dt);
 
                 if (Key.isPressed(Key.ONE)) {
+                    Sound.on();
                     this.mode = Modes.Game;
+                } else {
+                    this.updateAttractTimer(dt);
                 }
-                 
-                this.updateAttractTimer(dt);
                 break;
 
             case Modes.Initials:
@@ -122,6 +128,11 @@ export class Asteroids {
         if (this.attractTimer >= ATTRACT_TIME) {
             this.attractTimer = 0;
             this.mode = this.mode === Modes.Attract ? Modes.Start : Modes.Attract;
+            if (this.mode === Modes.Attract) {
+                Sound.on();
+            } else {
+                Sound.off();
+            }
         }
     }
 }

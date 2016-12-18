@@ -4,6 +4,7 @@ import { Object2D } from './object2d';
 import { Ship } from './ship';
 import { Bullet } from './bullet';
 import { Vector } from './vector';
+import { alienFire } from './sounds';
 
 const BULLET_SPEED: number = 600;
 const BIG_ALIEN_SPEED: number = 225;
@@ -111,6 +112,8 @@ export class BigAlien extends Alien {
         const v = new Vector(random(1, 360), BULLET_SPEED);
         const bullet = new Bullet(this.origin.x, this.origin.y, v);
         this.trigger('fire', bullet);
+        alienFire.stop();
+        alienFire.play();
     }
 
     destroy() {
@@ -143,6 +146,9 @@ export class SmallAlien extends Alien {
         }
 
         this.trigger('fire', bullet);
+        
+        alienFire.stop();
+        alienFire.play();
     }
 
     destroy() {

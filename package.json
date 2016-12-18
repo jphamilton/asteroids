@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Asteroids",
   "keywords": [
-      "Asteroids",
-      "Game",
-      "JavaScript",
-      "TypeScript"
+    "Asteroids",
+    "Game",
+    "JavaScript",
+    "TypeScript"
   ],
   "main": "asteroids.js",
   "scripts": {
@@ -17,8 +17,12 @@
   "author": "J.P. Hamilton",
   "license": "MIT",
   "devDependencies": {
+    "file-loader": "^0.9.0",
     "ts-loader": "1.3.2",
     "typescript": "2.1.4",
     "webpack": "1.14.0"
+  },
+  "dependencies": {
+    "howler": "^2.0.2"
   }
 }
