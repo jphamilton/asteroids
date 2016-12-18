@@ -12,7 +12,7 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "webpack --watch"
+    "watch": "set NODE_ENV=dev&&webpack --watch"
   },
   "author": "J.P. Hamilton",
   "license": "MIT",
