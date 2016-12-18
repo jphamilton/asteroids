@@ -43,12 +43,15 @@ export class _Key {
         
         const pan = new Hammer.Pan();
         const tap = new Hammer.Tap();
-        const pinch = new Hammer.Pinch();
+        const pinch = new Hammer.Pinch({
+            enable: true
+        });
 
         this.mc.add(pan);
         this.mc.add(tap, {
             interval: 50
         });
+        this.mc.add(pinch);
 
         this.mc.on('panup', (e) => {
             this.keys[this.UP] = true;
@@ -74,13 +77,14 @@ export class _Key {
             this.touched = true;
         });
 
-        this.mc.on('pinchin', (e) => {
+        this.mc.on('pinchout', (e) => {
             this.keys[this.SPACE] = true;
         });
 
         this.mc.on('pinchend', (e) => {
             this.keys[this.SPACE] = false;
         });
+
     }
 
     update() {

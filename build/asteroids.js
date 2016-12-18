@@ -200,7 +200,7 @@
 	var _Key = (function () {
 	    function _Key() {
 	        var _this = this;
-	        this.tapped = false;
+	        this.touched = false;
 	        this.SPACE = 32;
 	        this.LEFT = 37;
 	        this.UP = 38;
@@ -225,10 +225,14 @@
 	        this.mc = new Hammer.Manager(stage);
 	        var pan = new Hammer.Pan();
 	        var tap = new Hammer.Tap();
+	        var pinch = new Hammer.Pinch({
+	            enable: true
+	        });
 	        this.mc.add(pan);
 	        this.mc.add(tap, {
 	            interval: 50
 	        });
+	        this.mc.add(pinch);
 	        this.mc.on('panup', function (e) {
 	            _this.keys[_this.UP] = true;
 	        });
@@ -246,18 +250,24 @@
 	        this.mc.on('tap', function (e) {
 	            _this.keys[_this.CTRL] = true;
 	            _this.keys[_this.ONE] = true;
-	            _this.tapped = true;
+	            _this.touched = true;
+	        });
+	        this.mc.on('pinchout', function (e) {
+	            _this.keys[_this.SPACE] = true;
+	        });
+	        this.mc.on('pinchend', function (e) {
+	            _this.keys[_this.SPACE] = false;
 	        });
 	    }
 	    _Key.prototype.update = function () {
 	        for (var i = 0; i < LEN; i++) {
 	            this.prev[i] = this.keys[i];
 	        }
-	        if (this.tapped) {
+	        if (this.touched) {
 	            this.keys[this.CTRL] = false;
 	            this.keys[this.ONE] = false;
 	        }
-	        this.tapped = !this.tapped;
+	        this.touched = !this.touched;
 	    };
 	    _Key.prototype.isPressed = function (key) {
 	        return this.prev[key] === false && this.keys[key] === true;
