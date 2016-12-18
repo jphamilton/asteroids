@@ -23,7 +23,6 @@ class Thumper {
         this.thumpBeat = 1;
         this.thumpTimer = 0;
         this.thumpTime = 10;
-        //this.lo = true;
         this.max = false;
     }
 
@@ -171,7 +170,7 @@ export class GameMode extends EventSource {
         screen.draw.highscore(this.state.highscore);
 
         // extra lives
-        this.state.drawExtraLives();
+        screen.draw.drawExtraLives(this.state.lives);
 
         // player 1
         if (!this.state.started) {

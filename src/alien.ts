@@ -4,7 +4,7 @@ import { Object2D } from './object2d';
 import { Ship } from './ship';
 import { Bullet } from './bullet';
 import { Vector } from './vector';
-import { alienFire } from './sounds';
+import { smallAlien, largeAlien, alienFire } from './sounds';
 
 const BULLET_SPEED: number = 600;
 const BIG_ALIEN_SPEED: number = 225;
@@ -22,6 +22,7 @@ export abstract class Alien extends Object2D {
     abstract score: number;
     abstract fire(): void;
     abstract destroy(): void;
+    abstract onExpired(): void;
 
     constructor(speed) {
         super(0, 0);
@@ -56,6 +57,7 @@ export abstract class Alien extends Object2D {
         
         if (this.origin.x >= screen.width - 5 || this.origin.x <= 5) {
             this.trigger('expired');
+            this.onExpired();
             return;
         }
 
@@ -106,18 +108,22 @@ export class BigAlien extends Alien {
     constructor() {
         super(BIG_ALIEN_SPEED);
         this.scale(7);
+        largeAlien.play();
     }
 
     fire() {
         const v = new Vector(random(1, 360), BULLET_SPEED);
         const bullet = new Bullet(this.origin.x, this.origin.y, v);
         this.trigger('fire', bullet);
-        alienFire.stop();
         alienFire.play();
     }
 
+    onExpired() {
+        this.destroy();
+    }
+    
     destroy() {
-
+        largeAlien.stop();
     }    
 }
 
@@ -130,6 +136,7 @@ export class SmallAlien extends Alien {
     constructor(private ship: Ship) {
         super(SMALL_ALIEN_SPEED);
         this.scale(4);
+        smallAlien.play();
     }
 
     fire() {
@@ -151,8 +158,13 @@ export class SmallAlien extends Alien {
         alienFire.play();
     }
 
+    onExpired() {
+        this.destroy();
+    }
+
     destroy() {
         this.ship = null;
+        smallAlien.stop();
     }
 
 }

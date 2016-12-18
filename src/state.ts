@@ -7,7 +7,7 @@ import { Object2D } from './object2d';
 import { Vector } from './vector';
 import { random } from './util';
 import screen from './screen';
-import { largeAlien, largeExplosion, extraLife } from './sounds';
+import { largeExplosion, extraLife } from './sounds';
 
 const EXTRA_LIFE = 10000;
 
@@ -115,11 +115,11 @@ export class State {
     }
 
     alienDestroyed() {
-        largeAlien.stop();
-        largeExplosion.play();
+        this.alien.destroy();
         this.createExplosion(this.alien.origin.x, this.alien.origin.y);
         this.alien = null;
         this.alienBullets = [];
+        largeExplosion.play();
     }
 
     rockDestroyed(rock: Rock) {
@@ -130,34 +130,44 @@ export class State {
     }
 
     addAlien() {
-        // const lvl = Math.min(this.level, 7);
+        const lvl = Math.min(this.level, 7);
 
-        // if (this.score > 40000) {
+        if (this.score >= 40000) {
         
-        //     this.alien = new SmallAlien(this.ship);
+            this.alien = new SmallAlien(this.ship);
         
-        // } else {
+        } else {
 
-        //     if (lvl === 1) {
-        //         if (this.levelTimer < 90) {
-        //             this.alien = new BigAlien();
-        //         } else {
-        //             if (random(1,3) % 2 === 0) {
-        //                 this.alien = new SmallAlien(this.ship);
-        //             } else {
-        //                 this.alien = new BigAlien();
-        //             }
-        //         }
+            let little = false;
 
-        //     } else {
-        //         // come up with rules later
-                 this.alien = new BigAlien();
-        //     } 
-        // }
+            switch(lvl) {
+                case 1:
+                    little = this.levelTimer > 60 && random(1, 3) === 2;
+                    break;
+                case 2:
+                    little = this.levelTimer > 30 && random(1, 10) % 2 === 0; 
+                    break;
+                case 3:
+                    little = random(1, 10) <= 5;
+                    break;
+                case 4:
+                    little = random(1, 10) <= 6;
+                    break;
+                case 5:
+                    little = random(1, 10) <= 7;
+                    break;
+                case 6:
+                    little = random(1, 10) <= 8;
+                    break;
+                case 7:
+                    little = random(1, 10) <= 9;
+                    break;
+            }
+
+            this.alien = little ? new SmallAlien(this.ship) : new BigAlien();
+        }
 
         this.alien.on('expired', () => {
-            largeAlien.stop();
-            this.alien.destroy();
             this.alien = null;
             this.alienBullets.forEach(b => b.destroy());
             this.alienBullets = [];
@@ -172,7 +182,6 @@ export class State {
             this.alienBullets.push(bullet);
         });
 
-        largeAlien.play();
     }   
 
     hyperspace() {
@@ -189,16 +198,6 @@ export class State {
         }
 
         this.ship.rotate(angle);
-    }
-
-    drawExtraLives() {
-        const lives = Math.min(this.lives, 10);
-        let life = new Ship(0, 0);
-        for(let i = 0; i < lives; i++) {
-            life.origin.x = 80 + (i * 20);
-            life.origin.y = 55;
-            life.render();
-        }
     }
 
     addScore(score) {
@@ -248,12 +247,14 @@ export class State {
     }
 
     updateAlienTimer(dt: number) {
+        let level = Math.min(this.level, 7);
+        
         if (!this.alien) {
             this.alienTimer -= dt;
             
             if (this.alienTimer <= 0) {
                 this.addAlien();
-                this.alienTimer = random(10, 15);
+                this.alienTimer = random(10 - level, 15 - level);
             }
         }
     }

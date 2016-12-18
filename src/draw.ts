@@ -1,5 +1,6 @@
 import { highscores } from './highscores';
 import screen from './screen';
+import { Ship } from './ship';
 
 const VectorLine = 'rgba(255,255,255,1)';
 
@@ -176,5 +177,13 @@ export class Draw {
         });
     }
 
-    
+    drawExtraLives(lives) {
+        lives = Math.min(lives, 10);
+        let life = new Ship(0, 0);
+        for(let i = 0; i < lives; i++) {
+            life.origin.x = 80 + (i * 20);
+            life.origin.y = 55;
+            life.render();
+        }
+    }
 }

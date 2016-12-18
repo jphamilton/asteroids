@@ -61,6 +61,12 @@ export const largeAlien = createSound({
     loop: true
 });
 
+export const smallAlien = createSound({
+    src: ['./assets/ssaucer.wav'],
+    volume: VOLUME,
+    loop: true
+});
+
 export const thumpLo = createSound({
     src: ['./assets/thumplo.wav'],
     volume: 1

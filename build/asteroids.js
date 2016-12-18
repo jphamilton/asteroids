@@ -355,6 +355,7 @@
 
 	"use strict";
 	var screen_1 = __webpack_require__(4);
+	var ship_1 = __webpack_require__(16);
 	var VectorLine = 'rgba(255,255,255,1)';
 	var Draw = (function () {
 	    function Draw(ctx) {
@@ -506,6 +507,15 @@
 	                y: screen_1.default.height - 20
 	            };
 	        });
+	    };
+	    Draw.prototype.drawExtraLives = function (lives) {
+	        lives = Math.min(lives, 10);
+	        var life = new ship_1.Ship(0, 0);
+	        for (var i = 0; i < lives; i++) {
+	            life.origin.x = 80 + (i * 20);
+	            life.origin.y = 55;
+	            life.render();
+	        }
 	    };
 	    return Draw;
 	}());
@@ -1105,7 +1115,7 @@
 	        screen_1.default.draw.copyright();
 	        screen_1.default.draw.scorePlayer1(this.state.score);
 	        screen_1.default.draw.highscore(this.state.highscore);
-	        this.state.drawExtraLives();
+	        screen_1.default.draw.drawExtraLives(this.state.lives);
 	        if (!this.state.started) {
 	            screen_1.default.draw.player1();
 	        }
@@ -1263,6 +1273,11 @@
 	});
 	exports.largeAlien = createSound({
 	    src: ['./assets/lsaucer.wav'],
+	    volume: VOLUME,
+	    loop: true
+	});
+	exports.smallAlien = createSound({
+	    src: ['./assets/ssaucer.wav'],
 	    volume: VOLUME,
 	    loop: true
 	});
@@ -4169,11 +4184,11 @@
 	        this.shipBullets = [];
 	    };
 	    State.prototype.alienDestroyed = function () {
-	        sounds_1.largeAlien.stop();
-	        sounds_1.largeExplosion.play();
+	        this.alien.destroy();
 	        this.createExplosion(this.alien.origin.x, this.alien.origin.y);
 	        this.alien = null;
 	        this.alienBullets = [];
+	        sounds_1.largeExplosion.play();
 	    };
 	    State.prototype.rockDestroyed = function (rock) {
 	        this.createExplosion(rock.origin.x, rock.origin.y);
@@ -4184,10 +4199,38 @@
 	    };
 	    State.prototype.addAlien = function () {
 	        var _this = this;
-	        this.alien = new alien_1.BigAlien();
+	        var lvl = Math.min(this.level, 7);
+	        if (this.score >= 40000) {
+	            this.alien = new alien_1.SmallAlien(this.ship);
+	        }
+	        else {
+	            var little = false;
+	            switch (lvl) {
+	                case 1:
+	                    little = this.levelTimer > 60 && util_1.random(1, 3) === 2;
+	                    break;
+	                case 2:
+	                    little = this.levelTimer > 30 && util_1.random(1, 10) % 2 === 0;
+	                    break;
+	                case 3:
+	                    little = util_1.random(1, 10) <= 5;
+	                    break;
+	                case 4:
+	                    little = util_1.random(1, 10) <= 6;
+	                    break;
+	                case 5:
+	                    little = util_1.random(1, 10) <= 7;
+	                    break;
+	                case 6:
+	                    little = util_1.random(1, 10) <= 8;
+	                    break;
+	                case 7:
+	                    little = util_1.random(1, 10) <= 9;
+	                    break;
+	            }
+	            this.alien = little ? new alien_1.SmallAlien(this.ship) : new alien_1.BigAlien();
+	        }
 	        this.alien.on('expired', function () {
-	            sounds_1.largeAlien.stop();
-	            _this.alien.destroy();
 	            _this.alien = null;
 	            _this.alienBullets.forEach(function (b) { return b.destroy(); });
 	            _this.alienBullets = [];
@@ -4198,7 +4241,6 @@
 	            });
 	            _this.alienBullets.push(bullet);
 	        });
-	        sounds_1.largeAlien.play();
 	    };
 	    State.prototype.hyperspace = function () {
 	        var x = util_1.random(40, screen_1.default.width - 40);
@@ -4212,15 +4254,6 @@
 	            angle = angle - this.ship.angle;
 	        }
 	        this.ship.rotate(angle);
-	    };
-	    State.prototype.drawExtraLives = function () {
-	        var lives = Math.min(this.lives, 10);
-	        var life = new ship_1.Ship(0, 0);
-	        for (var i = 0; i < lives; i++) {
-	            life.origin.x = 80 + (i * 20);
-	            life.origin.y = 55;
-	            life.render();
-	        }
 	    };
 	    State.prototype.addScore = function (score) {
 	        this.score += score;
@@ -4258,11 +4291,12 @@
 	        }
 	    };
 	    State.prototype.updateAlienTimer = function (dt) {
+	        var level = Math.min(this.level, 7);
 	        if (!this.alien) {
 	            this.alienTimer -= dt;
 	            if (this.alienTimer <= 0) {
 	                this.addAlien();
-	                this.alienTimer = util_1.random(10, 15);
+	                this.alienTimer = util_1.random(10 - level, 15 - level);
 	            }
 	        }
 	    };
@@ -4766,6 +4800,7 @@
 	        this.move(dt);
 	        if (this.origin.x >= screen_1.default.width - 5 || this.origin.x <= 5) {
 	            this.trigger('expired');
+	            this.onExpired();
 	            return;
 	        }
 	        this.moveTimer += dt;
@@ -4803,16 +4838,20 @@
 	        var _this = _super.call(this, BIG_ALIEN_SPEED) || this;
 	        _this.score = 200;
 	        _this.scale(7);
+	        sounds_1.largeAlien.play();
 	        return _this;
 	    }
 	    BigAlien.prototype.fire = function () {
 	        var v = new vector_1.Vector(util_1.random(1, 360), BULLET_SPEED);
 	        var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
 	        this.trigger('fire', bullet);
-	        sounds_1.alienFire.stop();
 	        sounds_1.alienFire.play();
 	    };
+	    BigAlien.prototype.onExpired = function () {
+	        this.destroy();
+	    };
 	    BigAlien.prototype.destroy = function () {
+	        sounds_1.largeAlien.stop();
 	    };
 	    return BigAlien;
 	}(Alien));
@@ -4825,6 +4864,7 @@
 	        _this.score = 1000;
 	        _this.bulletTime = 1;
 	        _this.scale(4);
+	        sounds_1.smallAlien.play();
 	        return _this;
 	    }
 	    SmallAlien.prototype.fire = function () {
@@ -4841,8 +4881,12 @@
 	        sounds_1.alienFire.stop();
 	        sounds_1.alienFire.play();
 	    };
+	    SmallAlien.prototype.onExpired = function () {
+	        this.destroy();
+	    };
 	    SmallAlien.prototype.destroy = function () {
 	        this.ship = null;
+	        sounds_1.smallAlien.stop();
 	    };
 	    return SmallAlien;
 	}(Alien));
