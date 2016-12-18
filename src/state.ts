@@ -133,11 +133,8 @@ export class State {
         const lvl = Math.min(this.level, 7);
 
         if (this.score >= 40000) {
-        
             this.alien = new SmallAlien(this.ship);
-        
         } else {
-
             let little = false;
 
             switch(lvl) {
@@ -147,20 +144,8 @@ export class State {
                 case 2:
                     little = this.levelTimer > 30 && random(1, 10) % 2 === 0; 
                     break;
-                case 3:
-                    little = random(1, 10) <= 5;
-                    break;
-                case 4:
-                    little = random(1, 10) <= 6;
-                    break;
-                case 5:
-                    little = random(1, 10) <= 7;
-                    break;
-                case 6:
-                    little = random(1, 10) <= 8;
-                    break;
-                case 7:
-                    little = random(1, 10) <= 9;
+                default:
+                    little = random(1, 10) <= lvl + 2; 
                     break;
             }
 
@@ -174,7 +159,6 @@ export class State {
         });
 
         this.alien.on('fire', (alien, bullet: Bullet) => {
-            
             bullet.on('expired', () => {
                 this.alienBullets = this.alienBullets.filter(x => x !== bullet);
             });
