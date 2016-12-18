@@ -9,7 +9,6 @@ export class _Key {
     keys: boolean[];
     prev: boolean[];
     touched: boolean = false;
-
     mc: any;
 
     SPACE = 32; // hyperspace
