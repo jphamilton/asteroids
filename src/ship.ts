@@ -5,14 +5,16 @@ import { Vector } from './vector';
 import { Bullet } from './bullet';
 import { fire, thrust } from './sounds';
 
+console.log('SCREEN', screen);
+
 const ACCELERATION: number = 0.1;
-const BULLET_SPEED: number = 800;
+const BULLET_SPEED: number = 800 * screen.objectScale;
 const BULLET_TIME: number = .1;
 const FRICTION: number = 0.007;
 const ROTATION: number = 5;
-const MAX_ACCELERATION: number = 1100;
+const MAX_ACCELERATION: number = 1100 * screen.objectScale;
 const MAX_BULLETS: number = 4;
-const VELOCITY = 100;
+const VELOCITY = 100 * screen.objectScale;
 
 class Flame extends Object2D {
 

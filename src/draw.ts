@@ -1,8 +1,9 @@
-import { highscores } from './highscores';
 import screen from './screen';
+import { highscores } from './highscores';
 import { Ship } from './ship';
 
 const VectorLine = 'rgba(255,255,255,1)';
+const Y_START = 20;
 
 export class Draw {
 
@@ -43,7 +44,8 @@ export class Draw {
     }
 
     point(p: Point, fillStyle: string = VectorLine) {
-        this.rect(p, { x: 4, y: 4 }, fillStyle);
+        let size = 4 * screen.objectScale;
+        this.rect(p, { x: size, y: size }, fillStyle);
     }
 
     background() {
@@ -71,11 +73,11 @@ export class Draw {
         ctx.restore();
     }
 
-    text(text: string, x: number, y: number, size: string) {
+    text(text: string, x: number, y: number, size: number) {
         const { ctx } = this;
         
         ctx.save();
-        ctx.font = `${size} hyperspace`;
+        ctx.font = `${size}pt hyperspace`;
         ctx.textBaseline = 'middle';
         ctx.lineWidth = 1;
         ctx.strokeStyle = VectorLine;
@@ -83,11 +85,11 @@ export class Draw {
         ctx.restore();
     }
 
-    text2(text: string, size: string, cb: (width: number) => Point) {
+    text2(text: string, size: number, cb: (width: number) => Point) {
         const { ctx } = this;
         
         ctx.save();
-        ctx.font = `${size} hyperspace`;
+        ctx.font = `${size}pt hyperspace`;
         ctx.textBaseline = 'middle';
         ctx.lineWidth = 1;
         ctx.strokeStyle = VectorLine;
@@ -99,11 +101,11 @@ export class Draw {
         ctx.restore();
     }
 
-    text3(text: string, size: string, cb: (width: number) => Point) {
+    text3(text: string, size: number, cb: (width: number) => Point) {
         const { ctx } = this;
         
         ctx.save();
-        ctx.font = `${size} hyperspace`;
+        ctx.font = `${size}pt hyperspace`;
         ctx.textBaseline = 'middle';
         ctx.lineWidth = 2;
         ctx.fillStyle = VectorLine;
@@ -118,71 +120,75 @@ export class Draw {
     scorePlayer1(score) {
         let text = score.toString();
         while (text.length < 2) text = '0' + text;
-        this.text(text, 100, 20, '24pt');
+        this.text(text, 100, Y_START, screen.font.medium);
     }
 
     highscore(score: number) {
         let text = score.toString();
         while (text.length < 2) text = '0' + text;
-        this.text2(text, '12pt', (width) => {
+        this.text2(text, screen.font.small, (width) => {
             return {
                 x: screen.width2 - (width / 2),
-                y: 20
+                y: Y_START
             }
         });
     }
 
     oneCoinOnePlay() {
-        this.text2('1  coin  1  play', '24pt', (width) => {
+        this.text2('1  coin  1  play', screen.font.medium, (width) => {
             return {
                 x: screen.width2 - (width / 2),
-                y: screen.height - 120
+                y: (screen.height / 8) * 7
             }
         });
     }
 
     pushStart() {
-        screen.draw.text2('push start', '24pt', (width) => {
+        screen.draw.text2('push start', screen.font.medium, (width) => {
             return {
                 x: screen.width2 - (width / 2),
-                y: 120
+                y: screen.height / 8
             }
         });
     }
 
     player1() {
-        screen.draw.text2('player 1', '24pt', (width) => {
+        screen.draw.text2('player 1', screen.font.medium, (width) => {
             return {
                 x: screen.width2 - (width / 2),
-                y: 140
+                y: screen.height / 4.5
             }
         });
     }
 
     gameOver() {
-        screen.draw.text2('game over', '30pt', (width) => {
+        screen.draw.text2('game over', screen.font.medium, (width) => {
             return {
                 x: screen.width2 - (width / 2),
-                y: 180
+                y: screen.height / 4.5
             }
         });
     }
 
     copyright() {
-        this.text2(String.fromCharCode(169) + ' 1979 atari inc', '12pt', (width) => {
+        this.text2(String.fromCharCode(169) + ' 1979 atari inc', screen.font.small, (width) => {
             return {
                 x: screen.width2 - (width / 2),
-                y: screen.height - 20
+                y: screen.height - screen.font.small
             }
         });
     }
 
     drawExtraLives(lives) {
         lives = Math.min(lives, 10);
-        let life = new Ship(0, 0);
+        const life = new Ship(0, 0);
+        const loc = (life.x + life.width) * 2;
+        
+        const y = Y_START + screen.font.medium + 10;
+
         for(let i = 0; i < lives; i++) {
-            life.origin.x = 80 + (i * 20);
-            life.origin.y = 55;
+            life.origin.x = 80 + (i * loc);
+            life.origin.y = y;
             life.render();
         }
     }

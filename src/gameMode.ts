@@ -57,7 +57,7 @@ class Thumper {
 }
 
 
-export class GameMode extends EventSource {
+export class GameMode extends EventSource implements IGameState {
 
     debug: boolean = false;
     bounds: Rect[] = [];
@@ -188,7 +188,7 @@ export class GameMode extends EventSource {
     }
 
     private renderDebug() {
-        screen.draw.text2('debug mode', '12pt', (width) => {
+        screen.draw.text2('debug mode', screen.font.small, (width) => {
             return { x: screen.width - width - 10, y: screen.height - 40 };
         });
 
@@ -199,24 +199,18 @@ export class GameMode extends EventSource {
         }
 
         if (!this.state.ship && this.state.lives) {
-            let rect: Rect = {
-                x: screen.width2 - 120,
-                y: screen.height2 - 120,
-                width: 240,
-                height: 240
-            }
-            
+            let rect: Rect = screen.shipRect;
             screen.draw.bounds(rect, '#00ff00');
         }
 
         if (this.state.ship) {
-            screen.draw.text(this.state.ship.angle.toString(), this.state.ship.origin.x + 20, this.state.ship.origin.y + 20, '10pt');
+            screen.draw.text(this.state.ship.angle.toString(), this.state.ship.origin.x + 20, this.state.ship.origin.y + 20, 10);
         }
 
         const date = new Date(null);
         date.setSeconds(this.state.levelTimer);
 
-        screen.draw.text2(date.toISOString().substr(11, 8), '12pt', (width) => {
+        screen.draw.text2(date.toISOString().substr(11, 8), screen.font.small, (width) => {
             return { x: 10, y: screen.height - 40 };
         });
     

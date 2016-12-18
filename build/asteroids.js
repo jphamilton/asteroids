@@ -46,14 +46,14 @@
 
 	"use strict";
 	var loop_1 = __webpack_require__(1);
+	var keys_1 = __webpack_require__(7);
+	var state_1 = __webpack_require__(20);
+	var sounds_1 = __webpack_require__(13);
 	var highscores_1 = __webpack_require__(2);
 	var highScoreMode_1 = __webpack_require__(3);
 	var initialsMode_1 = __webpack_require__(15);
 	var attractMode_1 = __webpack_require__(16);
 	var gameMode_1 = __webpack_require__(19);
-	var keys_1 = __webpack_require__(7);
-	var state_1 = __webpack_require__(20);
-	var sounds_1 = __webpack_require__(13);
 	var ATTRACT_TIME = 15;
 	var Modes;
 	(function (Modes) {
@@ -146,12 +146,6 @@
 	        if (this.attractTimer >= ATTRACT_TIME) {
 	            this.attractTimer = 0;
 	            this.mode = this.mode === Modes.Attract ? Modes.Start : Modes.Attract;
-	            if (this.mode === Modes.Attract) {
-	                sounds_1.Sound.on();
-	            }
-	            else {
-	                sounds_1.Sound.off();
-	            }
 	        }
 	    };
 	    return Asteroids;
@@ -277,16 +271,18 @@
 	    };
 	    HighScoreMode.prototype.drawHighScores = function () {
 	        var screenX = screen_1.default.width / 2;
-	        screen_1.default.draw.text2('high scores', '24pt', function (width) {
+	        var startY = Math.ceil(screen_1.default.height / 4.5) + (screen_1.default.font.xlarge + screen_1.default.font.small);
+	        var spacing = screen_1.default.font.medium + screen_1.default.font.small;
+	        screen_1.default.draw.text2('high scores', screen_1.default.font.medium, function (width) {
 	            return {
 	                x: screenX - (width / 2),
-	                y: 200
+	                y: screen_1.default.height / 4.5
 	            };
 	        });
 	        var _loop_1 = function (i) {
-	            var y = 280 + (i * 40);
+	            var y = startY + (i * spacing);
 	            var text = this_1.pad(i + 1, ' ', 2) + "." + this_1.pad(highscores_1.highscores.scores[i].score, ' ', 6) + " " + highscores_1.highscores.scores[i].initials;
-	            screen_1.default.draw.text2(text, '24pt', function (width) {
+	            screen_1.default.draw.text2(text, screen_1.default.font.medium, function (width) {
 	                return {
 	                    x: screenX - (width / 2),
 	                    y: y
@@ -341,7 +337,70 @@
 	        this.height = this.canvas.height;
 	        this.width2 = this.width / 2;
 	        this.height2 = this.height / 2;
+	        if (this.width >= 1280) {
+	            this._fontXL = 60;
+	            this._fontL = 30;
+	            this._fontM = 24;
+	            this._fontS = 12;
+	            this._objectScale = 1;
+	        }
+	        else if (this.width >= 800) {
+	            this._fontXL = 48;
+	            this._fontL = 24;
+	            this._fontM = 18;
+	            this._fontS = 10;
+	            this._objectScale = .75;
+	        }
+	        else {
+	            this._fontXL = 36;
+	            this._fontL = 12;
+	            this._fontM = 10;
+	            this._fontS = 6;
+	            this._objectScale = .5;
+	        }
+	        var offRect = (120 * this._objectScale);
+	        this._shipRect = {
+	            x: this.width2 - offRect,
+	            y: this.height2 - offRect,
+	            width: offRect * 2,
+	            height: offRect * 2
+	        };
 	    };
+	    Object.defineProperty(Screen.prototype, "font", {
+	        get: function () {
+	            var self = this;
+	            return {
+	                get xlarge() {
+	                    return self._fontXL;
+	                },
+	                get large() {
+	                    return self._fontL;
+	                },
+	                get medium() {
+	                    return self._fontM;
+	                },
+	                get small() {
+	                    return self._fontS;
+	                }
+	            };
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(Screen.prototype, "objectScale", {
+	        get: function () {
+	            return this._objectScale;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(Screen.prototype, "shipRect", {
+	        get: function () {
+	            return this._shipRect;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
 	    return Screen;
 	}());
 	exports.Screen = Screen;
@@ -357,6 +416,7 @@
 	var screen_1 = __webpack_require__(4);
 	var ship_1 = __webpack_require__(6);
 	var VectorLine = 'rgba(255,255,255,1)';
+	var Y_START = 20;
 	var Draw = (function () {
 	    function Draw(ctx) {
 	        this.ctx = ctx;
@@ -393,7 +453,8 @@
 	    };
 	    Draw.prototype.point = function (p, fillStyle) {
 	        if (fillStyle === void 0) { fillStyle = VectorLine; }
-	        this.rect(p, { x: 4, y: 4 }, fillStyle);
+	        var size = 4 * screen_1.default.objectScale;
+	        this.rect(p, { x: size, y: size }, fillStyle);
 	    };
 	    Draw.prototype.background = function () {
 	        this.rect({ x: 0, y: 0 }, { x: screen_1.default.width, y: screen_1.default.height }, '#000000');
@@ -420,7 +481,7 @@
 	    Draw.prototype.text = function (text, x, y, size) {
 	        var ctx = this.ctx;
 	        ctx.save();
-	        ctx.font = size + " hyperspace";
+	        ctx.font = size + "pt hyperspace";
 	        ctx.textBaseline = 'middle';
 	        ctx.lineWidth = 1;
 	        ctx.strokeStyle = VectorLine;
@@ -430,7 +491,7 @@
 	    Draw.prototype.text2 = function (text, size, cb) {
 	        var ctx = this.ctx;
 	        ctx.save();
-	        ctx.font = size + " hyperspace";
+	        ctx.font = size + "pt hyperspace";
 	        ctx.textBaseline = 'middle';
 	        ctx.lineWidth = 1;
 	        ctx.strokeStyle = VectorLine;
@@ -442,7 +503,7 @@
 	    Draw.prototype.text3 = function (text, size, cb) {
 	        var ctx = this.ctx;
 	        ctx.save();
-	        ctx.font = size + " hyperspace";
+	        ctx.font = size + "pt hyperspace";
 	        ctx.textBaseline = 'middle';
 	        ctx.lineWidth = 2;
 	        ctx.fillStyle = VectorLine;
@@ -455,65 +516,67 @@
 	        var text = score.toString();
 	        while (text.length < 2)
 	            text = '0' + text;
-	        this.text(text, 100, 20, '24pt');
+	        this.text(text, 100, Y_START, screen_1.default.font.medium);
 	    };
 	    Draw.prototype.highscore = function (score) {
 	        var text = score.toString();
 	        while (text.length < 2)
 	            text = '0' + text;
-	        this.text2(text, '12pt', function (width) {
+	        this.text2(text, screen_1.default.font.small, function (width) {
 	            return {
 	                x: screen_1.default.width2 - (width / 2),
-	                y: 20
+	                y: Y_START
 	            };
 	        });
 	    };
 	    Draw.prototype.oneCoinOnePlay = function () {
-	        this.text2('1  coin  1  play', '24pt', function (width) {
+	        this.text2('1  coin  1  play', screen_1.default.font.medium, function (width) {
 	            return {
 	                x: screen_1.default.width2 - (width / 2),
-	                y: screen_1.default.height - 120
+	                y: (screen_1.default.height / 8) * 7
 	            };
 	        });
 	    };
 	    Draw.prototype.pushStart = function () {
-	        screen_1.default.draw.text2('push start', '24pt', function (width) {
+	        screen_1.default.draw.text2('push start', screen_1.default.font.medium, function (width) {
 	            return {
 	                x: screen_1.default.width2 - (width / 2),
-	                y: 120
+	                y: screen_1.default.height / 8
 	            };
 	        });
 	    };
 	    Draw.prototype.player1 = function () {
-	        screen_1.default.draw.text2('player 1', '24pt', function (width) {
+	        screen_1.default.draw.text2('player 1', screen_1.default.font.medium, function (width) {
 	            return {
 	                x: screen_1.default.width2 - (width / 2),
-	                y: 140
+	                y: screen_1.default.height / 4.5
 	            };
 	        });
 	    };
 	    Draw.prototype.gameOver = function () {
-	        screen_1.default.draw.text2('game over', '30pt', function (width) {
+	        screen_1.default.draw.text2('game over', screen_1.default.font.medium, function (width) {
 	            return {
 	                x: screen_1.default.width2 - (width / 2),
-	                y: 180
+	                y: screen_1.default.height / 4.5
 	            };
 	        });
 	    };
 	    Draw.prototype.copyright = function () {
-	        this.text2(String.fromCharCode(169) + ' 1979 atari inc', '12pt', function (width) {
+	        this.text2(String.fromCharCode(169) + ' 1979 atari inc', screen_1.default.font.small, function (width) {
 	            return {
 	                x: screen_1.default.width2 - (width / 2),
-	                y: screen_1.default.height - 20
+	                y: screen_1.default.height - screen_1.default.font.small
 	            };
 	        });
 	    };
 	    Draw.prototype.drawExtraLives = function (lives) {
 	        lives = Math.min(lives, 10);
 	        var life = new ship_1.Ship(0, 0);
+	        var loc = (life.x + life.width) * 2;
+	        var y = Y_START + screen_1.default.font.medium + 10;
 	        for (var i = 0; i < lives; i++) {
-	            life.origin.x = 80 + (i * 20);
-	            life.origin.y = 55;
+	            life.origin.x = 80 + (i * loc);
+	            life.origin.y = y;
 	            life.render();
 	        }
 	    };
@@ -538,14 +601,15 @@
 	var vector_1 = __webpack_require__(11);
 	var bullet_1 = __webpack_require__(12);
 	var sounds_1 = __webpack_require__(13);
+	console.log('SCREEN', screen_1.default);
 	var ACCELERATION = 0.1;
-	var BULLET_SPEED = 800;
+	var BULLET_SPEED = 800 * screen_1.default.objectScale;
 	var BULLET_TIME = .1;
 	var FRICTION = 0.007;
 	var ROTATION = 5;
-	var MAX_ACCELERATION = 1100;
+	var MAX_ACCELERATION = 1100 * screen_1.default.objectScale;
 	var MAX_BULLETS = 4;
-	var VELOCITY = 100;
+	var VELOCITY = 100 * screen_1.default.objectScale;
 	var Flame = (function (_super) {
 	    __extends(Flame, _super);
 	    function Flame(x, y) {
@@ -754,6 +818,10 @@
 	            return this._points;
 	        },
 	        set: function (points) {
+	            points.forEach(function (p) {
+	                p.x *= screen_1.default.objectScale;
+	                p.y *= screen_1.default.objectScale;
+	            });
 	            this._points = points;
 	            this.calcBounds();
 	        },
@@ -3948,8 +4016,8 @@
 	        }
 	    };
 	    InitialsMode.prototype.render = function () {
-	        var offset = 165;
-	        var text = (function (t) { return screen_1.default.draw.text(t, 50, offset += 35, '30pt'); });
+	        var offset = screen_1.default.height / 4.5;
+	        var text = (function (t) { return screen_1.default.draw.text(t, 50, offset += screen_1.default.font.large + 5, screen_1.default.font.large); });
 	        screen_1.default.draw.background();
 	        screen_1.default.draw.highscore(highscores_1.highscores.top.score);
 	        screen_1.default.draw.scorePlayer1(this.score);
@@ -3958,8 +4026,8 @@
 	        text('please enter your initials');
 	        text('push rotate to select letter');
 	        text('push hyperspace when letter is correct');
-	        screen_1.default.draw.text3(this.initials.join(''), '60pt', function (width) {
-	            return { x: (screen_1.default.width / 2) - width, y: screen_1.default.height / 2 };
+	        screen_1.default.draw.text3(this.initials.join(''), screen_1.default.font.xlarge, function (width) {
+	            return { x: screen_1.default.width2 - (width / 2), y: screen_1.default.height / 2 + screen_1.default.font.xlarge };
 	        });
 	    };
 	    return InitialsMode;
@@ -3987,7 +4055,6 @@
 	        }
 	    };
 	    AttractMode.prototype.update = function (dt) {
-	        this.state.levelTimer += dt;
 	        this.state.updateAlienTimer(dt);
 	        if (!this.state.rocks.length && !this.state.explosions.length && !this.state.alien) {
 	            this.state.startLevel();
@@ -4416,7 +4483,7 @@
 	        }
 	    };
 	    GameMode.prototype.renderDebug = function () {
-	        screen_1.default.draw.text2('debug mode', '12pt', function (width) {
+	        screen_1.default.draw.text2('debug mode', screen_1.default.font.small, function (width) {
 	            return { x: screen_1.default.width - width - 10, y: screen_1.default.height - 40 };
 	        });
 	        if (this.bounds) {
@@ -4425,20 +4492,15 @@
 	            });
 	        }
 	        if (!this.state.ship && this.state.lives) {
-	            var rect = {
-	                x: screen_1.default.width2 - 120,
-	                y: screen_1.default.height2 - 120,
-	                width: 240,
-	                height: 240
-	            };
+	            var rect = screen_1.default.shipRect;
 	            screen_1.default.draw.bounds(rect, '#00ff00');
 	        }
 	        if (this.state.ship) {
-	            screen_1.default.draw.text(this.state.ship.angle.toString(), this.state.ship.origin.x + 20, this.state.ship.origin.y + 20, '10pt');
+	            screen_1.default.draw.text(this.state.ship.angle.toString(), this.state.ship.origin.x + 20, this.state.ship.origin.y + 20, 10);
 	        }
 	        var date = new Date(null);
 	        date.setSeconds(this.state.levelTimer);
-	        screen_1.default.draw.text2(date.toISOString().substr(11, 8), '12pt', function (width) {
+	        screen_1.default.draw.text2(date.toISOString().substr(11, 8), screen_1.default.font.small, function (width) {
 	            return { x: 10, y: screen_1.default.height - 40 };
 	        });
 	    };
@@ -4617,9 +4679,8 @@
 	        this.shipBullets = [];
 	    };
 	    State.prototype.alienDestroyed = function () {
-	        this.alien.destroy();
 	        this.createExplosion(this.alien.origin.x, this.alien.origin.y);
-	        this.alien = null;
+	        this.alien.destroy();
 	        this.alienBullets = [];
 	        sounds_1.largeExplosion.play();
 	    };
@@ -4633,11 +4694,12 @@
 	    State.prototype.addAlien = function () {
 	        var _this = this;
 	        var lvl = Math.min(this.level, 7);
+	        var little = false;
+	        var alienSound = sounds_1.largeAlien;
 	        if (this.score >= 40000) {
-	            this.alien = new alien_1.SmallAlien(this.ship);
+	            little = true;
 	        }
 	        else {
-	            var little = false;
 	            switch (lvl) {
 	                case 1:
 	                    little = this.levelTimer > 60 && util_1.random(1, 3) === 2;
@@ -4649,14 +4711,24 @@
 	                    little = util_1.random(1, 10) <= lvl + 2;
 	                    break;
 	            }
-	            this.alien = little ? new alien_1.SmallAlien(this.ship) : new alien_1.BigAlien();
 	        }
+	        if (little) {
+	            alienSound = sounds_1.smallAlien;
+	            this.alien = new alien_1.SmallAlien(this.ship);
+	        }
+	        else {
+	            this.alien = new alien_1.BigAlien();
+	        }
+	        alienSound.play();
 	        this.alien.on('expired', function () {
+	            sounds_1.alienFire.stop();
+	            alienSound.stop();
 	            _this.alien = null;
 	            _this.alienBullets.forEach(function (b) { return b.destroy(); });
 	            _this.alienBullets = [];
 	        });
 	        this.alien.on('fire', function (alien, bullet) {
+	            sounds_1.alienFire.play();
 	            bullet.on('expired', function () {
 	                _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
 	            });
@@ -4693,12 +4765,7 @@
 	        if (this.shipTimer <= 2) {
 	            return;
 	        }
-	        var rect = {
-	            x: screen_1.default.width2 - 120,
-	            y: screen_1.default.height2 - 120,
-	            width: 240,
-	            height: 240
-	        };
+	        var rect = screen_1.default.shipRect;
 	        var collided = false;
 	        this.rocks.forEach(function (rock) {
 	            collided = collided || rock.collided(rect);
@@ -4750,10 +4817,9 @@
 	var object2d_1 = __webpack_require__(8);
 	var bullet_1 = __webpack_require__(12);
 	var vector_1 = __webpack_require__(11);
-	var sounds_1 = __webpack_require__(13);
-	var BULLET_SPEED = 600;
-	var BIG_ALIEN_SPEED = 225;
-	var SMALL_ALIEN_SPEED = 250;
+	var BULLET_SPEED = 600 * screen_1.default.objectScale;
+	var BIG_ALIEN_SPEED = 225 * screen_1.default.objectScale;
+	var SMALL_ALIEN_SPEED = 250 * screen_1.default.objectScale;
 	var Alien = (function (_super) {
 	    __extends(Alien, _super);
 	    function Alien(speed) {
@@ -4789,7 +4855,6 @@
 	        this.move(dt);
 	        if (this.origin.x >= screen_1.default.width - 5 || this.origin.x <= 5) {
 	            this.trigger('expired');
-	            this.onExpired();
 	            return;
 	        }
 	        this.moveTimer += dt;
@@ -4827,20 +4892,15 @@
 	        var _this = _super.call(this, BIG_ALIEN_SPEED) || this;
 	        _this.score = 200;
 	        _this.scale(7);
-	        sounds_1.largeAlien.play();
 	        return _this;
 	    }
 	    BigAlien.prototype.fire = function () {
 	        var v = new vector_1.Vector(util_1.random(1, 360), BULLET_SPEED);
 	        var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
 	        this.trigger('fire', bullet);
-	        sounds_1.alienFire.play();
-	    };
-	    BigAlien.prototype.onExpired = function () {
-	        this.destroy();
 	    };
 	    BigAlien.prototype.destroy = function () {
-	        sounds_1.largeAlien.stop();
+	        this.trigger('expired');
 	    };
 	    return BigAlien;
 	}(Alien));
@@ -4853,7 +4913,6 @@
 	        _this.score = 1000;
 	        _this.bulletTime = 1;
 	        _this.scale(4);
-	        sounds_1.smallAlien.play();
 	        return _this;
 	    }
 	    SmallAlien.prototype.fire = function () {
@@ -4867,15 +4926,10 @@
 	            bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
 	        }
 	        this.trigger('fire', bullet);
-	        sounds_1.alienFire.stop();
-	        sounds_1.alienFire.play();
-	    };
-	    SmallAlien.prototype.onExpired = function () {
-	        this.destroy();
 	    };
 	    SmallAlien.prototype.destroy = function () {
 	        this.ship = null;
-	        sounds_1.smallAlien.stop();
+	        this.trigger('expired');
 	    };
 	    return SmallAlien;
 	}(Alien));
@@ -4907,7 +4961,7 @@
 	var screen_1 = __webpack_require__(4);
 	var vector_1 = __webpack_require__(11);
 	var util_1 = __webpack_require__(22);
-	var VELOCITY = 150;
+	var VELOCITY = 150 * screen_1.default.objectScale;
 	var Explosion = (function (_super) {
 	    __extends(Explosion, _super);
 	    function Explosion(x, y) {
@@ -4951,6 +5005,7 @@
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	};
+	var screen_1 = __webpack_require__(4);
 	var object2d_1 = __webpack_require__(8);
 	var vector_1 = __webpack_require__(11);
 	var util_1 = __webpack_require__(22);
@@ -5011,8 +5066,9 @@
 	            [0, -1]
 	        ];
 	        _this.rocks = [_this.rock1, _this.rock2, _this.rock3];
-	        _this.vx = v.x * speed;
-	        _this.vy = v.y * speed;
+	        var velocity = speed * screen_1.default.objectScale;
+	        _this.vx = v.x * velocity;
+	        _this.vy = v.y * velocity;
 	        var type = util_1.random(0, 2);
 	        var def = _this.rocks[type];
 	        _this.points = def.map(function (p) {

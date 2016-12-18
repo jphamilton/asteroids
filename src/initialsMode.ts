@@ -6,7 +6,7 @@ import { EventSource } from './events';
 
 const letters = '_abcdefghijklmnopqrstuvwxyz';
 
-export class InitialsMode extends EventSource {
+export class InitialsMode extends EventSource implements IGameState {
     index: number = 1;
     position: number;
     score: number;
@@ -56,8 +56,8 @@ export class InitialsMode extends EventSource {
     }
 
     render() {
-        let offset: number = 165;
-        const text = (t => screen.draw.text(t, 50, offset += 35, '30pt'));
+        let offset: number = screen.height / 4.5;
+        const text = (t => screen.draw.text(t, 50, offset += screen.font.large + 5, screen.font.large));
         
         screen.draw.background();
         screen.draw.highscore(highscores.top.score);
@@ -69,8 +69,8 @@ export class InitialsMode extends EventSource {
         text('push rotate to select letter');
         text('push hyperspace when letter is correct');
 
-        screen.draw.text3(this.initials.join(''), '60pt', (width) => {
-            return { x: (screen.width / 2) - width, y: screen.height / 2 };
+        screen.draw.text3(this.initials.join(''), screen.font.xlarge, (width) => {
+            return { x: screen.width2 - (width / 2), y: screen.height / 2 + screen.font.xlarge };
         });
     }
 }

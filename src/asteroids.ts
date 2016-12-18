@@ -1,12 +1,12 @@
 import { loop } from './loop';
+import { Key } from './keys';
+import { State } from './state';
+import { Sound } from './sounds';
 import { highscores } from './highscores';
 import { HighScoreMode } from './highScoreMode';
 import { InitialsMode } from './initialsMode';
 import { AttractMode } from './attractMode';
 import { GameMode } from './gameMode';
-import { Key } from './keys';
-import { State } from './state';
-import { Sound } from './sounds';
 
 const ATTRACT_TIME = 15;
 
@@ -128,11 +128,6 @@ export class Asteroids {
         if (this.attractTimer >= ATTRACT_TIME) {
             this.attractTimer = 0;
             this.mode = this.mode === Modes.Attract ? Modes.Start : Modes.Attract;
-            if (this.mode === Modes.Attract) {
-                Sound.on();
-            } else {
-                Sound.off();
-            }
         }
     }
 }

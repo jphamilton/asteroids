@@ -1,3 +1,4 @@
+import screen from './screen';
 import { Object2D } from './object2d';
 import { Vector } from './vector';
 import { random } from './util';
@@ -15,7 +16,7 @@ export class Rock extends Object2D {
     rotTimer: number = 0;
     size: RockSize;
     timeToRot: number;
-
+    
     private rock1 = [
         [ .5, -2 ],
         [ 2, -1 ],
@@ -67,8 +68,10 @@ export class Rock extends Object2D {
     constructor(x: number, y: number, v: Vector, size: RockSize, speed: number = 1) {
         super(x, y);
         
-        this.vx = v.x * speed;
-        this.vy = v.y * speed;
+        const velocity = speed * screen.objectScale;
+
+        this.vx = v.x * velocity;
+        this.vy = v.y * velocity;
 
         const type = random(0, 2);
         const def = this.rocks[type];

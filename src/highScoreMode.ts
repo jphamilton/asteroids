@@ -3,7 +3,7 @@ import { Key } from './keys';
 import { highscores } from './highscores';
 import { Object2D } from './object2d';
 
-export class HighScoreMode {
+export class HighScoreMode implements IGameState {
 
     blink: number = 0;
     showPushStart: boolean = true;
@@ -38,19 +38,21 @@ export class HighScoreMode {
 
     private drawHighScores() {
         const screenX = screen.width / 2;
-
-        screen.draw.text2('high scores', '24pt', (width) => {
+        const startY = Math.ceil(screen.height / 4.5) + (screen.font.xlarge + screen.font.small);
+        const spacing = screen.font.medium + screen.font.small;
+        
+        screen.draw.text2('high scores', screen.font.medium, (width) => {
             return {
                 x: screenX - (width / 2),
-                y: 200
+                y: screen.height / 4.5
             }
         });
 
         for (let i = 0; i < highscores.scores.length; i++) {
-            const y = 280 + (i * 40);
+            const y = startY + (i * spacing);
             const text = `${this.pad(i + 1, ' ', 2)}.${this.pad(highscores.scores[i].score, ' ', 6)} ${highscores.scores[i].initials}`;
 
-            screen.draw.text2(text, '24pt', (width) => {
+            screen.draw.text2(text, screen.font.medium, (width) => {
                 return {
                     x: screenX - (width / 2),
                     y: y

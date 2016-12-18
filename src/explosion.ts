@@ -5,7 +5,7 @@ import { Object2D } from './object2d';
 import { Vector } from './vector';
 import { random } from './util';
 
-const VELOCITY = 150;
+const VELOCITY = 150 * screen.objectScale;
 
 export class Explosion extends EventSource {
 

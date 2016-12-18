@@ -7,7 +7,7 @@ import { Object2D } from './object2d';
 import { Vector } from './vector';
 import { random } from './util';
 import screen from './screen';
-import { largeExplosion, extraLife } from './sounds';
+import { smallAlien, largeAlien, alienFire, largeExplosion, extraLife } from './sounds';
 
 const EXTRA_LIFE = 10000;
 
@@ -115,9 +115,8 @@ export class State {
     }
 
     alienDestroyed() {
-        this.alien.destroy();
         this.createExplosion(this.alien.origin.x, this.alien.origin.y);
-        this.alien = null;
+        this.alien.destroy();
         this.alienBullets = [];
         largeExplosion.play();
     }
@@ -131,12 +130,12 @@ export class State {
 
     addAlien() {
         const lvl = Math.min(this.level, 7);
+        let little = false;
+        let alienSound = largeAlien;
 
         if (this.score >= 40000) {
-            this.alien = new SmallAlien(this.ship);
+            little = true;
         } else {
-            let little = false;
-
             switch(lvl) {
                 case 1:
                     little = this.levelTimer > 60 && random(1, 3) === 2;
@@ -148,17 +147,28 @@ export class State {
                     little = random(1, 10) <= lvl + 2; 
                     break;
             }
-
-            this.alien = little ? new SmallAlien(this.ship) : new BigAlien();
         }
 
+        if (little) {
+            alienSound = smallAlien;
+            this.alien = new SmallAlien(this.ship);
+        } else {
+            this.alien = new BigAlien();
+        }
+
+        alienSound.play();
+        
         this.alien.on('expired', () => {
+            alienFire.stop();
+            alienSound.stop();
             this.alien = null;
             this.alienBullets.forEach(b => b.destroy());
             this.alienBullets = [];
         });
 
         this.alien.on('fire', (alien, bullet: Bullet) => {
+            alienFire.play();
+            
             bullet.on('expired', () => {
                 this.alienBullets = this.alienBullets.filter(x => x !== bullet);
             });
@@ -206,12 +216,7 @@ export class State {
             return;
         }
 
-        let rect: Rect = {
-            x: screen.width2 - 120,
-            y: screen.height2 - 120,
-            width: 240,
-            height: 240
-        }
+        let rect: Rect = screen.shipRect;
 
         let collided = false;
 

@@ -28,6 +28,10 @@ export abstract class Object2D extends EventSource implements Rect {
     }
 
     set points(points: Point[]) {
+        points.forEach(p => {
+            p.x *= screen.objectScale;
+            p.y *= screen.objectScale;
+        })
         this._points = points;
         this.calcBounds();
     }
