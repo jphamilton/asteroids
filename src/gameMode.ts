@@ -62,7 +62,7 @@ export class GameMode extends EventSource {
     debug: boolean = false;
     bounds: Rect[] = [];
     thumper: Thumper;
-
+    
     constructor(private state: State) {
         super();
     }
@@ -148,8 +148,6 @@ export class GameMode extends EventSource {
 
     render(delta: number) {
         this.renderStatic();
-
-        // if ship then THUMP baby
 
         this.state.objects.forEach(obj => {
             if (obj) {

@@ -151,7 +151,7 @@ export class Draw {
     }
 
     player1() {
-        screen.draw.text2('player 1', '30pt', (width) => {
+        screen.draw.text2('player 1', '24pt', (width) => {
             return {
                 x: screen.width2 - (width / 2),
                 y: 140

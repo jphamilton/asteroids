@@ -1,3 +1,5102 @@
-!function(e){function t(i){if(n[i])return n[i].exports;var o=n[i]={exports:{},id:i,loaded:!1};return e[i].call(o.exports,o,o.exports,t),o.loaded=!0,o.exports}var n={};return t.m=e,t.c=n,t.p="/build/",t(0)}([function(e,t,n){"use strict";var i,o=n(1),r=n(2),s=n(3),a=n(15),u=n(16),d=n(19),l=n(7),h=n(20),c=n(13),p=15;!function(e){e[e.Attract=0]="Attract",e[e.Game=1]="Game",e[e.Initials=2]="Initials",e[e.Start=3]="Start"}(i||(i={}));var f=function(){function e(){this.lastScore=0,this.init()}return e.prototype.init=function(e){var t=this;c.Sound.off(),this.mode=i.Start,this.highScoreMode=new s.HighScoreMode(this.lastScore),this.attractMode=new u.AttractMode(e||new h.State(r.highscores.top.score)),this.gameMode=new d.GameMode(new h.State(r.highscores.top.score)),this.attractTimer=0,this.gameMode.on("done",function(e,n){t.lastScore=n.score,r.highscores.qualifies(n.score)?(t.initialsMode=new a.InitialsMode(n.score),t.initialsMode.on("done",function(){t.init(n)}),c.Sound.off(),t.mode=i.Initials):t.init(n)}),this.attractStarted=!1},e.prototype.update=function(e){switch(this.mode){case i.Start:this.highScoreMode.update(e),this.attractStarted&&this.attractMode.update(e),l.Key.isPressed(l.Key.ONE)?(c.Sound.on(),this.mode=i.Game):this.updateAttractTimer(e);break;case i.Attract:this.attractMode.update(e),l.Key.isPressed(l.Key.ONE)?(c.Sound.on(),this.mode=i.Game):this.updateAttractTimer(e);break;case i.Initials:this.initialsMode.update(e);break;case i.Game:this.gameMode.update(e)}},e.prototype.render=function(e){switch(this.mode){case i.Start:this.highScoreMode.render(e);break;case i.Attract:this.attractMode.render(e);break;case i.Initials:this.initialsMode.render(e);break;case i.Game:this.gameMode.render(e)}l.Key.update()},e.prototype.updateAttractTimer=function(e){this.attractTimer+=e,this.attractTimer>=p&&(this.attractTimer=0,this.mode=this.mode===i.Attract?i.Start:i.Attract,this.mode===i.Attract?c.Sound.on():c.Sound.off())},e}();t.Asteroids=f;var _=new f;setTimeout(function(){o.loop(_)},1e3)},function(e,t){"use strict";var n,i=function(){return window.performance&&window.performance.now?window.performance.now():(new Date).getTime()},o=0,r=i(),s=1/60,a=1e3,u=function(e){var t=function(){for(n=i(),o+=Math.min(1,(n-r)/a);o>s;)e.update(s),o-=s;e.render(o),r=n,requestAnimationFrame(t)};t()};t.loop=function(e){u(e)}},function(e,t){"use strict";var n=[{score:20140,initials:"J H"},{score:20050,initials:"P A"},{score:19930,initials:"  M"},{score:19870,initials:"G I"},{score:19840,initials:"A L"},{score:19790,initials:"M T"},{score:19700,initials:"E O"},{score:19660,initials:"S N"},{score:190,initials:"   "},{score:70,initials:"   "}],i="jph_asteroids_hs",o=function(){function e(){this.scores=[];var e=window.localStorage.getItem(i);this.scores=e?JSON.parse(e)||[]:n}return Object.defineProperty(e.prototype,"top",{get:function(){return this.scores[0]},enumerable:!0,configurable:!0}),e.prototype.qualifies=function(e){var n=t.highscores.scores.filter(function(t){return t.score<e});return!!n.length},e.prototype.save=function(e,t){this.qualifies(e)&&(this.scores.push({score:e,initials:t}),this.scores=this.scores.sort(function(e,t){return e.score>t.score?-1:1}).slice(0,10),window.localStorage.setItem(i,JSON.stringify(this.scores)))},e}();t.highscores=new o},function(e,t,n){"use strict";var i=n(4),o=n(2),r=function(){function e(e){this.score=e,this.blink=0,this.showPushStart=!0,this.highscore=o.highscores.top.score}return e.prototype.update=function(e){this.blink+=e,this.blink>=.4&&(this.blink=0,this.showPushStart=!this.showPushStart)},e.prototype.render=function(){this.drawBackground(),this.drawPushStart(),this.drawHighScores()},e.prototype.drawBackground=function(){i.default.draw.background(),i.default.draw.scorePlayer1(this.score),i.default.draw.oneCoinOnePlay(),i.default.draw.highscore(this.highscore),i.default.draw.copyright()},e.prototype.drawHighScores=function(){var e=i.default.width/2;i.default.draw.text2("high scores","24pt",function(t){return{x:e-t/2,y:200}});for(var t=function(t){var r=280+40*t,s=n.pad(t+1," ",2)+"."+n.pad(o.highscores.scores[t].score," ",6)+" "+o.highscores.scores[t].initials;i.default.draw.text2(s,"24pt",function(t){return{x:e-t/2,y:r}})},n=this,r=0;r<o.highscores.scores.length;r++)t(r)},e.prototype.drawPushStart=function(){this.showPushStart&&i.default.draw.pushStart()},e.prototype.pad=function(e,t,n){for(e=e.toString();e.length<n;)e=t+e;return e},e}();t.HighScoreMode=r},function(e,t,n){"use strict";var i=n(5),o=function(){function e(){var e=this;this.x=0,this.y=0,this.canvas=document.getElementById("canvas"),this.ctx=this.canvas.getContext("2d"),this.draw=new i.Draw(this.ctx),this.init(),window.addEventListener("resize",function(){e.init()})}return e.prototype.init=function(){this.canvas.width=document.body.clientWidth,this.canvas.height=document.body.clientHeight,this.width=this.canvas.width,this.height=this.canvas.height,this.width2=this.width/2,this.height2=this.height/2},e}();t.Screen=o,Object.defineProperty(t,"__esModule",{value:!0}),t.default=new o},function(e,t,n){"use strict";var i=n(4),o=n(6),r="rgba(255,255,255,1)",s=function(){function e(e){this.ctx=e}return e.prototype.line=function(e,t,n,i){void 0===n&&(n=r),void 0===i&&(i=2);var o=this.ctx;o.beginPath(),o.strokeStyle=n,o.lineWidth=i,o.moveTo(e.x,e.y),o.lineTo(t.x,t.y),o.stroke(),o.closePath()},e.prototype.shape=function(e,t,n,i){void 0===i&&(i=r);for(var o,s,a=0;a<e.length-1;a++)o={x:t+e[a].x,y:n+e[a].y},s={x:t+e[a+1].x,y:n+e[a+1].y},this.line(o,s,i,2)},e.prototype.rect=function(e,t,n){void 0===n&&(n=r);var i=this.ctx;i.beginPath(),i.fillStyle=n,i.fillRect(e.x,e.y,t.x,t.y),i.stroke(),i.closePath()},e.prototype.point=function(e,t){void 0===t&&(t=r),this.rect(e,{x:4,y:4},t)},e.prototype.background=function(){this.rect({x:0,y:0},{x:i.default.width,y:i.default.height},"#000000")},e.prototype.bounds=function(e,t){void 0===t&&(t=r);var n=this.ctx;e&&(n.save(),n.beginPath(),n.strokeStyle=t,n.lineWidth=2,n.moveTo(e.x,e.y),n.lineTo(e.x+e.width,e.y),n.lineTo(e.x+e.width,e.y+e.height),n.lineTo(e.x,e.y+e.height),n.lineTo(e.x,e.y),n.stroke(),n.closePath(),n.restore())},e.prototype.text=function(e,t,n,i){var o=this.ctx;o.save(),o.font=i+" hyperspace",o.textBaseline="middle",o.lineWidth=1,o.strokeStyle=r,o.strokeText(e,t,n),o.restore()},e.prototype.text2=function(e,t,n){var i=this.ctx;i.save(),i.font=t+" hyperspace",i.textBaseline="middle",i.lineWidth=1,i.strokeStyle=r;var o=i.measureText(e).width,s=n(o);i.strokeText(e,s.x,s.y),i.restore()},e.prototype.text3=function(e,t,n){var i=this.ctx;i.save(),i.font=t+" hyperspace",i.textBaseline="middle",i.lineWidth=2,i.fillStyle=r;var o=i.measureText(e).width,s=n(o);i.fillText(e,s.x,s.y),i.restore()},e.prototype.scorePlayer1=function(e){for(var t=e.toString();t.length<2;)t="0"+t;this.text(t,100,20,"24pt")},e.prototype.highscore=function(e){for(var t=e.toString();t.length<2;)t="0"+t;this.text2(t,"12pt",function(e){return{x:i.default.width2-e/2,y:20}})},e.prototype.oneCoinOnePlay=function(){this.text2("1  coin  1  play","24pt",function(e){return{x:i.default.width2-e/2,y:i.default.height-120}})},e.prototype.pushStart=function(){i.default.draw.text2("push start","24pt",function(e){return{x:i.default.width2-e/2,y:120}})},e.prototype.player1=function(){i.default.draw.text2("player 1","30pt",function(e){return{x:i.default.width2-e/2,y:140}})},e.prototype.gameOver=function(){i.default.draw.text2("game over","30pt",function(e){return{x:i.default.width2-e/2,y:180}})},e.prototype.copyright=function(){this.text2(String.fromCharCode(169)+" 1979 atari inc","12pt",function(e){return{x:i.default.width2-e/2,y:i.default.height-20}})},e.prototype.drawExtraLives=function(e){e=Math.min(e,10);for(var t=new o.Ship(0,0),n=0;n<e;n++)t.origin.x=80+20*n,t.origin.y=55,t.render()},e}();t.Draw=s},function(e,t,n){"use strict";var i=this&&this.__extends||function(e,t){function n(){this.constructor=e}for(var i in t)t.hasOwnProperty(i)&&(e[i]=t[i]);e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)},o=n(4),r=n(7),s=n(8),a=n(11),u=n(12),d=n(13),l=.1,h=800,c=.1,p=.007,f=5,_=1100,y=4,m=100,v=function(e){function t(t,n){var i=e.call(this,t,n)||this;return i.points=[{x:5,y:8},{x:0,y:20},{x:-5,y:8}],i}return i(t,e),t.prototype.update=function(){},t.prototype.render=function(){this.draw()},t}(s.Object2D),g=function(e){function t(t,n){var i=e.call(this,t,n)||this;return i.moving=!1,i.bulletCount=0,i.bulletTimer=0,i.flame=new v(t,n),i.points=[{x:0,y:-15},{x:10,y:10},{x:5,y:5},{x:-5,y:5},{x:-10,y:10},{x:0,y:-15}],i.angle=270,i}return i(t,e),t.prototype.render=function(){o.default.draw.shape(this.points,this.origin.x,this.origin.y,this.color),this.moving&&(Math.floor(10*Math.random())+1)%2===0&&this.flame.draw()},t.prototype.update=function(e){this.move(e),this.flame.move(e),r.Key.isDown(r.Key.UP)?(this.moving=!0,this.thrust()):this.moving=!1,r.Key.isPressed(r.Key.LEFT)&&this.rotate(-1),r.Key.isDown(r.Key.LEFT)&&this.rotate(-f),r.Key.isPressed(r.Key.RIGHT)&&this.rotate(1),r.Key.isDown(r.Key.RIGHT)&&this.rotate(f),r.Key.isDown(r.Key.CTRL)&&this.fire(),this.bulletTimer>0&&(this.bulletTimer-=e),this.moving||(this.vx-=this.vx*p,this.vy-=this.vy*p,this.flame.vx=this.vx,this.flame.vy=this.vy)},t.prototype.rotate=function(t){e.prototype.rotate.call(this,t),this.flame.rotate(t)},t.prototype.thrust=function(){var e=new a.Vector(this.angle,m*l),t=this.magnitude;t<_&&(this.vx+=e.x,this.flame.vx=this.vx,this.vy+=e.y,this.flame.vy=this.vy),d.thrust.play()},t.prototype.fire=function(){var e=this;if(this.bulletTimer<=0&&this.bulletCount<y){d.fire.play(),this.bulletTimer=c,this.bulletCount++;var t=new a.Vector(this.angle),n=new u.Bullet(this.origin.x,this.origin.y,t);n.life=1,n.on("expired",function(){e.bulletCount--}),n.origin.x+=20*n.vx,n.origin.y+=20*n.vy;var i=0,o=this.vx*n.vx+this.vy*n.vy;o>0&&(i=this.magnitude),i=Math.max(h,i+h),n.vx*=i,n.vy*=i,this.trigger("fire",n)}},t}(s.Object2D);t.Ship=g},function(e,t){"use strict";var n=222,i=function(){function e(){var e=this;this.SPACE=32,this.LEFT=37,this.UP=38,this.RIGHT=39,this.SHIFT=16,this.CTRL=17,this.ONE=49,this.DEBUG=68,this.PAUSE=80,this.keys=new Array(n),this.prev=new Array(n);for(var t=0;t<n;t++)this.keys[t]=this.prev[t]=!1;window.onkeydown=function(t){e.keys[t.keyCode]=!0},window.onkeyup=function(t){e.keys[t.keyCode]=!1}}return e.prototype.update=function(){for(var e=0;e<n;e++)this.prev[e]=this.keys[e]},e.prototype.isPressed=function(e){return this.prev[e]===!1&&this.keys[e]===!0},e.prototype.wasPressed=function(e){return this.prev[e]&&!this.keys[e]},e.prototype.isDown=function(e){return this.keys[e]},e}();t._Key=i,t.Key=new i},function(e,t,n){"use strict";var i=this&&this.__extends||function(e,t){function n(){this.constructor=e}for(var i in t)t.hasOwnProperty(i)&&(e[i]=t[i]);e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)},o=n(4),r=n(9),s=n(10),a=function(e){function t(t,n){var i=e.call(this)||this;return i.color="rgba(255,255,255,.9)",i.angle=360,i.vx=0,i.vy=0,i._xmin=0,i._xmax=0,i._ymin=0,i._ymax=0,i._width=0,i._height=0,i.origin={x:t,y:n},i}return i(t,e),Object.defineProperty(t.prototype,"points",{get:function(){return this._points},set:function(e){this._points=e,this.calcBounds()},enumerable:!0,configurable:!0}),t.prototype.calcBounds=function(){var e=this;this._points.forEach(function(t){t.x<e._xmin&&(e._xmin=t.x),t.x>e._xmax&&(e._xmax=t.x),t.y<e._ymin&&(e._ymin=t.y),t.y>e._ymax&&(e._ymax=t.y)}),this._width=this._xmax-this._xmin,this._height=this._ymax-this._ymin},t.prototype.rotate=function(e){this.angle+=e,this.angle<1&&(this.angle+=360),this.angle>360&&(this.angle-=360);var t=s.COS[e],n=s.SIN[e];this.points.forEach(function(e){var i=t*e.x-n*e.y,o=n*e.x+t*e.y;e.x=i,e.y=o}),this.calcBounds()},t.prototype.move=function(e){e=e?e:1,this.origin.x+=this.vx*e,this.origin.y+=this.vy*e,this.origin.x>o.default.width&&(this.origin.x-=o.default.width),this.origin.x<0&&(this.origin.x+=o.default.width),this.origin.y>o.default.height&&(this.origin.y-=o.default.height),this.origin.y<0&&(this.origin.y+=o.default.height)},t.prototype.scale=function(e){this.points.forEach(function(t){t.x*=e,t.y*=e}),this.calcBounds()},t.prototype.draw=function(){o.default.draw.shape(this.points,this.origin.x,this.origin.y,this.color)},Object.defineProperty(t.prototype,"magnitude",{get:function(){return Math.sqrt(this.vx*this.vx+this.vy*this.vy)},enumerable:!0,configurable:!0}),Object.defineProperty(t.prototype,"x",{get:function(){return this.origin.x+this._xmin},set:function(e){this.origin.x=e},enumerable:!0,configurable:!0}),Object.defineProperty(t.prototype,"y",{get:function(){return this.origin.y+this._ymin},set:function(e){this.origin.y=e},enumerable:!0,configurable:!0}),Object.defineProperty(t.prototype,"width",{get:function(){return this._width},enumerable:!0,configurable:!0}),Object.defineProperty(t.prototype,"height",{get:function(){return this._height},enumerable:!0,configurable:!0}),Object.defineProperty(t.prototype,"vertices",{get:function(){var e=this;return this.points.map(function(t){return{x:e.origin.x+t.x,y:e.origin.y+t.y}})},enumerable:!0,configurable:!0}),t.prototype.collided=function(e){return!!(e&&this.x<e.x+e.width&&this.x+this.width>e.x&&this.y<e.y+e.height&&this.height+this.y>e.y)},t.prototype.destroy=function(){for(var e in this.handlers)this.handlers[e]=null;this.handlers={}},t}(r.EventSource);t.Object2D=a},function(e,t){"use strict";var n=function(){function e(){this.handlers={}}return e.prototype.on=function(e,t){this.handlers[e]||(this.handlers[e]=[]),this.handlers[e].push(t)},e.prototype.off=function(e,t){this.handlers[e]=this.handlers[e].filter(function(e){return e!==t})},e.prototype.trigger=function(e){for(var t=this,n=[],i=1;i<arguments.length;i++)n[i-1]=arguments[i];var o=this.handlers[e]||[];o.forEach(function(e){return e.apply(void 0,[t].concat(n))})},e}();t.EventSource=n},function(e,t){"use strict";var n={};t.RAD=n;var i={};t.COS=i;var o={};t.SIN=o;for(var r=Math.PI/180,s=0;s<=360;s++)n[s]=s*r,i[s]=Math.cos(n[s]),o[s]=Math.sin(n[s]),n[-s]=-s*r,i[-s]=Math.cos(n[-s]),o[-s]=Math.sin(n[-s])},function(e,t){"use strict";for(var n={},i=2*Math.PI,o=0;o<=360;o++){var r=i*(o/360);n[o]={x:Math.cos(r),y:Math.sin(r)}}var s=function(){function e(e,t){void 0===t&&(t=1),this.x=n[e].x*t,this.y=n[e].y*t}return e.fromXY=function(t,n,i){void 0===i&&(i=1);var o=t.x-n.x,r=t.y-n.y,s=Math.sqrt(o*o+r*r);o/=s,r/=s;var a=new e(0);return a.x=o*i,a.y=r*i,a},e}();t.Vector=s},function(e,t,n){"use strict";var i=this&&this.__extends||function(e,t){function n(){this.constructor=e}for(var i in t)t.hasOwnProperty(i)&&(e[i]=t[i]);e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)},o=n(4),r=n(8),s=function(e){function t(t,n,i){var o=e.call(this,t,n)||this;return o.life=1.25,o.vx=i.x,o.vy=i.y,o}return i(t,e),t.prototype.render=function(){this.draw()},t.prototype.update=function(e){this.move(e),this.life-=e,this.life<=0&&(this.trigger("expired"),this.destroy())},t.prototype.draw=function(){o.default.draw.point({x:this.origin.x,y:this.origin.y})},t.prototype.destroy=function(){this.life=0,this.trigger("expire")},Object.defineProperty(t.prototype,"vertices",{get:function(){return[this.origin]},enumerable:!0,configurable:!0}),t}(r.Object2D);t.Bullet=s},function(e,t,n){"use strict";function i(e){var n=new o.Howl(e),i=n.play.bind(n);return n.play=function(){s&&i()},n._origVolume=e.volume,t.all.push(n),n}var o=n(14),r=.5,s=!0;t.all=[],t.fire=i({src:["./assets/fire.wav"],volume:r}),t.thrust=i({src:["./assets/thrust.wav"],volume:.4}),t.alienFire=i({src:["./assets/sfire.wav"],volume:r}),t.largeExplosion=i({src:["./assets/explode1.wav"],volume:r}),t.mediumExplosion=i({src:["./assets/explode2.wav"],volume:r}),t.smallExplosion=i({src:["./assets/explode3.wav"],volume:r}),t.largeAlien=i({src:["./assets/lsaucer.wav"],volume:r,loop:!0}),t.smallAlien=i({src:["./assets/ssaucer.wav"],volume:r,loop:!0}),t.thumpLo=i({src:["./assets/thumplo.wav"],volume:1}),t.thumpHi=i({src:["./assets/thumphi.wav"],volume:1}),t.extraLife=i({src:["./assets/life.wav"],volume:.5}),t.Sound={on:function(){s=!0,t.all.forEach(function(e){return e.volume(e._origVolume)})},off:function(){s=!1,t.all.forEach(function(e){return e.volume(0)})}}},function(e,t,n){var i,o;(function(n){!function(){"use strict";var r=function(){this.init()};r.prototype={init:function(){var e=this||s;return e._codecs={},e._howls=[],e._muted=!1,e._volume=1,e._canPlayEvent="canplaythrough",e._navigator="undefined"!=typeof window&&window.navigator?window.navigator:null,e.masterGain=null,e.noAudio=!1,e.usingWebAudio=!0,e.autoSuspend=!0,e.ctx=null,e.mobileAutoEnable=!0,e._setup(),e},volume:function(e){var t=this||s;if(e=parseFloat(e),t.ctx||f(),"undefined"!=typeof e&&e>=0&&e<=1){if(t._volume=e,t._muted)return t;t.usingWebAudio&&(t.masterGain.gain.value=e);for(var n=0;n<t._howls.length;n++)if(!t._howls[n]._webAudio)for(var i=t._howls[n]._getSoundIds(),o=0;o<i.length;o++){var r=t._howls[n]._soundById(i[o]);r&&r._node&&(r._node.volume=r._volume*e)}return t}return t._volume},mute:function(e){var t=this||s;t.ctx||f(),t._muted=e,t.usingWebAudio&&(t.masterGain.gain.value=e?0:t._volume);for(var n=0;n<t._howls.length;n++)if(!t._howls[n]._webAudio)for(var i=t._howls[n]._getSoundIds(),o=0;o<i.length;o++){var r=t._howls[n]._soundById(i[o]);r&&r._node&&(r._node.muted=!!e||r._muted)}return t},unload:function(){for(var e=this||s,t=e._howls.length-1;t>=0;t--)e._howls[t].unload();return e.usingWebAudio&&e.ctx&&"undefined"!=typeof e.ctx.close&&(e.ctx.close(),e.ctx=null,f()),e},codecs:function(e){return(this||s)._codecs[e.replace(/^x-/,"")]},_setup:function(){var e=this||s;if(e.state=e.ctx?e.ctx.state||"running":"running",e._autoSuspend(),!e.usingWebAudio)if("undefined"!=typeof Audio)try{var t=new Audio;"undefined"==typeof t.oncanplaythrough&&(e._canPlayEvent="canplay")}catch(t){e.noAudio=!0}else e.noAudio=!0;try{var t=new Audio;t.muted&&(e.noAudio=!0)}catch(e){}return e.noAudio||e._setupCodecs(),e},_setupCodecs:function(){var e=this||s,t=null;try{t="undefined"!=typeof Audio?new Audio:null}catch(t){return e}if(!t||"function"!=typeof t.canPlayType)return e;var n=t.canPlayType("audio/mpeg;").replace(/^no$/,""),i=e._navigator&&e._navigator.userAgent.match(/OPR\/([0-6].)/g),o=i&&parseInt(i[0].split("/")[1],10)<33;return e._codecs={mp3:!(o||!n&&!t.canPlayType("audio/mp3;").replace(/^no$/,"")),mpeg:!!n,opus:!!t.canPlayType('audio/ogg; codecs="opus"').replace(/^no$/,""),ogg:!!t.canPlayType('audio/ogg; codecs="vorbis"').replace(/^no$/,""),oga:!!t.canPlayType('audio/ogg; codecs="vorbis"').replace(/^no$/,""),wav:!!t.canPlayType('audio/wav; codecs="1"').replace(/^no$/,""),aac:!!t.canPlayType("audio/aac;").replace(/^no$/,""),caf:!!t.canPlayType("audio/x-caf;").replace(/^no$/,""),m4a:!!(t.canPlayType("audio/x-m4a;")||t.canPlayType("audio/m4a;")||t.canPlayType("audio/aac;")).replace(/^no$/,""),mp4:!!(t.canPlayType("audio/x-mp4;")||t.canPlayType("audio/mp4;")||t.canPlayType("audio/aac;")).replace(/^no$/,""),weba:!!t.canPlayType('audio/webm; codecs="vorbis"').replace(/^no$/,""),webm:!!t.canPlayType('audio/webm; codecs="vorbis"').replace(/^no$/,""),dolby:!!t.canPlayType('audio/mp4; codecs="ec-3"').replace(/^no$/,""),flac:!!(t.canPlayType("audio/x-flac;")||t.canPlayType("audio/flac;")).replace(/^no$/,"")},e},_enableMobileAudio:function(){var e=this||s,t=/iPhone|iPad|iPod|Android|BlackBerry|BB10|Silk|Mobi/i.test(e._navigator&&e._navigator.userAgent),n=!!("ontouchend"in window||e._navigator&&e._navigator.maxTouchPoints>0||e._navigator&&e._navigator.msMaxTouchPoints>0);if(!e._mobileEnabled&&e.ctx&&(t||n)){e._mobileEnabled=!1,e._mobileUnloaded||44100===e.ctx.sampleRate||(e._mobileUnloaded=!0,e.unload()),e._scratchBuffer=e.ctx.createBuffer(1,1,22050);var i=function(){var t=e.ctx.createBufferSource();t.buffer=e._scratchBuffer,t.connect(e.ctx.destination),"undefined"==typeof t.start?t.noteOn(0):t.start(0),t.onended=function(){t.disconnect(0),e._mobileEnabled=!0,e.mobileAutoEnable=!1,document.removeEventListener("touchend",i,!0)}};return document.addEventListener("touchend",i,!0),e}},_autoSuspend:function(){var e=this;if(e.autoSuspend&&e.ctx&&"undefined"!=typeof e.ctx.suspend&&s.usingWebAudio){for(var t=0;t<e._howls.length;t++)if(e._howls[t]._webAudio)for(var n=0;n<e._howls[t]._sounds.length;n++)if(!e._howls[t]._sounds[n]._paused)return e;return e._suspendTimer&&clearTimeout(e._suspendTimer),e._suspendTimer=setTimeout(function(){e.autoSuspend&&(e._suspendTimer=null,e.state="suspending",e.ctx.suspend().then(function(){e.state="suspended",e._resumeAfterSuspend&&(delete e._resumeAfterSuspend,e._autoResume())}))},3e4),e}},_autoResume:function(){var e=this;if(e.ctx&&"undefined"!=typeof e.ctx.resume&&s.usingWebAudio)return"running"===e.state&&e._suspendTimer?(clearTimeout(e._suspendTimer),e._suspendTimer=null):"suspended"===e.state?(e.state="resuming",e.ctx.resume().then(function(){e.state="running";for(var t=0;t<e._howls.length;t++)e._howls[t]._emit("resume")}),e._suspendTimer&&(clearTimeout(e._suspendTimer),e._suspendTimer=null)):"suspending"===e.state&&(e._resumeAfterSuspend=!0),e}};var s=new r,a=function(e){var t=this;return e.src&&0!==e.src.length?void t.init(e):void console.error("An array of source files must be passed with any new Howl.")};a.prototype={init:function(e){var t=this;return s.ctx||f(),t._autoplay=e.autoplay||!1,t._format="string"!=typeof e.format?e.format:[e.format],t._html5=e.html5||!1,t._muted=e.mute||!1,t._loop=e.loop||!1,t._pool=e.pool||5,t._preload="boolean"!=typeof e.preload||e.preload,t._rate=e.rate||1,t._sprite=e.sprite||{},t._src="string"!=typeof e.src?e.src:[e.src],t._volume=void 0!==e.volume?e.volume:1,t._duration=0,t._state="unloaded",t._sounds=[],t._endTimers={},t._queue=[],t._onend=e.onend?[{fn:e.onend}]:[],t._onfade=e.onfade?[{fn:e.onfade}]:[],t._onload=e.onload?[{fn:e.onload}]:[],t._onloaderror=e.onloaderror?[{fn:e.onloaderror}]:[],t._onpause=e.onpause?[{fn:e.onpause}]:[],t._onplay=e.onplay?[{fn:e.onplay}]:[],t._onstop=e.onstop?[{fn:e.onstop}]:[],t._onmute=e.onmute?[{fn:e.onmute}]:[],t._onvolume=e.onvolume?[{fn:e.onvolume}]:[],t._onrate=e.onrate?[{fn:e.onrate}]:[],t._onseek=e.onseek?[{fn:e.onseek}]:[],t._onresume=[],t._webAudio=s.usingWebAudio&&!t._html5,"undefined"!=typeof s.ctx&&s.ctx&&s.mobileAutoEnable&&s._enableMobileAudio(),s._howls.push(t),t._autoplay&&t._queue.push({event:"play",action:function(){t.play()}}),t._preload&&t.load(),t},load:function(){var e=this,t=null;if(s.noAudio)return void e._emit("loaderror",null,"No audio support.");"string"==typeof e._src&&(e._src=[e._src]);for(var n=0;n<e._src.length;n++){var i,o;if(e._format&&e._format[n])i=e._format[n];else{if(o=e._src[n],"string"!=typeof o){e._emit("loaderror",null,"Non-string found in selected audio sources - ignoring.");continue}i=/^data:audio\/([^;,]+);/i.exec(o),i||(i=/\.([^.]+)$/.exec(o.split("?",1)[0])),i&&(i=i[1].toLowerCase())}if(s.codecs(i)){t=e._src[n];break}}return t?(e._src=t,e._state="loading","https:"===window.location.protocol&&"http:"===t.slice(0,5)&&(e._html5=!0,e._webAudio=!1),new u(e),e._webAudio&&l(e),e):void e._emit("loaderror",null,"No codec support for selected audio sources.")},play:function(e,t){var n=this,i=null;if("number"==typeof e)i=e,e=null;else{if("string"==typeof e&&"loaded"===n._state&&!n._sprite[e])return null;if("undefined"==typeof e){e="__default";for(var o=0,r=0;r<n._sounds.length;r++)n._sounds[r]._paused&&!n._sounds[r]._ended&&(o++,i=n._sounds[r]._id);1===o?e=null:i=null}}var a=i?n._soundById(i):n._inactiveSound();if(!a)return null;if(i&&!e&&(e=a._sprite||"__default"),"loaded"!==n._state&&!n._sprite[e])return n._queue.push({event:"play",action:function(){n.play(n._soundById(a._id)?a._id:void 0)}}),a._id;if(i&&!a._paused)return t||setTimeout(function(){n._emit("play",a._id)},0),a._id;n._webAudio&&s._autoResume();var u=Math.max(0,a._seek>0?a._seek:n._sprite[e][0]/1e3),d=Math.max(0,(n._sprite[e][0]+n._sprite[e][1])/1e3-u),l=1e3*d/Math.abs(a._rate);a._paused=!1,a._ended=!1,a._sprite=e,a._seek=u,a._start=n._sprite[e][0]/1e3,a._stop=(n._sprite[e][0]+n._sprite[e][1])/1e3,a._loop=!(!a._loop&&!n._sprite[e][2]);var h=a._node;if(n._webAudio){var c=function(){n._refreshBuffer(a);var e=a._muted||n._muted?0:a._volume;h.gain.setValueAtTime(e,s.ctx.currentTime),a._playStart=s.ctx.currentTime,"undefined"==typeof h.bufferSource.start?a._loop?h.bufferSource.noteGrainOn(0,u,86400):h.bufferSource.noteGrainOn(0,u,d):a._loop?h.bufferSource.start(0,u,86400):h.bufferSource.start(0,u,d),l!==1/0&&(n._endTimers[a._id]=setTimeout(n._ended.bind(n,a),l)),t||setTimeout(function(){n._emit("play",a._id)},0)},p="running"===s.state;"loaded"===n._state&&p?c():(n.once(p?"load":"resume",c,p?a._id:null),n._clearTimer(a._id))}else{var f=function(){h.currentTime=u,h.muted=a._muted||n._muted||s._muted||h.muted,h.volume=a._volume*s.volume(),h.playbackRate=a._rate,setTimeout(function(){h.play(),l!==1/0&&(n._endTimers[a._id]=setTimeout(n._ended.bind(n,a),l)),t||n._emit("play",a._id)},0)},_="loaded"===n._state&&(window&&window.ejecta||!h.readyState&&s._navigator.isCocoonJS);if(4===h.readyState||_)f();else{var y=function(){f(),h.removeEventListener(s._canPlayEvent,y,!1)};h.addEventListener(s._canPlayEvent,y,!1),n._clearTimer(a._id)}}return a._id},pause:function(e){var t=this;if("loaded"!==t._state)return t._queue.push({event:"pause",action:function(){t.pause(e)}}),t;for(var n=t._getSoundIds(e),i=0;i<n.length;i++){t._clearTimer(n[i]);var o=t._soundById(n[i]);if(o&&!o._paused&&(o._seek=t.seek(n[i]),o._rateSeek=0,o._paused=!0,t._stopFade(n[i]),o._node))if(t._webAudio){if(!o._node.bufferSource)return t;"undefined"==typeof o._node.bufferSource.stop?o._node.bufferSource.noteOff(0):o._node.bufferSource.stop(0),t._cleanBuffer(o._node)}else isNaN(o._node.duration)&&o._node.duration!==1/0||o._node.pause();arguments[1]||t._emit("pause",o?o._id:null)}return t},stop:function(e,t){var n=this;if("loaded"!==n._state)return n._queue.push({event:"stop",action:function(){n.stop(e)}}),n;for(var i=n._getSoundIds(e),o=0;o<i.length;o++){n._clearTimer(i[o]);var r=n._soundById(i[o]);if(r&&(r._seek=r._start||0,r._rateSeek=0,r._paused=!0,r._ended=!0,n._stopFade(i[o]),r._node))if(n._webAudio){if(!r._node.bufferSource)return t||n._emit("stop",r._id),n;"undefined"==typeof r._node.bufferSource.stop?r._node.bufferSource.noteOff(0):r._node.bufferSource.stop(0),n._cleanBuffer(r._node)}else isNaN(r._node.duration)&&r._node.duration!==1/0||(r._node.currentTime=r._start||0,r._node.pause());r&&!t&&n._emit("stop",r._id)}return n},mute:function(e,t){var n=this;if("loaded"!==n._state)return n._queue.push({event:"mute",action:function(){n.mute(e,t)}}),n;if("undefined"==typeof t){if("boolean"!=typeof e)return n._muted;n._muted=e}for(var i=n._getSoundIds(t),o=0;o<i.length;o++){var r=n._soundById(i[o]);r&&(r._muted=e,n._webAudio&&r._node?r._node.gain.setValueAtTime(e?0:r._volume,s.ctx.currentTime):r._node&&(r._node.muted=!!s._muted||e),n._emit("mute",r._id))}return n},volume:function(){var e,t,n=this,i=arguments;if(0===i.length)return n._volume;if(1===i.length||2===i.length&&"undefined"==typeof i[1]){var o=n._getSoundIds(),r=o.indexOf(i[0]);r>=0?t=parseInt(i[0],10):e=parseFloat(i[0])}else i.length>=2&&(e=parseFloat(i[0]),t=parseInt(i[1],10));var a;if(!("undefined"!=typeof e&&e>=0&&e<=1))return a=t?n._soundById(t):n._sounds[0],a?a._volume:0;if("loaded"!==n._state)return n._queue.push({event:"volume",action:function(){n.volume.apply(n,i)}}),n;"undefined"==typeof t&&(n._volume=e),t=n._getSoundIds(t);for(var u=0;u<t.length;u++)a=n._soundById(t[u]),a&&(a._volume=e,i[2]||n._stopFade(t[u]),n._webAudio&&a._node&&!a._muted?a._node.gain.setValueAtTime(e,s.ctx.currentTime):a._node&&!a._muted&&(a._node.volume=e*s.volume()),n._emit("volume",a._id));return n},fade:function(e,t,n,i){var o=this,r=Math.abs(e-t),a=e>t?"out":"in",u=r/.01,d=u>0?n/u:n;if(d<4&&(u=Math.ceil(u/(4/d)),d=4),"loaded"!==o._state)return o._queue.push({event:"fade",action:function(){o.fade(e,t,n,i)}}),o;o.volume(e,i);for(var l=o._getSoundIds(i),h=0;h<l.length;h++){var c=o._soundById(l[h]);if(c){if(i||o._stopFade(l[h]),o._webAudio&&!c._muted){var p=s.ctx.currentTime,f=p+n/1e3;c._volume=e,c._node.gain.setValueAtTime(e,p),c._node.gain.linearRampToValueAtTime(t,f)}var _=e;c._interval=setInterval(function(e,n){u>0&&(_+="in"===a?.01:-.01),_=Math.max(0,_),_=Math.min(1,_),_=Math.round(100*_)/100,o._webAudio?("undefined"==typeof i&&(o._volume=_),n._volume=_):o.volume(_,e,!0),_===t&&(clearInterval(n._interval),n._interval=null,o.volume(_,e),o._emit("fade",e))}.bind(o,l[h],c),d)}}return o},_stopFade:function(e){var t=this,n=t._soundById(e);return n&&n._interval&&(t._webAudio&&n._node.gain.cancelScheduledValues(s.ctx.currentTime),clearInterval(n._interval),n._interval=null,t._emit("fade",e)),t},loop:function(){var e,t,n,i=this,o=arguments;if(0===o.length)return i._loop;if(1===o.length){if("boolean"!=typeof o[0])return n=i._soundById(parseInt(o[0],10)),!!n&&n._loop;e=o[0],i._loop=e}else 2===o.length&&(e=o[0],t=parseInt(o[1],10));for(var r=i._getSoundIds(t),s=0;s<r.length;s++)n=i._soundById(r[s]),n&&(n._loop=e,i._webAudio&&n._node&&n._node.bufferSource&&(n._node.bufferSource.loop=e,e&&(n._node.bufferSource.loopStart=n._start||0,n._node.bufferSource.loopEnd=n._stop)));return i},rate:function(){var e,t,n=this,i=arguments;if(0===i.length)t=n._sounds[0]._id;else if(1===i.length){var o=n._getSoundIds(),r=o.indexOf(i[0]);r>=0?t=parseInt(i[0],10):e=parseFloat(i[0])}else 2===i.length&&(e=parseFloat(i[0]),t=parseInt(i[1],10));var a;if("number"!=typeof e)return a=n._soundById(t),a?a._rate:n._rate;if("loaded"!==n._state)return n._queue.push({event:"rate",action:function(){n.rate.apply(n,i)}}),n;"undefined"==typeof t&&(n._rate=e),t=n._getSoundIds(t);for(var u=0;u<t.length;u++)if(a=n._soundById(t[u])){a._rateSeek=n.seek(t[u]),a._playStart=n._webAudio?s.ctx.currentTime:a._playStart,a._rate=e,n._webAudio&&a._node&&a._node.bufferSource?a._node.bufferSource.playbackRate.value=e:a._node&&(a._node.playbackRate=e);var d=n.seek(t[u]),l=(n._sprite[a._sprite][0]+n._sprite[a._sprite][1])/1e3-d,h=1e3*l/Math.abs(a._rate);!n._endTimers[t[u]]&&a._paused||(n._clearTimer(t[u]),n._endTimers[t[u]]=setTimeout(n._ended.bind(n,a),h)),n._emit("rate",a._id)}return n},seek:function(){var e,t,n=this,i=arguments;if(0===i.length)t=n._sounds[0]._id;else if(1===i.length){var o=n._getSoundIds(),r=o.indexOf(i[0]);r>=0?t=parseInt(i[0],10):(t=n._sounds[0]._id,e=parseFloat(i[0]))}else 2===i.length&&(e=parseFloat(i[0]),t=parseInt(i[1],10));if("undefined"==typeof t)return n;if("loaded"!==n._state)return n._queue.push({event:"seek",action:function(){n.seek.apply(n,i)}}),n;var a=n._soundById(t);if(a){if(!("number"==typeof e&&e>=0)){if(n._webAudio){var u=n.playing(t)?s.ctx.currentTime-a._playStart:0,d=a._rateSeek?a._rateSeek-a._seek:0;return a._seek+(d+u*Math.abs(a._rate))}return a._node.currentTime}var l=n.playing(t);l&&n.pause(t,!0),a._seek=e,a._ended=!1,n._clearTimer(t),l&&n.play(t,!0),!n._webAudio&&a._node&&(a._node.currentTime=e),n._emit("seek",t)}return n},playing:function(e){var t=this;if("number"==typeof e){var n=t._soundById(e);return!!n&&!n._paused}for(var i=0;i<t._sounds.length;i++)if(!t._sounds[i]._paused)return!0;return!1},duration:function(e){var t=this,n=t._duration,i=t._soundById(e);return i&&(n=t._sprite[i._sprite][1]/1e3),n},state:function(){return this._state},unload:function(){for(var e=this,t=e._sounds,n=0;n<t.length;n++){t[n]._paused||(e.stop(t[n]._id),e._emit("end",t[n]._id)),e._webAudio||(t[n]._node.src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=",t[n]._node.removeEventListener("error",t[n]._errorFn,!1),t[n]._node.removeEventListener(s._canPlayEvent,t[n]._loadFn,!1)),delete t[n]._node,e._clearTimer(t[n]._id);var i=s._howls.indexOf(e);i>=0&&s._howls.splice(i,1)}var o=!0;for(n=0;n<s._howls.length;n++)if(s._howls[n]._src===e._src){o=!1;break}return d&&o&&delete d[e._src],s.noAudio=!1,e._state="unloaded",e._sounds=[],e=null,null},on:function(e,t,n,i){var o=this,r=o["_on"+e];return"function"==typeof t&&r.push(i?{
-id:n,fn:t,once:i}:{id:n,fn:t}),o},off:function(e,t,n){var i=this,o=i["_on"+e],r=0;if(t){for(r=0;r<o.length;r++)if(t===o[r].fn&&n===o[r].id){o.splice(r,1);break}}else if(e)i["_on"+e]=[];else{var s=Object.keys(i);for(r=0;r<s.length;r++)0===s[r].indexOf("_on")&&Array.isArray(i[s[r]])&&(i[s[r]]=[])}return i},once:function(e,t,n){var i=this;return i.on(e,t,n,1),i},_emit:function(e,t,n){for(var i=this,o=i["_on"+e],r=o.length-1;r>=0;r--)o[r].id&&o[r].id!==t&&"load"!==e||(setTimeout(function(e){e.call(this,t,n)}.bind(i,o[r].fn),0),o[r].once&&i.off(e,o[r].fn,o[r].id));return i},_loadQueue:function(){var e=this;if(e._queue.length>0){var t=e._queue[0];e.once(t.event,function(){e._queue.shift(),e._loadQueue()}),t.action()}return e},_ended:function(e){var t=this,n=e._sprite,i=!(!e._loop&&!t._sprite[n][2]);if(t._emit("end",e._id),!t._webAudio&&i&&t.stop(e._id,!0).play(e._id),t._webAudio&&i){t._emit("play",e._id),e._seek=e._start||0,e._rateSeek=0,e._playStart=s.ctx.currentTime;var o=1e3*(e._stop-e._start)/Math.abs(e._rate);t._endTimers[e._id]=setTimeout(t._ended.bind(t,e),o)}return t._webAudio&&!i&&(e._paused=!0,e._ended=!0,e._seek=e._start||0,e._rateSeek=0,t._clearTimer(e._id),t._cleanBuffer(e._node),s._autoSuspend()),t._webAudio||i||t.stop(e._id),t},_clearTimer:function(e){var t=this;return t._endTimers[e]&&(clearTimeout(t._endTimers[e]),delete t._endTimers[e]),t},_soundById:function(e){for(var t=this,n=0;n<t._sounds.length;n++)if(e===t._sounds[n]._id)return t._sounds[n];return null},_inactiveSound:function(){var e=this;e._drain();for(var t=0;t<e._sounds.length;t++)if(e._sounds[t]._ended)return e._sounds[t].reset();return new u(e)},_drain:function(){var e=this,t=e._pool,n=0,i=0;if(!(e._sounds.length<t)){for(i=0;i<e._sounds.length;i++)e._sounds[i]._ended&&n++;for(i=e._sounds.length-1;i>=0;i--){if(n<=t)return;e._sounds[i]._ended&&(e._webAudio&&e._sounds[i]._node&&e._sounds[i]._node.disconnect(0),e._sounds.splice(i,1),n--)}}},_getSoundIds:function(e){var t=this;if("undefined"==typeof e){for(var n=[],i=0;i<t._sounds.length;i++)n.push(t._sounds[i]._id);return n}return[e]},_refreshBuffer:function(e){var t=this;return e._node.bufferSource=s.ctx.createBufferSource(),e._node.bufferSource.buffer=d[t._src],e._panner?e._node.bufferSource.connect(e._panner):e._node.bufferSource.connect(e._node),e._node.bufferSource.loop=e._loop,e._loop&&(e._node.bufferSource.loopStart=e._start||0,e._node.bufferSource.loopEnd=e._stop),e._node.bufferSource.playbackRate.value=e._rate,t},_cleanBuffer:function(e){var t=this;if(t._scratchBuffer){e.bufferSource.onended=null,e.bufferSource.disconnect(0);try{e.bufferSource.buffer=t._scratchBuffer}catch(e){}}return e.bufferSource=null,t}};var u=function(e){this._parent=e,this.init()};u.prototype={init:function(){var e=this,t=e._parent;return e._muted=t._muted,e._loop=t._loop,e._volume=t._volume,e._muted=t._muted,e._rate=t._rate,e._seek=0,e._paused=!0,e._ended=!0,e._sprite="__default",e._id=Math.round(Date.now()*Math.random()),t._sounds.push(e),e.create(),e},create:function(){var e=this,t=e._parent,n=s._muted||e._muted||e._parent._muted?0:e._volume;return t._webAudio?(e._node="undefined"==typeof s.ctx.createGain?s.ctx.createGainNode():s.ctx.createGain(),e._node.gain.setValueAtTime(n,s.ctx.currentTime),e._node.paused=!0,e._node.connect(s.masterGain)):(e._node=new Audio,e._errorFn=e._errorListener.bind(e),e._node.addEventListener("error",e._errorFn,!1),e._loadFn=e._loadListener.bind(e),e._node.addEventListener(s._canPlayEvent,e._loadFn,!1),e._node.src=t._src,e._node.preload="auto",e._node.volume=n*s.volume(),e._node.load()),e},reset:function(){var e=this,t=e._parent;return e._muted=t._muted,e._loop=t._loop,e._volume=t._volume,e._muted=t._muted,e._rate=t._rate,e._seek=0,e._rateSeek=0,e._paused=!0,e._ended=!0,e._sprite="__default",e._id=Math.round(Date.now()*Math.random()),e},_errorListener:function(){var e=this;e._parent._emit("loaderror",e._id,e._node.error?e._node.error.code:0),e._node.removeEventListener("error",e._errorListener,!1)},_loadListener:function(){var e=this,t=e._parent;t._duration=Math.ceil(10*e._node.duration)/10,0===Object.keys(t._sprite).length&&(t._sprite={__default:[0,1e3*t._duration]}),"loaded"!==t._state&&(t._state="loaded",t._emit("load"),t._loadQueue()),e._node.removeEventListener(s._canPlayEvent,e._loadFn,!1)}};var d={},l=function(e){var t=e._src;if(d[t])return e._duration=d[t].duration,void p(e);if(/^data:[^;]+;base64,/.test(t)){for(var n=atob(t.split(",")[1]),i=new Uint8Array(n.length),o=0;o<n.length;++o)i[o]=n.charCodeAt(o);c(i.buffer,e)}else{var r=new XMLHttpRequest;r.open("GET",t,!0),r.responseType="arraybuffer",r.onload=function(){var t=(r.status+"")[0];return"0"!==t&&"2"!==t&&"3"!==t?void e._emit("loaderror",null,"Failed loading audio file with status: "+r.status+"."):void c(r.response,e)},r.onerror=function(){e._webAudio&&(e._html5=!0,e._webAudio=!1,e._sounds=[],delete d[t],e.load())},h(r)}},h=function(e){try{e.send()}catch(t){e.onerror()}},c=function(e,t){s.ctx.decodeAudioData(e,function(e){e&&t._sounds.length>0&&(d[t._src]=e,p(t,e))},function(){t._emit("loaderror",null,"Decoding audio data failed.")})},p=function(e,t){t&&!e._duration&&(e._duration=t.duration),0===Object.keys(e._sprite).length&&(e._sprite={__default:[0,1e3*e._duration]}),"loaded"!==e._state&&(e._state="loaded",e._emit("load"),e._loadQueue())},f=function(){try{"undefined"!=typeof AudioContext?s.ctx=new AudioContext:"undefined"!=typeof webkitAudioContext?s.ctx=new webkitAudioContext:s.usingWebAudio=!1}catch(e){s.usingWebAudio=!1}var e=/iP(hone|od|ad)/.test(s._navigator&&s._navigator.platform),t=s._navigator&&s._navigator.appVersion.match(/OS (\d+)_(\d+)_?(\d+)?/),n=t?parseInt(t[1],10):null;if(e&&n&&n<9){var i=/safari/.test(s._navigator&&s._navigator.userAgent.toLowerCase());(s._navigator&&s._navigator.standalone&&!i||s._navigator&&!s._navigator.standalone&&!i)&&(s.usingWebAudio=!1)}s.usingWebAudio&&(s.masterGain="undefined"==typeof s.ctx.createGain?s.ctx.createGainNode():s.ctx.createGain(),s.masterGain.gain.value=1,s.masterGain.connect(s.ctx.destination)),s._setup()};i=[],o=function(){return{Howler:s,Howl:a}}.apply(t,i),!(void 0!==o&&(e.exports=o)),t.Howler=s,t.Howl=a,"undefined"!=typeof window?(window.HowlerGlobal=r,window.Howler=s,window.Howl=a,window.Sound=u):"undefined"!=typeof n&&(n.HowlerGlobal=r,n.Howler=s,n.Howl=a,n.Sound=u)}(),function(){"use strict";HowlerGlobal.prototype._pos=[0,0,0],HowlerGlobal.prototype._orientation=[0,0,-1,0,1,0],HowlerGlobal.prototype.stereo=function(e){var t=this;if(!t.ctx||!t.ctx.listener)return t;for(var n=t._howls.length-1;n>=0;n--)t._howls[n].stereo(e);return t},HowlerGlobal.prototype.pos=function(e,t,n){var i=this;return i.ctx&&i.ctx.listener?(t="number"!=typeof t?i._pos[1]:t,n="number"!=typeof n?i._pos[2]:n,"number"!=typeof e?i._pos:(i._pos=[e,t,n],i.ctx.listener.setPosition(i._pos[0],i._pos[1],i._pos[2]),i)):i},HowlerGlobal.prototype.orientation=function(e,t,n,i,o,r){var s=this;if(!s.ctx||!s.ctx.listener)return s;var a=s._orientation;return t="number"!=typeof t?a[1]:t,n="number"!=typeof n?a[2]:n,i="number"!=typeof i?a[3]:i,o="number"!=typeof o?a[4]:o,r="number"!=typeof r?a[5]:r,"number"!=typeof e?a:(s._orientation=[e,t,n,i,o,r],s.ctx.listener.setOrientation(e,t,n,i,o,r),s)},Howl.prototype.init=function(e){return function(t){var n=this;return n._orientation=t.orientation||[1,0,0],n._stereo=t.stereo||null,n._pos=t.pos||null,n._pannerAttr={coneInnerAngle:"undefined"!=typeof t.coneInnerAngle?t.coneInnerAngle:360,coneOuterAngle:"undefined"!=typeof t.coneOuterAngle?t.coneOuterAngle:360,coneOuterGain:"undefined"!=typeof t.coneOuterGain?t.coneOuterGain:0,distanceModel:"undefined"!=typeof t.distanceModel?t.distanceModel:"inverse",maxDistance:"undefined"!=typeof t.maxDistance?t.maxDistance:1e4,panningModel:"undefined"!=typeof t.panningModel?t.panningModel:"HRTF",refDistance:"undefined"!=typeof t.refDistance?t.refDistance:1,rolloffFactor:"undefined"!=typeof t.rolloffFactor?t.rolloffFactor:1},n._onstereo=t.onstereo?[{fn:t.onstereo}]:[],n._onpos=t.onpos?[{fn:t.onpos}]:[],n._onorientation=t.onorientation?[{fn:t.onorientation}]:[],e.call(this,t)}}(Howl.prototype.init),Howl.prototype.stereo=function(t,n){var i=this;if(!i._webAudio)return i;if("loaded"!==i._state)return i._queue.push({event:"stereo",action:function(){i.stereo(t,n)}}),i;var o="undefined"==typeof Howler.ctx.createStereoPanner?"spatial":"stereo";if("undefined"==typeof n){if("number"!=typeof t)return i._stereo;i._stereo=t,i._pos=[t,0,0]}for(var r=i._getSoundIds(n),s=0;s<r.length;s++){var a=i._soundById(r[s]);if(a){if("number"!=typeof t)return a._stereo;a._stereo=t,a._pos=[t,0,0],a._node&&(a._pannerAttr.panningModel="equalpower",a._panner&&a._panner.pan||e(a,o),"spatial"===o?a._panner.setPosition(t,0,0):a._panner.pan.value=t),i._emit("stereo",a._id)}}return i},Howl.prototype.pos=function(t,n,i,o){var r=this;if(!r._webAudio)return r;if("loaded"!==r._state)return r._queue.push({event:"pos",action:function(){r.pos(t,n,i,o)}}),r;if(n="number"!=typeof n?0:n,i="number"!=typeof i?-.5:i,"undefined"==typeof o){if("number"!=typeof t)return r._pos;r._pos=[t,n,i]}for(var s=r._getSoundIds(o),a=0;a<s.length;a++){var u=r._soundById(s[a]);if(u){if("number"!=typeof t)return u._pos;u._pos=[t,n,i],u._node&&(u._panner&&!u._panner.pan||e(u,"spatial"),u._panner.setPosition(t,n,i)),r._emit("pos",u._id)}}return r},Howl.prototype.orientation=function(t,n,i,o){var r=this;if(!r._webAudio)return r;if("loaded"!==r._state)return r._queue.push({event:"orientation",action:function(){r.orientation(t,n,i,o)}}),r;if(n="number"!=typeof n?r._orientation[1]:n,i="number"!=typeof i?r._orientation[2]:i,"undefined"==typeof o){if("number"!=typeof t)return r._orientation;r._orientation=[t,n,i]}for(var s=r._getSoundIds(o),a=0;a<s.length;a++){var u=r._soundById(s[a]);if(u){if("number"!=typeof t)return u._orientation;u._orientation=[t,n,i],u._node&&(u._panner||(u._pos||(u._pos=r._pos||[0,0,-.5]),e(u,"spatial")),u._panner.setOrientation(t,n,i)),r._emit("orientation",u._id)}}return r},Howl.prototype.pannerAttr=function(){var t,n,i,o=this,r=arguments;if(!o._webAudio)return o;if(0===r.length)return o._pannerAttr;if(1===r.length){if("object"!=typeof r[0])return i=o._soundById(parseInt(r[0],10)),i?i._pannerAttr:o._pannerAttr;t=r[0],"undefined"==typeof n&&(o._pannerAttr={coneInnerAngle:"undefined"!=typeof t.coneInnerAngle?t.coneInnerAngle:o._coneInnerAngle,coneOuterAngle:"undefined"!=typeof t.coneOuterAngle?t.coneOuterAngle:o._coneOuterAngle,coneOuterGain:"undefined"!=typeof t.coneOuterGain?t.coneOuterGain:o._coneOuterGain,distanceModel:"undefined"!=typeof t.distanceModel?t.distanceModel:o._distanceModel,maxDistance:"undefined"!=typeof t.maxDistance?t.maxDistance:o._maxDistance,panningModel:"undefined"!=typeof t.panningModel?t.panningModel:o._panningModel,refDistance:"undefined"!=typeof t.refDistance?t.refDistance:o._refDistance,rolloffFactor:"undefined"!=typeof t.rolloffFactor?t.rolloffFactor:o._rolloffFactor})}else 2===r.length&&(t=r[0],n=parseInt(r[1],10));for(var s=o._getSoundIds(n),a=0;a<s.length;a++)if(i=o._soundById(s[a])){var u=i._pannerAttr;u={coneInnerAngle:"undefined"!=typeof t.coneInnerAngle?t.coneInnerAngle:u.coneInnerAngle,coneOuterAngle:"undefined"!=typeof t.coneOuterAngle?t.coneOuterAngle:u.coneOuterAngle,coneOuterGain:"undefined"!=typeof t.coneOuterGain?t.coneOuterGain:u.coneOuterGain,distanceModel:"undefined"!=typeof t.distanceModel?t.distanceModel:u.distanceModel,maxDistance:"undefined"!=typeof t.maxDistance?t.maxDistance:u.maxDistance,panningModel:"undefined"!=typeof t.panningModel?t.panningModel:u.panningModel,refDistance:"undefined"!=typeof t.refDistance?t.refDistance:u.refDistance,rolloffFactor:"undefined"!=typeof t.rolloffFactor?t.rolloffFactor:u.rolloffFactor};var d=i._panner;d?(d.coneInnerAngle=u.coneInnerAngle,d.coneOuterAngle=u.coneOuterAngle,d.coneOuterGain=u.coneOuterGain,d.distanceModel=u.distanceModel,d.maxDistance=u.maxDistance,d.panningModel=u.panningModel,d.refDistance=u.refDistance,d.rolloffFactor=u.rolloffFactor):(i._pos||(i._pos=o._pos||[0,0,-.5]),e(i,"spatial"))}return o},Sound.prototype.init=function(e){return function(){var t=this,n=t._parent;t._orientation=n._orientation,t._stereo=n._stereo,t._pos=n._pos,t._pannerAttr=n._pannerAttr,e.call(this),t._stereo?n.stereo(t._stereo):t._pos&&n.pos(t._pos[0],t._pos[1],t._pos[2],t._id)}}(Sound.prototype.init),Sound.prototype.reset=function(e){return function(){var t=this,n=t._parent;return t._orientation=n._orientation,t._pos=n._pos,t._pannerAttr=n._pannerAttr,e.call(this)}}(Sound.prototype.reset);var e=function(e,t){t=t||"spatial","spatial"===t?(e._panner=Howler.ctx.createPanner(),e._panner.coneInnerAngle=e._pannerAttr.coneInnerAngle,e._panner.coneOuterAngle=e._pannerAttr.coneOuterAngle,e._panner.coneOuterGain=e._pannerAttr.coneOuterGain,e._panner.distanceModel=e._pannerAttr.distanceModel,e._panner.maxDistance=e._pannerAttr.maxDistance,e._panner.panningModel=e._pannerAttr.panningModel,e._panner.refDistance=e._pannerAttr.refDistance,e._panner.rolloffFactor=e._pannerAttr.rolloffFactor,e._panner.setPosition(e._pos[0],e._pos[1],e._pos[2]),e._panner.setOrientation(e._orientation[0],e._orientation[1],e._orientation[2])):(e._panner=Howler.ctx.createStereoPanner(),e._panner.pan.value=e._stereo),e._panner.connect(e._node),e._paused||e._parent.pause(e._id,!0).play(e._id)}}()}).call(t,function(){return this}())},function(e,t,n){"use strict";var i=this&&this.__extends||function(e,t){function n(){this.constructor=e}for(var i in t)t.hasOwnProperty(i)&&(e[i]=t[i]);e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)},o=n(4),r=n(7),s=n(2),a=n(9),u="_abcdefghijklmnopqrstuvwxyz",d=function(e){function t(t){var n=e.call(this)||this;return n.index=1,n.score=t,n.init(),n}return i(t,e),t.prototype.init=function(){this.position=0,this.index=1,this.initials=["a","_","_"]},t.prototype.update=function(e){r.Key.isPressed(r.Key.LEFT)&&(this.index--,this.index<0&&(this.index=u.length-1),this.initials[this.position]=u[this.index]),r.Key.isPressed(r.Key.RIGHT)&&(this.index++,this.index>u.length-1&&(this.index=0),this.initials[this.position]=u[this.index]),r.Key.isPressed(r.Key.SPACE)&&(this.position++,this.position>=3&&(s.highscores.save(this.score,this.initials.join("").replace("_"," ")),this.init(),this.trigger("done")),this.index=1,this.initials[this.position]=u[this.index])},t.prototype.render=function(){var e=165,t=function(t){return o.default.draw.text(t,50,e+=35,"30pt")};o.default.draw.background(),o.default.draw.highscore(s.highscores.top.score),o.default.draw.scorePlayer1(this.score),o.default.draw.copyright(),t("your score is one of the ten best"),t("please enter your initials"),t("push rotate to select letter"),t("push hyperspace when letter is correct"),o.default.draw.text3(this.initials.join(""),"60pt",function(e){return{x:o.default.width/2-e,y:o.default.height/2}})},t}(a.EventSource);t.InitialsMode=d},function(e,t,n){"use strict";var i=n(4),o=n(17),r=function(){function e(e){this.state=e,this.showPushStart=!0,this.pushStartTimer=0,this.init()}return e.prototype.init=function(){this.state.started||this.state.startLevel()},e.prototype.update=function(e){this.state.levelTimer+=e,this.state.updateAlienTimer(e),this.state.rocks.length||this.state.explosions.length||this.state.alien||this.state.startLevel(),this.updatePushStartTimer(e),this.checkCollisions(),this.state.objects.forEach(function(t){t&&t.update(e)})},e.prototype.updatePushStartTimer=function(e){this.pushStartTimer+=e,this.pushStartTimer>=.4&&(this.pushStartTimer=0,this.showPushStart=!this.showPushStart)},e.prototype.checkCollisions=function(){var e=this,t=this.state,n=t.alien,i=t.rocks,r=t.alienBullets,s=!!n||!!r.length;if(s){var a=new o.Collisions;a.check([n],i,function(t,n){e.state.alienDestroyed(),e.state.rockDestroyed(n)}),a.check(r,i,function(t,n){e.state.rockDestroyed(n)})}},e.prototype.render=function(){this.drawBackground(),this.drawPushStart(),this.state.objects.forEach(function(e){e&&e.render()})},e.prototype.drawBackground=function(){i.default.draw.background(),i.default.draw.scorePlayer1(this.state.score),i.default.draw.oneCoinOnePlay(),i.default.draw.highscore(this.state.highscore),i.default.draw.copyright()},e.prototype.drawPushStart=function(){this.showPushStart&&i.default.draw.pushStart()},e}();t.AttractMode=r},function(e,t,n){"use strict";var i=n(4),o=n(18),r=function(){function e(){this.tree=new o.Quadtree({x:0,y:0,width:i.default.width,height:i.default.height},1)}return e.prototype.check=function(e,t,n,i){var o=this;e&&e.length&&t&&t.length&&(this.tree.clear(),t.forEach(function(e){o.tree.insert(e)}),e.forEach(function(e){var t=[];t.push.apply(t,o.tree.retrieve(e)),t.forEach(function(t){t.collided(e)?o.pointsInPolygon(e,t)&&n(e,t):i&&i(e,t)})}))},e.prototype.pointsInPolygon=function(e,t){for(var n=e.vertices,i=t.vertices,o=0,r=i.length;o<r;o++)if(this.pointInPoly(n,i[o]))return!0;return!1},e.prototype.pointInPoly=function(e,t){for(var n=e.length-1,i=0,o=0,r=e.length;o<r;o++)(e[o].y<t.y&&e[n].y>=t.y||e[n].y<t.y&&e[o].y>=t.y)&&(e[o].x<=t.x||e[n].x<=t.x)&&(i^=e[o].x+(t.y-e[o].y)/(e[n].y-e[o].y)*(e[n].x-e[o].x)<t.x),n=o;return i%2===0},e}();t.Collisions=r},function(e,t){"use strict";var n=function(){function e(e,t,n,i){void 0===t&&(t=10),void 0===n&&(n=4),void 0===i&&(i=0),this.bounds=e,this.maxObjects=t,this.maxLevels=n,this.level=i,this.objects=[],this.nodes=[],this.width2=this.bounds.width/2,this.height2=this.bounds.height/2,this.xmid=this.bounds.x+this.width2,this.ymid=this.bounds.y+this.height2}return e.prototype.insert=function(e){var t=this;if(e){var n,i=0;if(this.nodes.length&&(n=this.getIndex(e),n.length))return void n.forEach(function(n){t.nodes[n].insert(e)});if(this.objects.push(e),this.objects.length>this.maxObjects&&this.level<this.maxLevels){this.nodes.length||this.split();for(var o=function(){if(n=r.getIndex(r.objects[i]),n.length){var e=r.objects.splice(i,1)[0];n.forEach(function(n){t.nodes[n].insert(e)})}else i+=1},r=this;i<this.objects.length;)o()}}},e.prototype.retrieve=function(e){var t=this;if(!e)return[];var n=this.getIndex(e),i=this.objects;if(this.nodes.length)if(n.length)n.forEach(function(n){i=i.concat(t.nodes[n].retrieve(e))});else for(var o=0;o<this.nodes.length;o++)i=i.concat(this.nodes[o].retrieve(e));return i.filter(function(e,t,n){return n.indexOf(e)===t})},e.prototype.clear=function(){this.objects=[];for(var e=0;e<this.nodes.length;e++)this.nodes[e]&&this.nodes[e].clear();this.nodes=[]},e.prototype.getIndex=function(e){if(!e)return[];var t=[],n=this,i=n.xmid,o=n.ymid,r=e.y<=o,s=e.y>o;if(e.x<=i)if(r){t.push(1);var a=!1;e.x+e.width>i&&(t.push(0),a=!0),e.y+e.height>o&&(t.push(2),a&&t.push(3))}else s&&(t.push(2),e.x+e.width>i&&t.push(3));else e.x>i&&(r?(t.push(0),e.y+e.height>o&&t.push(3)):t.push(3));return t},e.prototype.split=function(){var t=this,n=Math.round(this.width2),i=Math.round(this.height2),o=Math.round(this.bounds.x),r=Math.round(this.bounds.y),s=function(o,r){var s={x:o,y:r,width:n,height:i};return new e(s,t.maxObjects,t.maxLevels,t.level+1)};this.nodes=[s(o+n,r),s(o,r),s(o,r+i),s(o+n,r+i)]},e}();t.Quadtree=n},function(e,t,n){"use strict";var i=this&&this.__extends||function(e,t){function n(){this.constructor=e}for(var i in t)t.hasOwnProperty(i)&&(e[i]=t[i]);e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)},o=n(7),r=n(9),s=n(17),a=n(4),u=n(13),d=function(){function e(){this.lo=!0,this.reset()}return e.prototype.reset=function(){this.thumpBeatTimer=0,this.thumpBeat=1,this.thumpTimer=0,this.thumpTime=10,this.max=!1},e.prototype.update=function(e){var t=.2;this.thumpTimer+=e,this.thumpBeatTimer+=e,this.thumpBeatTimer>=this.thumpBeat&&(this.lo?u.thumpLo.play():u.thumpHi.play(),this.lo=!this.lo,this.thumpBeatTimer=0),!this.max&&this.thumpTimer>=this.thumpTime&&(this.thumpBeat-=t,this.thumpBeat<=t&&(this.thumpBeat=t,this.max=!0),this.thumpTimer=0)},e}(),l=function(e){function t(t){var n=e.call(this)||this;return n.state=t,n.debug=!1,n.bounds=[],n}return i(t,e),t.prototype.init=function(){this.state.addShip(a.default.width2,a.default.height2),this.state.startLevel(),this.thumper=new d},t.prototype.update=function(e){if(o.Key.isPressed(o.Key.DEBUG)&&(this.debug=!this.debug),o.Key.isPressed(o.Key.PAUSE)&&(this.state.paused=!this.state.paused),o.Key.isPressed(o.Key.SPACE)&&this.state.hyperspace(),!this.state.paused){if(this.state.levelTimer+=e,this.thumper&&this.state.ship&&this.thumper.update(e),this.state.gameOver&&(this.state.gameOverTimer+=e,this.state.gameOverTimer>=5&&this.trigger("done",this.state)),!this.state.started)return void(this.state.levelTimer>=2&&(this.init(),this.state.started=!0));this.state.updateAlienTimer(e),this.state.gameOver||(this.state.shouldTryToPlaceShip()&&this.state.tryPlaceShip(e),this.state.shouldCheckForNextLevel()&&(this.state.startLevel(),this.thumper.reset())),this.state.lives||(this.state.gameOver=!0),this.checkCollisions(),this.state.objects.forEach(function(t){t&&t.update(e)})}},t.prototype.render=function(e){this.renderStatic(),this.state.objects.forEach(function(e){e&&e.render()})},t.prototype.renderStatic=function(){a.default.draw.background(),a.default.draw.copyright(),a.default.draw.scorePlayer1(this.state.score),a.default.draw.highscore(this.state.highscore),a.default.draw.drawExtraLives(this.state.lives),this.state.started||a.default.draw.player1(),this.state.gameOver&&a.default.draw.gameOver(),this.debug&&this.renderDebug()},t.prototype.renderDebug=function(){if(a.default.draw.text2("debug mode","12pt",function(e){return{x:a.default.width-e-10,y:a.default.height-40}}),this.bounds&&this.bounds.forEach(function(e){a.default.draw.bounds(e,"#fc058d")}),!this.state.ship&&this.state.lives){var e={x:a.default.width2-120,y:a.default.height2-120,width:240,height:240};a.default.draw.bounds(e,"#00ff00")}this.state.ship&&a.default.draw.text(this.state.ship.angle.toString(),this.state.ship.origin.x+20,this.state.ship.origin.y+20,"10pt");var t=new Date(null);t.setSeconds(this.state.levelTimer),a.default.draw.text2(t.toISOString().substr(11,8),"12pt",function(e){return{x:10,y:a.default.height-40}})},t.prototype.checkCollisions=function(){var e=this,t=this.state,n=t.ship,i=t.rocks,o=t.shipBullets,r=t.alien,a=t.alienBullets;if(this.state.shouldCheckCollisions()){this.bounds=[];var u=new s.Collisions;u.check(o,i,function(t,n){e.state.addScore(n.score),e.state.rockDestroyed(n),t.destroy()},function(t,n){e.debug&&e.bounds.push(n)}),u.check(o,[r],function(t,n){e.state.addScore(n.score),e.state.alienDestroyed(),t.destroy()},function(t,n){e.debug&&e.bounds.push(n)}),u.check([n],i,function(t,n){e.state.addScore(n.score),e.state.rockDestroyed(n),e.state.shipDestroyed()},function(t,n){e.debug&&e.bounds.push(n)}),u.check([n],[r],function(t,n){e.state.addScore(n.score),e.state.alienDestroyed(),e.state.shipDestroyed()},function(t,n){e.debug&&e.bounds.push(n)}),u.check([r],i,function(t,n){e.state.alienDestroyed(),e.state.rockDestroyed(n)},function(t,n){e.debug&&e.bounds.push(n)}),u.check(a,i,function(t,n){e.state.rockDestroyed(n)},function(t,n){e.debug&&e.bounds.push(n)}),u.check(a,[n],function(t,n){e.state.shipDestroyed(),t.destroy()},function(t,n){e.debug&&e.bounds.push(n)})}},t}(r.EventSource);t.GameMode=l},function(e,t,n){"use strict";var i=n(6),o=n(21),r=n(23),s=n(24),a=n(11),u=n(22),d=n(4),l=n(13),h=1e4,c=function(){function e(e){this.level=0,this.extraLifeScore=0,this.score=0,this.lives=3,this.shipBullets=[],this.alienBullets=[],this.explosions=[],this.rocks=[],this.shipTimer=0,this.alienTimer=0,this.levelTimer=0,this.gameOverTimer=0,this.gameOver=!1,this.started=!1,this.paused=!1,this.highscore=e}return Object.defineProperty(e.prototype,"objects",{get:function(){return[this.ship,this.alien].concat(this.shipBullets,this.alienBullets,this.rocks,this.explosions)},enumerable:!0,configurable:!0}),e.prototype.startLevel=function(){this.level++,this.levelTimer=0,this.alienTimer=u.random(10,15),this.addRocks()},e.prototype.addRocks=function(){for(var e=Math.min(this.level+3,7),t=150,n=0;n<e;n++){var i=u.random(1,4),o=new a.Vector(u.random(1,360)),r=void 0,l=void 0;switch(i){case 1:r=u.random(40,d.default.width-40),l=u.random(40,80);break;case 2:r=u.random(d.default.width-80,d.default.width-40),l=u.random(d.default.height-40,d.default.height-40);break;case 3:r=u.random(40,d.default.width-40),l=u.random(d.default.height-40,d.default.height-40);break;default:r=u.random(40,80),l=u.random(d.default.height-40,d.default.height-40)}var h=new s.Rock(r,l,o,s.RockSize.Large,t);this.rocks.push(h)}},e.prototype.addShip=function(e,t){var n=this;this.ship=new i.Ship(e,t),this.ship.on("fire",function(e,t){t.on("expired",function(){n.shipBullets=n.shipBullets.filter(function(e){return e!==t})}),n.shipBullets.push(t)})},e.prototype.createExplosion=function(e,t){var n=this,i=new r.Explosion(e,t);i.on("expired",function(){n.explosions=n.explosions.filter(function(e){return e!==i})}),this.explosions.push(i)},e.prototype.shipDestroyed=function(){l.largeExplosion.play(),this.createExplosion(this.ship.origin.x,this.ship.origin.y),this.lives--,this.ship=null,this.shipBullets=[]},e.prototype.alienDestroyed=function(){this.alien.destroy(),this.createExplosion(this.alien.origin.x,this.alien.origin.y),this.alien=null,this.alienBullets=[],l.largeExplosion.play()},e.prototype.rockDestroyed=function(e){this.createExplosion(e.origin.x,e.origin.y),this.rocks=this.rocks.filter(function(t){return t!==e}),(t=this.rocks).push.apply(t,e.split()),e=null;var t},e.prototype.addAlien=function(){var e=this,t=Math.min(this.level,7);if(this.score>=4e4)this.alien=new o.SmallAlien(this.ship);else{var n=!1;switch(t){case 1:n=this.levelTimer>60&&2===u.random(1,3);break;case 2:n=this.levelTimer>30&&u.random(1,10)%2===0;break;default:n=u.random(1,10)<=t+2}this.alien=n?new o.SmallAlien(this.ship):new o.BigAlien}this.alien.on("expired",function(){e.alien=null,e.alienBullets.forEach(function(e){return e.destroy()}),e.alienBullets=[]}),this.alien.on("fire",function(t,n){n.on("expired",function(){e.alienBullets=e.alienBullets.filter(function(e){return e!==n})}),e.alienBullets.push(n)})},e.prototype.hyperspace=function(){var e=u.random(40,d.default.width-40),t=u.random(40,d.default.height-40),n=this.ship.angle;this.addShip(e,t),this.ship.angle>n?n=-(this.ship.angle-n):this.ship.angle<n&&(n-=this.ship.angle),this.ship.rotate(n)},e.prototype.addScore=function(e){this.score+=e,this.extraLifeScore+=e,this.score>this.highscore&&(this.highscore=this.score),this.extraLifeScore>=h&&(this.lives++,this.extraLifeScore=0,l.extraLife.play())},e.prototype.tryPlaceShip=function(e){if(this.shipTimer+=e,!(this.shipTimer<=2)){var t={x:d.default.width2-120,y:d.default.height2-120,width:240,height:240},n=!1;this.rocks.forEach(function(e){n=n||e.collided(t)}),this.alien&&(n=n||this.alien.collided(t)),n||(this.shipTimer=0,this.addShip(d.default.width2,d.default.height2))}},e.prototype.updateAlienTimer=function(e){var t=Math.min(this.level,7);this.alien||(this.alienTimer-=e,this.alienTimer<=0&&(this.addAlien(),this.alienTimer=u.random(10-t,15-t)))},e.prototype.shouldTryToPlaceShip=function(){return!!this.shipTimer||!this.ship&&this.lives&&!this.explosions.length},e.prototype.shouldCheckForNextLevel=function(){return!this.rocks.length&&this.lives&&!this.explosions.length&&!this.alien},e.prototype.shouldCheckCollisions=function(){return!!(this.ship||this.shipBullets.length||this.alien||this.alienBullets.length)},e}();t.State=c},function(e,t,n){"use strict";var i=this&&this.__extends||function(e,t){function n(){this.constructor=e}for(var i in t)t.hasOwnProperty(i)&&(e[i]=t[i]);e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)},o=n(4),r=n(22),s=n(8),a=n(12),u=n(11),d=n(13),l=600,h=225,c=250,p=function(e){function t(t){var n=e.call(this,0,0)||this;return n.moveTimer=0,n.moveTime=1,n.bulletTimer=0,n.bulletTime=.7,n.vy=0,n.origin.y=r.random(100,o.default.height-100),n.origin.y%2===0?(n.origin.x=40,n.vx=t):(n.origin.x=o.default.width-40,n.vx=-t),n.points=[{x:.5,y:-2},{x:1,y:-1},{x:2.5,y:0},{x:1,y:1},{x:-1,y:1},{x:-2.5,y:0},{x:-1,y:-1},{x:-.5,y:-2},{x:.5,y:-2}],n}return i(t,e),t.prototype.update=function(e){if(this.move(e),this.origin.x>=o.default.width-5||this.origin.x<=5)return this.trigger("expired"),void this.onExpired();if(this.moveTimer+=e,this.moveTimer>=1&&0!==this.vy&&(this.vy=0,this.moveTimer=0),this.moveTimer>=this.moveTime){var t=r.random(1,20)%2===0;t&&(this.vy=this.origin.x%2===0?this.vx:-this.vx),this.moveTimer=0}this.bulletTimer+=e,this.bulletTimer>=this.bulletTime&&(this.fire(),this.bulletTimer=0)},t.prototype.render=function(){this.draw()},t.prototype.draw=function(){e.prototype.draw.call(this),o.default.draw.shape([this.points[1],this.points[6]],this.origin.x,this.origin.y),o.default.draw.shape([this.points[2],this.points[5]],this.origin.x,this.origin.y)},t}(s.Object2D);t.Alien=p;var f=function(e){function t(){var t=e.call(this,h)||this;return t.score=200,t.scale(7),d.largeAlien.play(),t}return i(t,e),t.prototype.fire=function(){var e=new u.Vector(r.random(1,360),l),t=new a.Bullet(this.origin.x,this.origin.y,e);this.trigger("fire",t),d.alienFire.play()},t.prototype.onExpired=function(){this.destroy()},t.prototype.destroy=function(){d.largeAlien.stop()},t}(p);t.BigAlien=f;var _=function(e){function t(t){var n=e.call(this,c)||this;return n.ship=t,n.score=1e3,n.bulletTime=1,n.scale(4),d.smallAlien.play(),n}return i(t,e),t.prototype.fire=function(){var e;if(this.ship){var t=u.Vector.fromXY(this.ship.origin,this.origin,l);e=new a.Bullet(this.origin.x,this.origin.y,t)}else{var t=new u.Vector(r.random(1,360),l);e=new a.Bullet(this.origin.x,this.origin.y,t)}this.trigger("fire",e),d.alienFire.stop(),d.alienFire.play()},t.prototype.onExpired=function(){this.destroy()},t.prototype.destroy=function(){this.ship=null,d.smallAlien.stop()},t}(p);t.SmallAlien=_},function(e,t){"use strict";function n(e,t){return Math.floor(Math.random()*(t-e+1))+e}t.random=n},function(e,t,n){"use strict";var i=this&&this.__extends||function(e,t){function n(){this.constructor=e}for(var i in t)t.hasOwnProperty(i)&&(e[i]=t[i]);e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)},o=n(9),r=n(4),s=n(11),a=n(22),u=150,d=function(e){function t(t,n){var i=e.call(this)||this;i.life=1.25,i.points=[];for(var o=0;o<15;o++){var r=new s.Vector(a.random(1,360),Math.random()*u);i.points.push({x:t,y:n,vx:r.x,vy:r.y})}return i}return i(t,e),t.prototype.update=function(e){this.points.forEach(function(t){t.x+=t.vx*e,t.y+=t.vy*e}),this.life-=e,this.life<=0&&this.trigger("expired")},t.prototype.render=function(e){var t=this;this.points.forEach(function(e){r.default.draw.point(e,"rgba(255,255,255,"+t.life+")")})},t}(o.EventSource);t.Explosion=d},function(e,t,n){"use strict";var i,o=this&&this.__extends||function(e,t){function n(){this.constructor=e}for(var i in t)t.hasOwnProperty(i)&&(e[i]=t[i]);e.prototype=null===t?Object.create(t):(n.prototype=t.prototype,new n)},r=n(8),s=n(11),a=n(22),u=n(13);!function(e){e[e.Small=5]="Small",e[e.Medium=10]="Medium",e[e.Large=20]="Large"}(i=t.RockSize||(t.RockSize={}));var d=function(e){function t(t,n,i,o,r){void 0===r&&(r=1);var s=e.call(this,t,n)||this;s.rotTimer=0,s.rock1=[[.5,-2],[2,-1],[2,-.7],[1.2,0],[2,1],[1,2],[.5,1.5],[-1,2],[-2,.7],[-2,-1],[-.5,-1],[-1,-2],[.5,-2]],s.rock2=[[0,-1.5],[1,-2],[2,-1],[1,-.5],[2,.5],[1,2],[-.5,1.5],[-1,2],[-2,1],[-1.5,0],[-2,-1],[-1,-2],[0,-1.5]],s.rock3=[[0,-1],[1,-2],[2,-1],[1.5,0],[2,1],[1,2],[-1,2],[-2,1],[-2,-1],[-1,-2],[0,-1]],s.rocks=[s.rock1,s.rock2,s.rock3],s.vx=i.x*r,s.vy=i.y*r;var u=a.random(0,2),d=s.rocks[u];return s.points=d.map(function(e){return{x:e[0]*o,y:e[1]*o}}),s.size=o,s.rotate(a.random(1,90)),s.rot=a.random(.01,1)%2===0?1:-1,s.timeToRot=a.random(1,5),s}return o(t,e),t.prototype.update=function(e){this.rotTimer+=1,this.move(e),this.rotTimer===this.timeToRot&&(this.rotate(this.rot),this.rotTimer=0)},t.prototype.render=function(){this.draw()},Object.defineProperty(t.prototype,"direction",{get:function(){var e=Math.atan2(this.vy,this.vx),t=e*(180/Math.PI);
-return t=t>0?t:360+t,Math.floor(t)},enumerable:!0,configurable:!0}),t.prototype.split=function(){switch(console.log("sound should play"),this.size){case i.Large:u.largeExplosion.play();break;case i.Medium:u.mediumExplosion.play();break;case i.Small:u.smallExplosion.play()}if(this.size>i.Small){var e=a.random(this.direction,this.direction+80),n=a.random(this.direction-80,this.direction);e<0&&(e+=360),e>360&&(e-=360),n<0&&(n+=360),n>360&&(n-=360);var o=this.size===i.Large?i.Medium:i.Small,r=new s.Vector(e),d=new s.Vector(n),l=o===i.Medium?a.random(150,250):a.random(250,350),h=o===i.Medium?a.random(150,250):a.random(250,350),c=new t(this.origin.x,this.origin.y,r,o,l),p=new t(this.origin.x,this.origin.y,d,o,h);return[c,p]}return[]},Object.defineProperty(t.prototype,"score",{get:function(){return this.size===i.Large?20:this.size===i.Medium?50:100},enumerable:!0,configurable:!0}),t}(r.Object2D);t.Rock=d}]);
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+
+
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "/build/";
+
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var loop_1 = __webpack_require__(1);
+	var highscores_1 = __webpack_require__(2);
+	var highScoreMode_1 = __webpack_require__(3);
+	var initialsMode_1 = __webpack_require__(15);
+	var attractMode_1 = __webpack_require__(16);
+	var gameMode_1 = __webpack_require__(19);
+	var keys_1 = __webpack_require__(7);
+	var state_1 = __webpack_require__(20);
+	var sounds_1 = __webpack_require__(13);
+	var ATTRACT_TIME = 15;
+	var Modes;
+	(function (Modes) {
+	    Modes[Modes["Attract"] = 0] = "Attract";
+	    Modes[Modes["Game"] = 1] = "Game";
+	    Modes[Modes["Initials"] = 2] = "Initials";
+	    Modes[Modes["Start"] = 3] = "Start";
+	})(Modes || (Modes = {}));
+	var Asteroids = (function () {
+	    function Asteroids() {
+	        this.lastScore = 0;
+	        this.init();
+	    }
+	    Asteroids.prototype.init = function (state) {
+	        var _this = this;
+	        sounds_1.Sound.off();
+	        this.mode = Modes.Start;
+	        this.highScoreMode = new highScoreMode_1.HighScoreMode(this.lastScore);
+	        this.attractMode = new attractMode_1.AttractMode(state || new state_1.State(highscores_1.highscores.top.score));
+	        this.gameMode = new gameMode_1.GameMode(new state_1.State(highscores_1.highscores.top.score));
+	        this.attractTimer = 0;
+	        this.gameMode.on('done', function (source, state) {
+	            _this.lastScore = state.score;
+	            if (highscores_1.highscores.qualifies(state.score)) {
+	                _this.initialsMode = new initialsMode_1.InitialsMode(state.score);
+	                _this.initialsMode.on('done', function () {
+	                    _this.init(state);
+	                });
+	                sounds_1.Sound.off();
+	                _this.mode = Modes.Initials;
+	            }
+	            else {
+	                _this.init(state);
+	            }
+	        });
+	        this.attractStarted = false;
+	    };
+	    Asteroids.prototype.update = function (dt) {
+	        switch (this.mode) {
+	            case Modes.Start:
+	                this.highScoreMode.update(dt);
+	                if (this.attractStarted) {
+	                    this.attractMode.update(dt);
+	                }
+	                if (keys_1.Key.isPressed(keys_1.Key.ONE)) {
+	                    sounds_1.Sound.on();
+	                    this.mode = Modes.Game;
+	                }
+	                else {
+	                    this.updateAttractTimer(dt);
+	                }
+	                break;
+	            case Modes.Attract:
+	                this.attractMode.update(dt);
+	                if (keys_1.Key.isPressed(keys_1.Key.ONE)) {
+	                    sounds_1.Sound.on();
+	                    this.mode = Modes.Game;
+	                }
+	                else {
+	                    this.updateAttractTimer(dt);
+	                }
+	                break;
+	            case Modes.Initials:
+	                this.initialsMode.update(dt);
+	                break;
+	            case Modes.Game:
+	                this.gameMode.update(dt);
+	                break;
+	        }
+	    };
+	    Asteroids.prototype.render = function (dt) {
+	        switch (this.mode) {
+	            case Modes.Start:
+	                this.highScoreMode.render(dt);
+	                break;
+	            case Modes.Attract:
+	                this.attractMode.render(dt);
+	                break;
+	            case Modes.Initials:
+	                this.initialsMode.render(dt);
+	                break;
+	            case Modes.Game:
+	                this.gameMode.render(dt);
+	                break;
+	        }
+	        keys_1.Key.update();
+	    };
+	    Asteroids.prototype.updateAttractTimer = function (dt) {
+	        this.attractTimer += dt;
+	        if (this.attractTimer >= ATTRACT_TIME) {
+	            this.attractTimer = 0;
+	            this.mode = this.mode === Modes.Attract ? Modes.Start : Modes.Attract;
+	            if (this.mode === Modes.Attract) {
+	                sounds_1.Sound.on();
+	            }
+	            else {
+	                sounds_1.Sound.off();
+	            }
+	        }
+	    };
+	    return Asteroids;
+	}());
+	exports.Asteroids = Asteroids;
+	var game = new Asteroids();
+	setTimeout(function () {
+	    loop_1.loop(game);
+	}, 1000);
+
+
+/***/ },
+/* 1 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var timestamp = function () {
+	    return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+	};
+	var now;
+	var delta = 0;
+	var last = timestamp();
+	var DT = 1 / 60;
+	var ONE_SECOND = 1000;
+	var init = function (state) {
+	    var frame = function () {
+	        now = timestamp();
+	        delta += Math.min(1, (now - last) / ONE_SECOND);
+	        while (delta > DT) {
+	            state.update(DT);
+	            delta -= DT;
+	        }
+	        state.render(delta);
+	        last = now;
+	        requestAnimationFrame(frame);
+	    };
+	    frame();
+	};
+	exports.loop = function (state) {
+	    init(state);
+	};
+
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var defaults = [
+	    { score: 20140, initials: 'J H' },
+	    { score: 20050, initials: 'P A' },
+	    { score: 19930, initials: '  M' },
+	    { score: 19870, initials: 'G I' },
+	    { score: 19840, initials: 'A L' },
+	    { score: 19790, initials: 'M T' },
+	    { score: 19700, initials: 'E O' },
+	    { score: 19660, initials: 'S N' },
+	    { score: 190, initials: '   ' },
+	    { score: 70, initials: '   ' },
+	];
+	var SCORE_KEY = 'jph_asteroids_hs';
+	var _Highscores = (function () {
+	    function _Highscores() {
+	        this.scores = [];
+	        var str = window.localStorage.getItem(SCORE_KEY);
+	        this.scores = str ? JSON.parse(str) || [] : defaults;
+	    }
+	    Object.defineProperty(_Highscores.prototype, "top", {
+	        get: function () {
+	            return this.scores[0];
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    _Highscores.prototype.qualifies = function (score) {
+	        var less = exports.highscores.scores.filter(function (x) { return x.score < score; });
+	        return !!less.length;
+	    };
+	    _Highscores.prototype.save = function (score, initials) {
+	        if (this.qualifies(score)) {
+	            this.scores.push({ score: score, initials: initials });
+	            this.scores = this.scores.sort(function (a, b) { return a.score > b.score ? -1 : 1; }).slice(0, 10);
+	            window.localStorage.setItem(SCORE_KEY, JSON.stringify(this.scores));
+	        }
+	    };
+	    return _Highscores;
+	}());
+	exports.highscores = new _Highscores();
+
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var screen_1 = __webpack_require__(4);
+	var highscores_1 = __webpack_require__(2);
+	var HighScoreMode = (function () {
+	    function HighScoreMode(score) {
+	        this.score = score;
+	        this.blink = 0;
+	        this.showPushStart = true;
+	        this.highscore = highscores_1.highscores.top.score;
+	    }
+	    HighScoreMode.prototype.update = function (dt) {
+	        this.blink += dt;
+	        if (this.blink >= .4) {
+	            this.blink = 0;
+	            this.showPushStart = !this.showPushStart;
+	        }
+	    };
+	    HighScoreMode.prototype.render = function () {
+	        this.drawBackground();
+	        this.drawPushStart();
+	        this.drawHighScores();
+	    };
+	    HighScoreMode.prototype.drawBackground = function () {
+	        screen_1.default.draw.background();
+	        screen_1.default.draw.scorePlayer1(this.score);
+	        screen_1.default.draw.oneCoinOnePlay();
+	        screen_1.default.draw.highscore(this.highscore);
+	        screen_1.default.draw.copyright();
+	    };
+	    HighScoreMode.prototype.drawHighScores = function () {
+	        var screenX = screen_1.default.width / 2;
+	        screen_1.default.draw.text2('high scores', '24pt', function (width) {
+	            return {
+	                x: screenX - (width / 2),
+	                y: 200
+	            };
+	        });
+	        var _loop_1 = function (i) {
+	            var y = 280 + (i * 40);
+	            var text = this_1.pad(i + 1, ' ', 2) + "." + this_1.pad(highscores_1.highscores.scores[i].score, ' ', 6) + " " + highscores_1.highscores.scores[i].initials;
+	            screen_1.default.draw.text2(text, '24pt', function (width) {
+	                return {
+	                    x: screenX - (width / 2),
+	                    y: y
+	                };
+	            });
+	        };
+	        var this_1 = this;
+	        for (var i = 0; i < highscores_1.highscores.scores.length; i++) {
+	            _loop_1(i);
+	        }
+	    };
+	    HighScoreMode.prototype.drawPushStart = function () {
+	        if (this.showPushStart) {
+	            screen_1.default.draw.pushStart();
+	        }
+	    };
+	    HighScoreMode.prototype.pad = function (text, char, count) {
+	        text = text.toString();
+	        while (text.length < count) {
+	            text = char + text;
+	        }
+	        return text;
+	    };
+	    return HighScoreMode;
+	}());
+	exports.HighScoreMode = HighScoreMode;
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var draw_1 = __webpack_require__(5);
+	var Screen = (function () {
+	    function Screen() {
+	        var _this = this;
+	        this.x = 0;
+	        this.y = 0;
+	        this.canvas = document.getElementById('canvas');
+	        this.ctx = this.canvas.getContext('2d');
+	        this.draw = new draw_1.Draw(this.ctx);
+	        this.init();
+	        window.addEventListener('resize', function () {
+	            _this.init();
+	        });
+	    }
+	    Screen.prototype.init = function () {
+	        this.canvas.width = document.body.clientWidth;
+	        this.canvas.height = document.body.clientHeight;
+	        this.width = this.canvas.width;
+	        this.height = this.canvas.height;
+	        this.width2 = this.width / 2;
+	        this.height2 = this.height / 2;
+	    };
+	    return Screen;
+	}());
+	exports.Screen = Screen;
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = new Screen();
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var screen_1 = __webpack_require__(4);
+	var ship_1 = __webpack_require__(6);
+	var VectorLine = 'rgba(255,255,255,1)';
+	var Draw = (function () {
+	    function Draw(ctx) {
+	        this.ctx = ctx;
+	    }
+	    Draw.prototype.line = function (p1, p2, color, width) {
+	        if (color === void 0) { color = VectorLine; }
+	        if (width === void 0) { width = 2; }
+	        var ctx = this.ctx;
+	        ctx.beginPath();
+	        ctx.strokeStyle = color;
+	        ctx.lineWidth = width;
+	        ctx.moveTo(p1.x, p1.y);
+	        ctx.lineTo(p2.x, p2.y);
+	        ctx.stroke();
+	        ctx.closePath();
+	    };
+	    Draw.prototype.shape = function (points, x, y, color) {
+	        if (color === void 0) { color = VectorLine; }
+	        var p1, p2;
+	        for (var i = 0; i < points.length - 1; i++) {
+	            p1 = { x: x + points[i].x, y: y + points[i].y };
+	            p2 = { x: x + points[i + 1].x, y: y + points[i + 1].y };
+	            this.line(p1, p2, color, 2);
+	        }
+	    };
+	    Draw.prototype.rect = function (p1, p2, color) {
+	        if (color === void 0) { color = VectorLine; }
+	        var ctx = this.ctx;
+	        ctx.beginPath();
+	        ctx.fillStyle = color;
+	        ctx.fillRect(p1.x, p1.y, p2.x, p2.y);
+	        ctx.stroke();
+	        ctx.closePath();
+	    };
+	    Draw.prototype.point = function (p, fillStyle) {
+	        if (fillStyle === void 0) { fillStyle = VectorLine; }
+	        this.rect(p, { x: 4, y: 4 }, fillStyle);
+	    };
+	    Draw.prototype.background = function () {
+	        this.rect({ x: 0, y: 0 }, { x: screen_1.default.width, y: screen_1.default.height }, '#000000');
+	    };
+	    Draw.prototype.bounds = function (rect, color) {
+	        if (color === void 0) { color = VectorLine; }
+	        var ctx = this.ctx;
+	        if (!rect) {
+	            return;
+	        }
+	        ctx.save();
+	        ctx.beginPath();
+	        ctx.strokeStyle = color;
+	        ctx.lineWidth = 2;
+	        ctx.moveTo(rect.x, rect.y);
+	        ctx.lineTo(rect.x + rect.width, rect.y);
+	        ctx.lineTo(rect.x + rect.width, rect.y + rect.height);
+	        ctx.lineTo(rect.x, rect.y + rect.height);
+	        ctx.lineTo(rect.x, rect.y);
+	        ctx.stroke();
+	        ctx.closePath();
+	        ctx.restore();
+	    };
+	    Draw.prototype.text = function (text, x, y, size) {
+	        var ctx = this.ctx;
+	        ctx.save();
+	        ctx.font = size + " hyperspace";
+	        ctx.textBaseline = 'middle';
+	        ctx.lineWidth = 1;
+	        ctx.strokeStyle = VectorLine;
+	        ctx.strokeText(text, x, y);
+	        ctx.restore();
+	    };
+	    Draw.prototype.text2 = function (text, size, cb) {
+	        var ctx = this.ctx;
+	        ctx.save();
+	        ctx.font = size + " hyperspace";
+	        ctx.textBaseline = 'middle';
+	        ctx.lineWidth = 1;
+	        ctx.strokeStyle = VectorLine;
+	        var width = ctx.measureText(text).width;
+	        var point = cb(width);
+	        ctx.strokeText(text, point.x, point.y);
+	        ctx.restore();
+	    };
+	    Draw.prototype.text3 = function (text, size, cb) {
+	        var ctx = this.ctx;
+	        ctx.save();
+	        ctx.font = size + " hyperspace";
+	        ctx.textBaseline = 'middle';
+	        ctx.lineWidth = 2;
+	        ctx.fillStyle = VectorLine;
+	        var width = ctx.measureText(text).width;
+	        var point = cb(width);
+	        ctx.fillText(text, point.x, point.y);
+	        ctx.restore();
+	    };
+	    Draw.prototype.scorePlayer1 = function (score) {
+	        var text = score.toString();
+	        while (text.length < 2)
+	            text = '0' + text;
+	        this.text(text, 100, 20, '24pt');
+	    };
+	    Draw.prototype.highscore = function (score) {
+	        var text = score.toString();
+	        while (text.length < 2)
+	            text = '0' + text;
+	        this.text2(text, '12pt', function (width) {
+	            return {
+	                x: screen_1.default.width2 - (width / 2),
+	                y: 20
+	            };
+	        });
+	    };
+	    Draw.prototype.oneCoinOnePlay = function () {
+	        this.text2('1  coin  1  play', '24pt', function (width) {
+	            return {
+	                x: screen_1.default.width2 - (width / 2),
+	                y: screen_1.default.height - 120
+	            };
+	        });
+	    };
+	    Draw.prototype.pushStart = function () {
+	        screen_1.default.draw.text2('push start', '24pt', function (width) {
+	            return {
+	                x: screen_1.default.width2 - (width / 2),
+	                y: 120
+	            };
+	        });
+	    };
+	    Draw.prototype.player1 = function () {
+	        screen_1.default.draw.text2('player 1', '24pt', function (width) {
+	            return {
+	                x: screen_1.default.width2 - (width / 2),
+	                y: 140
+	            };
+	        });
+	    };
+	    Draw.prototype.gameOver = function () {
+	        screen_1.default.draw.text2('game over', '30pt', function (width) {
+	            return {
+	                x: screen_1.default.width2 - (width / 2),
+	                y: 180
+	            };
+	        });
+	    };
+	    Draw.prototype.copyright = function () {
+	        this.text2(String.fromCharCode(169) + ' 1979 atari inc', '12pt', function (width) {
+	            return {
+	                x: screen_1.default.width2 - (width / 2),
+	                y: screen_1.default.height - 20
+	            };
+	        });
+	    };
+	    Draw.prototype.drawExtraLives = function (lives) {
+	        lives = Math.min(lives, 10);
+	        var life = new ship_1.Ship(0, 0);
+	        for (var i = 0; i < lives; i++) {
+	            life.origin.x = 80 + (i * 20);
+	            life.origin.y = 55;
+	            life.render();
+	        }
+	    };
+	    return Draw;
+	}());
+	exports.Draw = Draw;
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var screen_1 = __webpack_require__(4);
+	var keys_1 = __webpack_require__(7);
+	var object2d_1 = __webpack_require__(8);
+	var vector_1 = __webpack_require__(11);
+	var bullet_1 = __webpack_require__(12);
+	var sounds_1 = __webpack_require__(13);
+	var ACCELERATION = 0.1;
+	var BULLET_SPEED = 800;
+	var BULLET_TIME = .1;
+	var FRICTION = 0.007;
+	var ROTATION = 5;
+	var MAX_ACCELERATION = 1100;
+	var MAX_BULLETS = 4;
+	var VELOCITY = 100;
+	var Flame = (function (_super) {
+	    __extends(Flame, _super);
+	    function Flame(x, y) {
+	        var _this = _super.call(this, x, y) || this;
+	        _this.points = [
+	            { x: 5, y: 8 },
+	            { x: 0, y: 20 },
+	            { x: -5, y: 8 },
+	        ];
+	        return _this;
+	    }
+	    Flame.prototype.update = function () {
+	    };
+	    Flame.prototype.render = function () {
+	        this.draw();
+	    };
+	    return Flame;
+	}(object2d_1.Object2D));
+	var Ship = (function (_super) {
+	    __extends(Ship, _super);
+	    function Ship(x, y) {
+	        var _this = _super.call(this, x, y) || this;
+	        _this.moving = false;
+	        _this.bulletCount = 0;
+	        _this.bulletTimer = 0;
+	        _this.flame = new Flame(x, y);
+	        _this.points = [
+	            { x: 0, y: -15 },
+	            { x: 10, y: 10 },
+	            { x: 5, y: 5 },
+	            { x: -5, y: 5 },
+	            { x: -10, y: 10 },
+	            { x: 0, y: -15 }
+	        ];
+	        _this.angle = 270;
+	        return _this;
+	    }
+	    Ship.prototype.render = function () {
+	        screen_1.default.draw.shape(this.points, this.origin.x, this.origin.y, this.color);
+	        if (this.moving && (Math.floor(Math.random() * 10) + 1) % 2 === 0) {
+	            this.flame.draw();
+	        }
+	    };
+	    Ship.prototype.update = function (dt) {
+	        this.move(dt);
+	        this.flame.move(dt);
+	        if (keys_1.Key.isDown(keys_1.Key.UP)) {
+	            this.moving = true;
+	            this.thrust();
+	        }
+	        else {
+	            this.moving = false;
+	        }
+	        if (keys_1.Key.isPressed(keys_1.Key.LEFT)) {
+	            this.rotate(-1);
+	        }
+	        if (keys_1.Key.isDown(keys_1.Key.LEFT)) {
+	            this.rotate(-ROTATION);
+	        }
+	        if (keys_1.Key.isPressed(keys_1.Key.RIGHT)) {
+	            this.rotate(1);
+	        }
+	        if (keys_1.Key.isDown(keys_1.Key.RIGHT)) {
+	            this.rotate(ROTATION);
+	        }
+	        if (keys_1.Key.isDown(keys_1.Key.CTRL)) {
+	            this.fire();
+	        }
+	        if (this.bulletTimer > 0) {
+	            this.bulletTimer -= dt;
+	        }
+	        if (!this.moving) {
+	            this.vx -= this.vx * FRICTION;
+	            this.vy -= this.vy * FRICTION;
+	            this.flame.vx = this.vx;
+	            this.flame.vy = this.vy;
+	        }
+	    };
+	    Ship.prototype.rotate = function (n) {
+	        _super.prototype.rotate.call(this, n);
+	        this.flame.rotate(n);
+	    };
+	    Ship.prototype.thrust = function () {
+	        var v = new vector_1.Vector(this.angle, VELOCITY * ACCELERATION);
+	        var velocity = this.magnitude;
+	        if (velocity < MAX_ACCELERATION) {
+	            this.vx += v.x;
+	            this.flame.vx = this.vx;
+	            this.vy += v.y;
+	            this.flame.vy = this.vy;
+	        }
+	        sounds_1.thrust.play();
+	    };
+	    Ship.prototype.fire = function () {
+	        var _this = this;
+	        if (this.bulletTimer <= 0 && this.bulletCount < MAX_BULLETS) {
+	            sounds_1.fire.play();
+	            this.bulletTimer = BULLET_TIME;
+	            this.bulletCount++;
+	            var v = new vector_1.Vector(this.angle);
+	            var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
+	            bullet.life = 1;
+	            bullet.on('expired', function () {
+	                _this.bulletCount--;
+	            });
+	            bullet.origin.x += bullet.vx * 20;
+	            bullet.origin.y += bullet.vy * 20;
+	            var speed = 0;
+	            var dot = (this.vx * bullet.vx) + (this.vy * bullet.vy);
+	            if (dot > 0) {
+	                speed = this.magnitude;
+	            }
+	            speed = Math.max(BULLET_SPEED, speed + BULLET_SPEED);
+	            bullet.vx *= speed;
+	            bullet.vy *= speed;
+	            this.trigger('fire', bullet);
+	        }
+	    };
+	    return Ship;
+	}(object2d_1.Object2D));
+	exports.Ship = Ship;
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var LEN = 222;
+	var _Key = (function () {
+	    function _Key() {
+	        var _this = this;
+	        this.SPACE = 32;
+	        this.LEFT = 37;
+	        this.UP = 38;
+	        this.RIGHT = 39;
+	        this.SHIFT = 16;
+	        this.CTRL = 17;
+	        this.ONE = 49;
+	        this.DEBUG = 68;
+	        this.PAUSE = 80;
+	        this.keys = new Array(LEN);
+	        this.prev = new Array(LEN);
+	        for (var i = 0; i < LEN; i++) {
+	            this.keys[i] = this.prev[i] = false;
+	        }
+	        window.onkeydown = function (event) {
+	            _this.keys[event.keyCode] = true;
+	        };
+	        window.onkeyup = function (event) {
+	            _this.keys[event.keyCode] = false;
+	        };
+	    }
+	    _Key.prototype.update = function () {
+	        for (var i = 0; i < LEN; i++) {
+	            this.prev[i] = this.keys[i];
+	        }
+	    };
+	    _Key.prototype.isPressed = function (key) {
+	        return this.prev[key] === false && this.keys[key] === true;
+	    };
+	    _Key.prototype.wasPressed = function (key) {
+	        return this.prev[key] && !this.keys[key];
+	    };
+	    _Key.prototype.isDown = function (key) {
+	        return this.keys[key];
+	    };
+	    return _Key;
+	}());
+	exports._Key = _Key;
+	exports.Key = new _Key();
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var screen_1 = __webpack_require__(4);
+	var events_1 = __webpack_require__(9);
+	var lut_1 = __webpack_require__(10);
+	var Object2D = (function (_super) {
+	    __extends(Object2D, _super);
+	    function Object2D(x, y) {
+	        var _this = _super.call(this) || this;
+	        _this.color = 'rgba(255,255,255,.9)';
+	        _this.angle = 360;
+	        _this.vx = 0;
+	        _this.vy = 0;
+	        _this._xmin = 0;
+	        _this._xmax = 0;
+	        _this._ymin = 0;
+	        _this._ymax = 0;
+	        _this._width = 0;
+	        _this._height = 0;
+	        _this.origin = { x: x, y: y };
+	        return _this;
+	    }
+	    Object.defineProperty(Object2D.prototype, "points", {
+	        get: function () {
+	            return this._points;
+	        },
+	        set: function (points) {
+	            this._points = points;
+	            this.calcBounds();
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object2D.prototype.calcBounds = function () {
+	        var _this = this;
+	        this._points.forEach(function (p) {
+	            if (p.x < _this._xmin)
+	                _this._xmin = p.x;
+	            if (p.x > _this._xmax)
+	                _this._xmax = p.x;
+	            if (p.y < _this._ymin)
+	                _this._ymin = p.y;
+	            if (p.y > _this._ymax)
+	                _this._ymax = p.y;
+	        });
+	        this._width = this._xmax - this._xmin;
+	        this._height = this._ymax - this._ymin;
+	    };
+	    Object2D.prototype.rotate = function (angle) {
+	        this.angle += angle;
+	        if (this.angle < 1) {
+	            this.angle += 360;
+	        }
+	        if (this.angle > 360) {
+	            this.angle -= 360;
+	        }
+	        var c = lut_1.COS[angle];
+	        var s = lut_1.SIN[angle];
+	        this.points.forEach(function (p) {
+	            var newX = (c * p.x) - (s * p.y);
+	            var newY = (s * p.x) + (c * p.y);
+	            p.x = newX;
+	            p.y = newY;
+	        });
+	        this.calcBounds();
+	    };
+	    Object2D.prototype.move = function (dt) {
+	        dt = dt ? dt : 1;
+	        this.origin.x += this.vx * dt;
+	        this.origin.y += this.vy * dt;
+	        if (this.origin.x > screen_1.default.width) {
+	            this.origin.x -= screen_1.default.width;
+	        }
+	        if (this.origin.x < 0) {
+	            this.origin.x += screen_1.default.width;
+	        }
+	        if (this.origin.y > screen_1.default.height) {
+	            this.origin.y -= screen_1.default.height;
+	        }
+	        if (this.origin.y < 0) {
+	            this.origin.y += screen_1.default.height;
+	        }
+	    };
+	    Object2D.prototype.scale = function (factor) {
+	        this.points.forEach(function (point) {
+	            point.x *= factor;
+	            point.y *= factor;
+	        });
+	        this.calcBounds();
+	    };
+	    Object2D.prototype.draw = function () {
+	        screen_1.default.draw.shape(this.points, this.origin.x, this.origin.y, this.color);
+	    };
+	    Object.defineProperty(Object2D.prototype, "magnitude", {
+	        get: function () {
+	            return Math.sqrt((this.vx * this.vx) + (this.vy * this.vy));
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(Object2D.prototype, "x", {
+	        get: function () {
+	            return this.origin.x + this._xmin;
+	        },
+	        set: function (x) {
+	            this.origin.x = x;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(Object2D.prototype, "y", {
+	        get: function () {
+	            return this.origin.y + this._ymin;
+	        },
+	        set: function (y) {
+	            this.origin.y = y;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(Object2D.prototype, "width", {
+	        get: function () {
+	            return this._width;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(Object2D.prototype, "height", {
+	        get: function () {
+	            return this._height;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object.defineProperty(Object2D.prototype, "vertices", {
+	        get: function () {
+	            var _this = this;
+	            return this.points.map(function (p) {
+	                return {
+	                    x: _this.origin.x + p.x,
+	                    y: _this.origin.y + p.y
+	                };
+	            });
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Object2D.prototype.collided = function (rect2) {
+	        if (rect2 && this.x < rect2.x + rect2.width &&
+	            this.x + this.width > rect2.x &&
+	            this.y < rect2.y + rect2.height &&
+	            this.height + this.y > rect2.y) {
+	            return true;
+	        }
+	        return false;
+	    };
+	    Object2D.prototype.destroy = function () {
+	        for (var event_1 in this.handlers) {
+	            this.handlers[event_1] = null;
+	        }
+	        this.handlers = {};
+	    };
+	    return Object2D;
+	}(events_1.EventSource));
+	exports.Object2D = Object2D;
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var EventSource = (function () {
+	    function EventSource() {
+	        this.handlers = {};
+	    }
+	    EventSource.prototype.on = function (event, handler) {
+	        if (!this.handlers[event]) {
+	            this.handlers[event] = [];
+	        }
+	        this.handlers[event].push(handler);
+	    };
+	    EventSource.prototype.off = function (event, handler) {
+	        this.handlers[event] = this.handlers[event].filter(function (x) { return x !== handler; });
+	    };
+	    EventSource.prototype.trigger = function (event) {
+	        var _this = this;
+	        var args = [];
+	        for (var _i = 1; _i < arguments.length; _i++) {
+	            args[_i - 1] = arguments[_i];
+	        }
+	        var handlers = this.handlers[event] || [];
+	        handlers.forEach(function (x) { return x.apply(void 0, [_this].concat(args)); });
+	    };
+	    return EventSource;
+	}());
+	exports.EventSource = EventSource;
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var RAD = {};
+	exports.RAD = RAD;
+	var COS = {};
+	exports.COS = COS;
+	var SIN = {};
+	exports.SIN = SIN;
+	var r = Math.PI / 180;
+	for (var i = 0; i <= 360; i++) {
+	    RAD[i] = i * r;
+	    COS[i] = Math.cos(RAD[i]);
+	    SIN[i] = Math.sin(RAD[i]);
+	    RAD[-i] = -i * r;
+	    COS[-i] = Math.cos(RAD[-i]);
+	    SIN[-i] = Math.sin(RAD[-i]);
+	}
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var VECTOR = {};
+	var PI2 = 2 * Math.PI;
+	for (var i = 0; i <= 360; i++) {
+	    var t = PI2 * (i / 360);
+	    VECTOR[i] = {
+	        x: Math.cos(t),
+	        y: Math.sin(t)
+	    };
+	}
+	var Vector = (function () {
+	    function Vector(angleInDegrees, velocity) {
+	        if (velocity === void 0) { velocity = 1; }
+	        this.x = VECTOR[angleInDegrees].x * velocity;
+	        this.y = VECTOR[angleInDegrees].y * velocity;
+	    }
+	    Vector.fromXY = function (p1, p2, velocity) {
+	        if (velocity === void 0) { velocity = 1; }
+	        var x = p1.x - p2.x;
+	        var y = p1.y - p2.y;
+	        var hyp = Math.sqrt(x * x + y * y);
+	        x /= hyp;
+	        y /= hyp;
+	        var v = new Vector(0);
+	        v.x = x * velocity;
+	        v.y = y * velocity;
+	        return v;
+	    };
+	    return Vector;
+	}());
+	exports.Vector = Vector;
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var screen_1 = __webpack_require__(4);
+	var object2d_1 = __webpack_require__(8);
+	var Bullet = (function (_super) {
+	    __extends(Bullet, _super);
+	    function Bullet(x, y, v) {
+	        var _this = _super.call(this, x, y) || this;
+	        _this.life = 1.25;
+	        _this.vx = v.x;
+	        _this.vy = v.y;
+	        return _this;
+	    }
+	    Bullet.prototype.render = function () {
+	        this.draw();
+	    };
+	    Bullet.prototype.update = function (dt) {
+	        this.move(dt);
+	        this.life -= dt;
+	        if (this.life <= 0) {
+	            this.trigger('expired');
+	            this.destroy();
+	        }
+	    };
+	    Bullet.prototype.draw = function () {
+	        screen_1.default.draw.point({ x: this.origin.x, y: this.origin.y });
+	    };
+	    Bullet.prototype.destroy = function () {
+	        this.life = 0;
+	        this.trigger('expire');
+	    };
+	    Object.defineProperty(Bullet.prototype, "vertices", {
+	        get: function () {
+	            return [this.origin];
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    return Bullet;
+	}(object2d_1.Object2D));
+	exports.Bullet = Bullet;
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var howler_1 = __webpack_require__(14);
+	var VOLUME = .5;
+	var soundOn = true;
+	exports.all = [];
+	function createSound(options) {
+	    var sound = new howler_1.Howl(options);
+	    var play = sound.play.bind(sound);
+	    sound.play = function () {
+	        if (soundOn) {
+	            play();
+	        }
+	    };
+	    sound._origVolume = options.volume;
+	    exports.all.push(sound);
+	    return sound;
+	}
+	exports.fire = createSound({
+	    src: ['./assets/fire.wav'],
+	    volume: VOLUME
+	});
+	exports.thrust = createSound({
+	    src: ['./assets/thrust.wav'],
+	    volume: 0.4
+	});
+	exports.alienFire = createSound({
+	    src: ['./assets/sfire.wav'],
+	    volume: VOLUME
+	});
+	exports.largeExplosion = createSound({
+	    src: ['./assets/explode1.wav'],
+	    volume: VOLUME
+	});
+	exports.mediumExplosion = createSound({
+	    src: ['./assets/explode2.wav'],
+	    volume: VOLUME
+	});
+	exports.smallExplosion = createSound({
+	    src: ['./assets/explode3.wav'],
+	    volume: VOLUME
+	});
+	exports.largeAlien = createSound({
+	    src: ['./assets/lsaucer.wav'],
+	    volume: VOLUME,
+	    loop: true
+	});
+	exports.smallAlien = createSound({
+	    src: ['./assets/ssaucer.wav'],
+	    volume: VOLUME,
+	    loop: true
+	});
+	exports.thumpLo = createSound({
+	    src: ['./assets/thumplo.wav'],
+	    volume: 1
+	});
+	exports.thumpHi = createSound({
+	    src: ['./assets/thumphi.wav'],
+	    volume: 1
+	});
+	exports.extraLife = createSound({
+	    src: ['./assets/life.wav'],
+	    volume: .5
+	});
+	exports.Sound = {
+	    on: function () {
+	        soundOn = true;
+	        exports.all.forEach(function (sound) { return sound.volume(sound._origVolume); });
+	    },
+	    off: function () {
+	        soundOn = false;
+	        exports.all.forEach(function (sound) { return sound.volume(0); });
+	    }
+	};
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(global) {/*!
+	 *  howler.js v2.0.2
+	 *  howlerjs.com
+	 *
+	 *  (c) 2013-2016, James Simpson of GoldFire Studios
+	 *  goldfirestudios.com
+	 *
+	 *  MIT License
+	 */
+
+	(function() {
+
+	  'use strict';
+
+	  /** Global Methods **/
+	  /***************************************************************************/
+
+	  /**
+	   * Create the global controller. All contained methods and properties apply
+	   * to all sounds that are currently playing or will be in the future.
+	   */
+	  var HowlerGlobal = function() {
+	    this.init();
+	  };
+	  HowlerGlobal.prototype = {
+	    /**
+	     * Initialize the global Howler object.
+	     * @return {Howler}
+	     */
+	    init: function() {
+	      var self = this || Howler;
+
+	      // Internal properties.
+	      self._codecs = {};
+	      self._howls = [];
+	      self._muted = false;
+	      self._volume = 1;
+	      self._canPlayEvent = 'canplaythrough';
+	      self._navigator = (typeof window !== 'undefined' && window.navigator) ? window.navigator : null;
+
+	      // Public properties.
+	      self.masterGain = null;
+	      self.noAudio = false;
+	      self.usingWebAudio = true;
+	      self.autoSuspend = true;
+	      self.ctx = null;
+
+	      // Set to false to disable the auto iOS enabler.
+	      self.mobileAutoEnable = true;
+
+	      // Setup the various state values for global tracking.
+	      self._setup();
+
+	      return self;
+	    },
+
+	    /**
+	     * Get/set the global volume for all sounds.
+	     * @param  {Float} vol Volume from 0.0 to 1.0.
+	     * @return {Howler/Float}     Returns self or current volume.
+	     */
+	    volume: function(vol) {
+	      var self = this || Howler;
+	      vol = parseFloat(vol);
+
+	      // If we don't have an AudioContext created yet, run the setup.
+	      if (!self.ctx) {
+	        setupAudioContext();
+	      }
+
+	      if (typeof vol !== 'undefined' && vol >= 0 && vol <= 1) {
+	        self._volume = vol;
+
+	        // Don't update any of the nodes if we are muted.
+	        if (self._muted) {
+	          return self;
+	        }
+
+	        // When using Web Audio, we just need to adjust the master gain.
+	        if (self.usingWebAudio) {
+	          self.masterGain.gain.value = vol;
+	        }
+
+	        // Loop through and change volume for all HTML5 audio nodes.
+	        for (var i=0; i<self._howls.length; i++) {
+	          if (!self._howls[i]._webAudio) {
+	            // Get all of the sounds in this Howl group.
+	            var ids = self._howls[i]._getSoundIds();
+
+	            // Loop through all sounds and change the volumes.
+	            for (var j=0; j<ids.length; j++) {
+	              var sound = self._howls[i]._soundById(ids[j]);
+
+	              if (sound && sound._node) {
+	                sound._node.volume = sound._volume * vol;
+	              }
+	            }
+	          }
+	        }
+
+	        return self;
+	      }
+
+	      return self._volume;
+	    },
+
+	    /**
+	     * Handle muting and unmuting globally.
+	     * @param  {Boolean} muted Is muted or not.
+	     */
+	    mute: function(muted) {
+	      var self = this || Howler;
+
+	      // If we don't have an AudioContext created yet, run the setup.
+	      if (!self.ctx) {
+	        setupAudioContext();
+	      }
+
+	      self._muted = muted;
+
+	      // With Web Audio, we just need to mute the master gain.
+	      if (self.usingWebAudio) {
+	        self.masterGain.gain.value = muted ? 0 : self._volume;
+	      }
+
+	      // Loop through and mute all HTML5 Audio nodes.
+	      for (var i=0; i<self._howls.length; i++) {
+	        if (!self._howls[i]._webAudio) {
+	          // Get all of the sounds in this Howl group.
+	          var ids = self._howls[i]._getSoundIds();
+
+	          // Loop through all sounds and mark the audio node as muted.
+	          for (var j=0; j<ids.length; j++) {
+	            var sound = self._howls[i]._soundById(ids[j]);
+
+	            if (sound && sound._node) {
+	              sound._node.muted = (muted) ? true : sound._muted;
+	            }
+	          }
+	        }
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Unload and destroy all currently loaded Howl objects.
+	     * @return {Howler}
+	     */
+	    unload: function() {
+	      var self = this || Howler;
+
+	      for (var i=self._howls.length-1; i>=0; i--) {
+	        self._howls[i].unload();
+	      }
+
+	      // Create a new AudioContext to make sure it is fully reset.
+	      if (self.usingWebAudio && self.ctx && typeof self.ctx.close !== 'undefined') {
+	        self.ctx.close();
+	        self.ctx = null;
+	        setupAudioContext();
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Check for codec support of specific extension.
+	     * @param  {String} ext Audio file extention.
+	     * @return {Boolean}
+	     */
+	    codecs: function(ext) {
+	      return (this || Howler)._codecs[ext.replace(/^x-/, '')];
+	    },
+
+	    /**
+	     * Setup various state values for global tracking.
+	     * @return {Howler}
+	     */
+	    _setup: function() {
+	      var self = this || Howler;
+
+	      // Keeps track of the suspend/resume state of the AudioContext.
+	      self.state = self.ctx ? self.ctx.state || 'running' : 'running';
+
+	      // Automatically begin the 30-second suspend process
+	      self._autoSuspend();
+
+	      // Check if audio is available.
+	      if (!self.usingWebAudio) {
+	        // No audio is available on this system if noAudio is set to true.
+	        if (typeof Audio !== 'undefined') {
+	          try {
+	            var test = new Audio();
+
+	            // Check if the canplaythrough event is available.
+	            if (typeof test.oncanplaythrough === 'undefined') {
+	              self._canPlayEvent = 'canplay';
+	            }
+	          } catch(e) {
+	            self.noAudio = true;
+	          }
+	        } else {
+	          self.noAudio = true;
+	        }
+	      }
+
+	      // Test to make sure audio isn't disabled in Internet Explorer.
+	      try {
+	        var test = new Audio();
+	        if (test.muted) {
+	          self.noAudio = true;
+	        }
+	      } catch (e) {}
+
+	      // Check for supported codecs.
+	      if (!self.noAudio) {
+	        self._setupCodecs();
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Check for browser support for various codecs and cache the results.
+	     * @return {Howler}
+	     */
+	    _setupCodecs: function() {
+	      var self = this || Howler;
+	      var audioTest = null;
+
+	      // Must wrap in a try/catch because IE11 in server mode throws an error.
+	      try {
+	        audioTest = (typeof Audio !== 'undefined') ? new Audio() : null;
+	      } catch (err) {
+	        return self;
+	      }
+
+	      if (!audioTest || typeof audioTest.canPlayType !== 'function') {
+	        return self;
+	      }
+
+	      var mpegTest = audioTest.canPlayType('audio/mpeg;').replace(/^no$/, '');
+
+	      // Opera version <33 has mixed MP3 support, so we need to check for and block it.
+	      var checkOpera = self._navigator && self._navigator.userAgent.match(/OPR\/([0-6].)/g);
+	      var isOldOpera = (checkOpera && parseInt(checkOpera[0].split('/')[1], 10) < 33);
+
+	      self._codecs = {
+	        mp3: !!(!isOldOpera && (mpegTest || audioTest.canPlayType('audio/mp3;').replace(/^no$/, ''))),
+	        mpeg: !!mpegTest,
+	        opus: !!audioTest.canPlayType('audio/ogg; codecs="opus"').replace(/^no$/, ''),
+	        ogg: !!audioTest.canPlayType('audio/ogg; codecs="vorbis"').replace(/^no$/, ''),
+	        oga: !!audioTest.canPlayType('audio/ogg; codecs="vorbis"').replace(/^no$/, ''),
+	        wav: !!audioTest.canPlayType('audio/wav; codecs="1"').replace(/^no$/, ''),
+	        aac: !!audioTest.canPlayType('audio/aac;').replace(/^no$/, ''),
+	        caf: !!audioTest.canPlayType('audio/x-caf;').replace(/^no$/, ''),
+	        m4a: !!(audioTest.canPlayType('audio/x-m4a;') || audioTest.canPlayType('audio/m4a;') || audioTest.canPlayType('audio/aac;')).replace(/^no$/, ''),
+	        mp4: !!(audioTest.canPlayType('audio/x-mp4;') || audioTest.canPlayType('audio/mp4;') || audioTest.canPlayType('audio/aac;')).replace(/^no$/, ''),
+	        weba: !!audioTest.canPlayType('audio/webm; codecs="vorbis"').replace(/^no$/, ''),
+	        webm: !!audioTest.canPlayType('audio/webm; codecs="vorbis"').replace(/^no$/, ''),
+	        dolby: !!audioTest.canPlayType('audio/mp4; codecs="ec-3"').replace(/^no$/, ''),
+	        flac: !!(audioTest.canPlayType('audio/x-flac;') || audioTest.canPlayType('audio/flac;')).replace(/^no$/, '')
+	      };
+
+	      return self;
+	    },
+
+	    /**
+	     * Mobile browsers will only allow audio to be played after a user interaction.
+	     * Attempt to automatically unlock audio on the first user interaction.
+	     * Concept from: http://paulbakaus.com/tutorials/html5/web-audio-on-ios/
+	     * @return {Howler}
+	     */
+	    _enableMobileAudio: function() {
+	      var self = this || Howler;
+
+	      // Only run this on mobile devices if audio isn't already eanbled.
+	      var isMobile = /iPhone|iPad|iPod|Android|BlackBerry|BB10|Silk|Mobi/i.test(self._navigator && self._navigator.userAgent);
+	      var isTouch = !!(('ontouchend' in window) || (self._navigator && self._navigator.maxTouchPoints > 0) || (self._navigator && self._navigator.msMaxTouchPoints > 0));
+	      if (self._mobileEnabled || !self.ctx || (!isMobile && !isTouch)) {
+	        return;
+	      }
+
+	      self._mobileEnabled = false;
+
+	      // Some mobile devices/platforms have distortion issues when opening/closing tabs and/or web views.
+	      // Bugs in the browser (especially Mobile Safari) can cause the sampleRate to change from 44100 to 48000.
+	      // By calling Howler.unload(), we create a new AudioContext with the correct sampleRate.
+	      if (!self._mobileUnloaded && self.ctx.sampleRate !== 44100) {
+	        self._mobileUnloaded = true;
+	        self.unload();
+	      }
+
+	      // Scratch buffer for enabling iOS to dispose of web audio buffers correctly, as per:
+	      // http://stackoverflow.com/questions/24119684
+	      self._scratchBuffer = self.ctx.createBuffer(1, 1, 22050);
+
+	      // Call this method on touch start to create and play a buffer,
+	      // then check if the audio actually played to determine if
+	      // audio has now been unlocked on iOS, Android, etc.
+	      var unlock = function() {
+	        // Create an empty buffer.
+	        var source = self.ctx.createBufferSource();
+	        source.buffer = self._scratchBuffer;
+	        source.connect(self.ctx.destination);
+
+	        // Play the empty buffer.
+	        if (typeof source.start === 'undefined') {
+	          source.noteOn(0);
+	        } else {
+	          source.start(0);
+	        }
+
+	        // Setup a timeout to check that we are unlocked on the next event loop.
+	        source.onended = function() {
+	          source.disconnect(0);
+
+	          // Update the unlocked state and prevent this check from happening again.
+	          self._mobileEnabled = true;
+	          self.mobileAutoEnable = false;
+
+	          // Remove the touch start listener.
+	          document.removeEventListener('touchend', unlock, true);
+	        };
+	      };
+
+	      // Setup a touch start listener to attempt an unlock in.
+	      document.addEventListener('touchend', unlock, true);
+
+	      return self;
+	    },
+
+	    /**
+	     * Automatically suspend the Web Audio AudioContext after no sound has played for 30 seconds.
+	     * This saves processing/energy and fixes various browser-specific bugs with audio getting stuck.
+	     * @return {Howler}
+	     */
+	    _autoSuspend: function() {
+	      var self = this;
+
+	      if (!self.autoSuspend || !self.ctx || typeof self.ctx.suspend === 'undefined' || !Howler.usingWebAudio) {
+	        return;
+	      }
+
+	      // Check if any sounds are playing.
+	      for (var i=0; i<self._howls.length; i++) {
+	        if (self._howls[i]._webAudio) {
+	          for (var j=0; j<self._howls[i]._sounds.length; j++) {
+	            if (!self._howls[i]._sounds[j]._paused) {
+	              return self;
+	            }
+	          }
+	        }
+	      }
+
+	      if (self._suspendTimer) {
+	        clearTimeout(self._suspendTimer);
+	      }
+
+	      // If no sound has played after 30 seconds, suspend the context.
+	      self._suspendTimer = setTimeout(function() {
+	        if (!self.autoSuspend) {
+	          return;
+	        }
+
+	        self._suspendTimer = null;
+	        self.state = 'suspending';
+	        self.ctx.suspend().then(function() {
+	          self.state = 'suspended';
+
+	          if (self._resumeAfterSuspend) {
+	            delete self._resumeAfterSuspend;
+	            self._autoResume();
+	          }
+	        });
+	      }, 30000);
+
+	      return self;
+	    },
+
+	    /**
+	     * Automatically resume the Web Audio AudioContext when a new sound is played.
+	     * @return {Howler}
+	     */
+	    _autoResume: function() {
+	      var self = this;
+
+	      if (!self.ctx || typeof self.ctx.resume === 'undefined' || !Howler.usingWebAudio) {
+	        return;
+	      }
+
+	      if (self.state === 'running' && self._suspendTimer) {
+	        clearTimeout(self._suspendTimer);
+	        self._suspendTimer = null;
+	      } else if (self.state === 'suspended') {
+	        self.state = 'resuming';
+	        self.ctx.resume().then(function() {
+	          self.state = 'running';
+
+	          // Emit to all Howls that the audio has resumed.
+	          for (var i=0; i<self._howls.length; i++) {
+	            self._howls[i]._emit('resume');
+	          }
+	        });
+
+	        if (self._suspendTimer) {
+	          clearTimeout(self._suspendTimer);
+	          self._suspendTimer = null;
+	        }
+	      } else if (self.state === 'suspending') {
+	        self._resumeAfterSuspend = true;
+	      }
+
+	      return self;
+	    }
+	  };
+
+	  // Setup the global audio controller.
+	  var Howler = new HowlerGlobal();
+
+	  /** Group Methods **/
+	  /***************************************************************************/
+
+	  /**
+	   * Create an audio group controller.
+	   * @param {Object} o Passed in properties for this group.
+	   */
+	  var Howl = function(o) {
+	    var self = this;
+
+	    // Throw an error if no source is provided.
+	    if (!o.src || o.src.length === 0) {
+	      console.error('An array of source files must be passed with any new Howl.');
+	      return;
+	    }
+
+	    self.init(o);
+	  };
+	  Howl.prototype = {
+	    /**
+	     * Initialize a new Howl group object.
+	     * @param  {Object} o Passed in properties for this group.
+	     * @return {Howl}
+	     */
+	    init: function(o) {
+	      var self = this;
+
+	      // If we don't have an AudioContext created yet, run the setup.
+	      if (!Howler.ctx) {
+	        setupAudioContext();
+	      }
+
+	      // Setup user-defined default properties.
+	      self._autoplay = o.autoplay || false;
+	      self._format = (typeof o.format !== 'string') ? o.format : [o.format];
+	      self._html5 = o.html5 || false;
+	      self._muted = o.mute || false;
+	      self._loop = o.loop || false;
+	      self._pool = o.pool || 5;
+	      self._preload = (typeof o.preload === 'boolean') ? o.preload : true;
+	      self._rate = o.rate || 1;
+	      self._sprite = o.sprite || {};
+	      self._src = (typeof o.src !== 'string') ? o.src : [o.src];
+	      self._volume = o.volume !== undefined ? o.volume : 1;
+
+	      // Setup all other default properties.
+	      self._duration = 0;
+	      self._state = 'unloaded';
+	      self._sounds = [];
+	      self._endTimers = {};
+	      self._queue = [];
+
+	      // Setup event listeners.
+	      self._onend = o.onend ? [{fn: o.onend}] : [];
+	      self._onfade = o.onfade ? [{fn: o.onfade}] : [];
+	      self._onload = o.onload ? [{fn: o.onload}] : [];
+	      self._onloaderror = o.onloaderror ? [{fn: o.onloaderror}] : [];
+	      self._onpause = o.onpause ? [{fn: o.onpause}] : [];
+	      self._onplay = o.onplay ? [{fn: o.onplay}] : [];
+	      self._onstop = o.onstop ? [{fn: o.onstop}] : [];
+	      self._onmute = o.onmute ? [{fn: o.onmute}] : [];
+	      self._onvolume = o.onvolume ? [{fn: o.onvolume}] : [];
+	      self._onrate = o.onrate ? [{fn: o.onrate}] : [];
+	      self._onseek = o.onseek ? [{fn: o.onseek}] : [];
+	      self._onresume = [];
+
+	      // Web Audio or HTML5 Audio?
+	      self._webAudio = Howler.usingWebAudio && !self._html5;
+
+	      // Automatically try to enable audio on iOS.
+	      if (typeof Howler.ctx !== 'undefined' && Howler.ctx && Howler.mobileAutoEnable) {
+	        Howler._enableMobileAudio();
+	      }
+
+	      // Keep track of this Howl group in the global controller.
+	      Howler._howls.push(self);
+
+	      // If they selected autoplay, add a play event to the load queue.
+	      if (self._autoplay) {
+	        self._queue.push({
+	          event: 'play',
+	          action: function() {
+	            self.play();
+	          }
+	        });
+	      }
+
+	      // Load the source file unless otherwise specified.
+	      if (self._preload) {
+	        self.load();
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Load the audio file.
+	     * @return {Howler}
+	     */
+	    load: function() {
+	      var self = this;
+	      var url = null;
+
+	      // If no audio is available, quit immediately.
+	      if (Howler.noAudio) {
+	        self._emit('loaderror', null, 'No audio support.');
+	        return;
+	      }
+
+	      // Make sure our source is in an array.
+	      if (typeof self._src === 'string') {
+	        self._src = [self._src];
+	      }
+
+	      // Loop through the sources and pick the first one that is compatible.
+	      for (var i=0; i<self._src.length; i++) {
+	        var ext, str;
+
+	        if (self._format && self._format[i]) {
+	          // If an extension was specified, use that instead.
+	          ext = self._format[i];
+	        } else {
+	          // Make sure the source is a string.
+	          str = self._src[i];
+	          if (typeof str !== 'string') {
+	            self._emit('loaderror', null, 'Non-string found in selected audio sources - ignoring.');
+	            continue;
+	          }
+
+	          // Extract the file extension from the URL or base64 data URI.
+	          ext = /^data:audio\/([^;,]+);/i.exec(str);
+	          if (!ext) {
+	            ext = /\.([^.]+)$/.exec(str.split('?', 1)[0]);
+	          }
+
+	          if (ext) {
+	            ext = ext[1].toLowerCase();
+	          }
+	        }
+
+	        // Check if this extension is available.
+	        if (Howler.codecs(ext)) {
+	          url = self._src[i];
+	          break;
+	        }
+	      }
+
+	      if (!url) {
+	        self._emit('loaderror', null, 'No codec support for selected audio sources.');
+	        return;
+	      }
+
+	      self._src = url;
+	      self._state = 'loading';
+
+	      // If the hosting page is HTTPS and the source isn't,
+	      // drop down to HTML5 Audio to avoid Mixed Content errors.
+	      if (window.location.protocol === 'https:' && url.slice(0, 5) === 'http:') {
+	        self._html5 = true;
+	        self._webAudio = false;
+	      }
+
+	      // Create a new sound object and add it to the pool.
+	      new Sound(self);
+
+	      // Load and decode the audio data for playback.
+	      if (self._webAudio) {
+	        loadBuffer(self);
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Play a sound or resume previous playback.
+	     * @param  {String/Number} sprite   Sprite name for sprite playback or sound id to continue previous.
+	     * @param  {Boolean} internal Internal Use: true prevents event firing.
+	     * @return {Number}          Sound ID.
+	     */
+	    play: function(sprite, internal) {
+	      var self = this;
+	      var id = null;
+
+	      // Determine if a sprite, sound id or nothing was passed
+	      if (typeof sprite === 'number') {
+	        id = sprite;
+	        sprite = null;
+	      } else if (typeof sprite === 'string' && self._state === 'loaded' && !self._sprite[sprite]) {
+	        // If the passed sprite doesn't exist, do nothing.
+	        return null;
+	      } else if (typeof sprite === 'undefined') {
+	        // Use the default sound sprite (plays the full audio length).
+	        sprite = '__default';
+
+	        // Check if there is a single paused sound that isn't ended.
+	        // If there is, play that sound. If not, continue as usual.
+	        var num = 0;
+	        for (var i=0; i<self._sounds.length; i++) {
+	          if (self._sounds[i]._paused && !self._sounds[i]._ended) {
+	            num++;
+	            id = self._sounds[i]._id;
+	          }
+	        }
+
+	        if (num === 1) {
+	          sprite = null;
+	        } else {
+	          id = null;
+	        }
+	      }
+
+	      // Get the selected node, or get one from the pool.
+	      var sound = id ? self._soundById(id) : self._inactiveSound();
+
+	      // If the sound doesn't exist, do nothing.
+	      if (!sound) {
+	        return null;
+	      }
+
+	      // Select the sprite definition.
+	      if (id && !sprite) {
+	        sprite = sound._sprite || '__default';
+	      }
+
+	      // If we have no sprite and the sound hasn't loaded, we must wait
+	      // for the sound to load to get our audio's duration.
+	      if (self._state !== 'loaded' && !self._sprite[sprite]) {
+	        self._queue.push({
+	          event: 'play',
+	          action: function() {
+	            self.play(self._soundById(sound._id) ? sound._id : undefined);
+	          }
+	        });
+
+	        return sound._id;
+	      }
+
+	      // Don't play the sound if an id was passed and it is already playing.
+	      if (id && !sound._paused) {
+	        // Trigger the play event, in order to keep iterating through queue.
+	        if (!internal) {
+	          setTimeout(function() {
+	            self._emit('play', sound._id);
+	          }, 0);
+	        }
+
+	        return sound._id;
+	      }
+
+	      // Make sure the AudioContext isn't suspended, and resume it if it is.
+	      if (self._webAudio) {
+	        Howler._autoResume();
+	      }
+
+	      // Determine how long to play for and where to start playing.
+	      var seek = Math.max(0, sound._seek > 0 ? sound._seek : self._sprite[sprite][0] / 1000);
+	      var duration = Math.max(0, ((self._sprite[sprite][0] + self._sprite[sprite][1]) / 1000) - seek);
+	      var timeout = (duration * 1000) / Math.abs(sound._rate);
+
+	      // Update the parameters of the sound
+	      sound._paused = false;
+	      sound._ended = false;
+	      sound._sprite = sprite;
+	      sound._seek = seek;
+	      sound._start = self._sprite[sprite][0] / 1000;
+	      sound._stop = (self._sprite[sprite][0] + self._sprite[sprite][1]) / 1000;
+	      sound._loop = !!(sound._loop || self._sprite[sprite][2]);
+
+	      // Begin the actual playback.
+	      var node = sound._node;
+	      if (self._webAudio) {
+	        // Fire this when the sound is ready to play to begin Web Audio playback.
+	        var playWebAudio = function() {
+	          self._refreshBuffer(sound);
+
+	          // Setup the playback params.
+	          var vol = (sound._muted || self._muted) ? 0 : sound._volume;
+	          node.gain.setValueAtTime(vol, Howler.ctx.currentTime);
+	          sound._playStart = Howler.ctx.currentTime;
+
+	          // Play the sound using the supported method.
+	          if (typeof node.bufferSource.start === 'undefined') {
+	            sound._loop ? node.bufferSource.noteGrainOn(0, seek, 86400) : node.bufferSource.noteGrainOn(0, seek, duration);
+	          } else {
+	            sound._loop ? node.bufferSource.start(0, seek, 86400) : node.bufferSource.start(0, seek, duration);
+	          }
+
+	          // Start a new timer if none is present.
+	          if (timeout !== Infinity) {
+	            self._endTimers[sound._id] = setTimeout(self._ended.bind(self, sound), timeout);
+	          }
+
+	          if (!internal) {
+	            setTimeout(function() {
+	              self._emit('play', sound._id);
+	            }, 0);
+	          }
+	        };
+
+	        var isRunning = (Howler.state === 'running');
+	        if (self._state === 'loaded' && isRunning) {
+	          playWebAudio();
+	        } else {
+	          // Wait for the audio to load and then begin playback.
+	          self.once(isRunning ? 'load' : 'resume', playWebAudio, isRunning ? sound._id : null);
+
+	          // Cancel the end timer.
+	          self._clearTimer(sound._id);
+	        }
+	      } else {
+	        // Fire this when the sound is ready to play to begin HTML5 Audio playback.
+	        var playHtml5 = function() {
+	          node.currentTime = seek;
+	          node.muted = sound._muted || self._muted || Howler._muted || node.muted;
+	          node.volume = sound._volume * Howler.volume();
+	          node.playbackRate = sound._rate;
+
+	          setTimeout(function() {
+	            node.play();
+
+	            // Setup the new end timer.
+	            if (timeout !== Infinity) {
+	              self._endTimers[sound._id] = setTimeout(self._ended.bind(self, sound), timeout);
+	            }
+
+	            if (!internal) {
+	              self._emit('play', sound._id);
+	            }
+	          }, 0);
+	        };
+
+	        // Play immediately if ready, or wait for the 'canplaythrough'e vent.
+	        var loadedNoReadyState = (self._state === 'loaded' && (window && window.ejecta || !node.readyState && Howler._navigator.isCocoonJS));
+	        if (node.readyState === 4 || loadedNoReadyState) {
+	          playHtml5();
+	        } else {
+	          var listener = function() {
+	            // Begin playback.
+	            playHtml5();
+
+	            // Clear this listener.
+	            node.removeEventListener(Howler._canPlayEvent, listener, false);
+	          };
+	          node.addEventListener(Howler._canPlayEvent, listener, false);
+
+	          // Cancel the end timer.
+	          self._clearTimer(sound._id);
+	        }
+	      }
+
+	      return sound._id;
+	    },
+
+	    /**
+	     * Pause playback and save current position.
+	     * @param  {Number} id The sound ID (empty to pause all in group).
+	     * @return {Howl}
+	     */
+	    pause: function(id) {
+	      var self = this;
+
+	      // If the sound hasn't loaded, add it to the load queue to pause when capable.
+	      if (self._state !== 'loaded') {
+	        self._queue.push({
+	          event: 'pause',
+	          action: function() {
+	            self.pause(id);
+	          }
+	        });
+
+	        return self;
+	      }
+
+	      // If no id is passed, get all ID's to be paused.
+	      var ids = self._getSoundIds(id);
+
+	      for (var i=0; i<ids.length; i++) {
+	        // Clear the end timer.
+	        self._clearTimer(ids[i]);
+
+	        // Get the sound.
+	        var sound = self._soundById(ids[i]);
+
+	        if (sound && !sound._paused) {
+	          // Reset the seek position.
+	          sound._seek = self.seek(ids[i]);
+	          sound._rateSeek = 0;
+	          sound._paused = true;
+
+	          // Stop currently running fades.
+	          self._stopFade(ids[i]);
+
+	          if (sound._node) {
+	            if (self._webAudio) {
+	              // make sure the sound has been created
+	              if (!sound._node.bufferSource) {
+	                return self;
+	              }
+
+	              if (typeof sound._node.bufferSource.stop === 'undefined') {
+	                sound._node.bufferSource.noteOff(0);
+	              } else {
+	                sound._node.bufferSource.stop(0);
+	              }
+
+	              // Clean up the buffer source.
+	              self._cleanBuffer(sound._node);
+	            } else if (!isNaN(sound._node.duration) || sound._node.duration === Infinity) {
+	              sound._node.pause();
+	            }
+	          }
+	        }
+
+	        // Fire the pause event, unless `true` is passed as the 2nd argument.
+	        if (!arguments[1]) {
+	          self._emit('pause', sound ? sound._id : null);
+	        }
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Stop playback and reset to start.
+	     * @param  {Number} id The sound ID (empty to stop all in group).
+	     * @param  {Boolean} internal Internal Use: true prevents event firing.
+	     * @return {Howl}
+	     */
+	    stop: function(id, internal) {
+	      var self = this;
+
+	      // If the sound hasn't loaded, add it to the load queue to stop when capable.
+	      if (self._state !== 'loaded') {
+	        self._queue.push({
+	          event: 'stop',
+	          action: function() {
+	            self.stop(id);
+	          }
+	        });
+
+	        return self;
+	      }
+
+	      // If no id is passed, get all ID's to be stopped.
+	      var ids = self._getSoundIds(id);
+
+	      for (var i=0; i<ids.length; i++) {
+	        // Clear the end timer.
+	        self._clearTimer(ids[i]);
+
+	        // Get the sound.
+	        var sound = self._soundById(ids[i]);
+
+	        if (sound) {
+	          // Reset the seek position.
+	          sound._seek = sound._start || 0;
+	          sound._rateSeek = 0;
+	          sound._paused = true;
+	          sound._ended = true;
+
+	          // Stop currently running fades.
+	          self._stopFade(ids[i]);
+
+	          if (sound._node) {
+	            if (self._webAudio) {
+	              // make sure the sound has been created
+	              if (!sound._node.bufferSource) {
+	                if (!internal) {
+	                  self._emit('stop', sound._id);
+	                }
+
+	                return self;
+	              }
+
+	              if (typeof sound._node.bufferSource.stop === 'undefined') {
+	                sound._node.bufferSource.noteOff(0);
+	              } else {
+	                sound._node.bufferSource.stop(0);
+	              }
+
+	              // Clean up the buffer source.
+	              self._cleanBuffer(sound._node);
+	            } else if (!isNaN(sound._node.duration) || sound._node.duration === Infinity) {
+	              sound._node.currentTime = sound._start || 0;
+	              sound._node.pause();
+	            }
+	          }
+	        }
+
+	        if (sound && !internal) {
+	          self._emit('stop', sound._id);
+	        }
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Mute/unmute a single sound or all sounds in this Howl group.
+	     * @param  {Boolean} muted Set to true to mute and false to unmute.
+	     * @param  {Number} id    The sound ID to update (omit to mute/unmute all).
+	     * @return {Howl}
+	     */
+	    mute: function(muted, id) {
+	      var self = this;
+
+	      // If the sound hasn't loaded, add it to the load queue to mute when capable.
+	      if (self._state !== 'loaded') {
+	        self._queue.push({
+	          event: 'mute',
+	          action: function() {
+	            self.mute(muted, id);
+	          }
+	        });
+
+	        return self;
+	      }
+
+	      // If applying mute/unmute to all sounds, update the group's value.
+	      if (typeof id === 'undefined') {
+	        if (typeof muted === 'boolean') {
+	          self._muted = muted;
+	        } else {
+	          return self._muted;
+	        }
+	      }
+
+	      // If no id is passed, get all ID's to be muted.
+	      var ids = self._getSoundIds(id);
+
+	      for (var i=0; i<ids.length; i++) {
+	        // Get the sound.
+	        var sound = self._soundById(ids[i]);
+
+	        if (sound) {
+	          sound._muted = muted;
+
+	          if (self._webAudio && sound._node) {
+	            sound._node.gain.setValueAtTime(muted ? 0 : sound._volume, Howler.ctx.currentTime);
+	          } else if (sound._node) {
+	            sound._node.muted = Howler._muted ? true : muted;
+	          }
+
+	          self._emit('mute', sound._id);
+	        }
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Get/set the volume of this sound or of the Howl group. This method can optionally take 0, 1 or 2 arguments.
+	     *   volume() -> Returns the group's volume value.
+	     *   volume(id) -> Returns the sound id's current volume.
+	     *   volume(vol) -> Sets the volume of all sounds in this Howl group.
+	     *   volume(vol, id) -> Sets the volume of passed sound id.
+	     * @return {Howl/Number} Returns self or current volume.
+	     */
+	    volume: function() {
+	      var self = this;
+	      var args = arguments;
+	      var vol, id;
+
+	      // Determine the values based on arguments.
+	      if (args.length === 0) {
+	        // Return the value of the groups' volume.
+	        return self._volume;
+	      } else if (args.length === 1 || args.length === 2 && typeof args[1] === 'undefined') {
+	        // First check if this is an ID, and if not, assume it is a new volume.
+	        var ids = self._getSoundIds();
+	        var index = ids.indexOf(args[0]);
+	        if (index >= 0) {
+	          id = parseInt(args[0], 10);
+	        } else {
+	          vol = parseFloat(args[0]);
+	        }
+	      } else if (args.length >= 2) {
+	        vol = parseFloat(args[0]);
+	        id = parseInt(args[1], 10);
+	      }
+
+	      // Update the volume or return the current volume.
+	      var sound;
+	      if (typeof vol !== 'undefined' && vol >= 0 && vol <= 1) {
+	        // If the sound hasn't loaded, add it to the load queue to change volume when capable.
+	        if (self._state !== 'loaded') {
+	          self._queue.push({
+	            event: 'volume',
+	            action: function() {
+	              self.volume.apply(self, args);
+	            }
+	          });
+
+	          return self;
+	        }
+
+	        // Set the group volume.
+	        if (typeof id === 'undefined') {
+	          self._volume = vol;
+	        }
+
+	        // Update one or all volumes.
+	        id = self._getSoundIds(id);
+	        for (var i=0; i<id.length; i++) {
+	          // Get the sound.
+	          sound = self._soundById(id[i]);
+
+	          if (sound) {
+	            sound._volume = vol;
+
+	            // Stop currently running fades.
+	            if (!args[2]) {
+	              self._stopFade(id[i]);
+	            }
+
+	            if (self._webAudio && sound._node && !sound._muted) {
+	              sound._node.gain.setValueAtTime(vol, Howler.ctx.currentTime);
+	            } else if (sound._node && !sound._muted) {
+	              sound._node.volume = vol * Howler.volume();
+	            }
+
+	            self._emit('volume', sound._id);
+	          }
+	        }
+	      } else {
+	        sound = id ? self._soundById(id) : self._sounds[0];
+	        return sound ? sound._volume : 0;
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Fade a currently playing sound between two volumes (if no id is passsed, all sounds will fade).
+	     * @param  {Number} from The value to fade from (0.0 to 1.0).
+	     * @param  {Number} to   The volume to fade to (0.0 to 1.0).
+	     * @param  {Number} len  Time in milliseconds to fade.
+	     * @param  {Number} id   The sound id (omit to fade all sounds).
+	     * @return {Howl}
+	     */
+	    fade: function(from, to, len, id) {
+	      var self = this;
+	      var diff = Math.abs(from - to);
+	      var dir = from > to ? 'out' : 'in';
+	      var steps = diff / 0.01;
+	      var stepLen = (steps > 0) ? len / steps : len;
+
+	      // Since browsers clamp timeouts to 4ms, we need to clamp our steps to that too.
+	      if (stepLen < 4) {
+	        steps = Math.ceil(steps / (4 / stepLen));
+	        stepLen = 4;
+	      }
+
+	      // If the sound hasn't loaded, add it to the load queue to fade when capable.
+	      if (self._state !== 'loaded') {
+	        self._queue.push({
+	          event: 'fade',
+	          action: function() {
+	            self.fade(from, to, len, id);
+	          }
+	        });
+
+	        return self;
+	      }
+
+	      // Set the volume to the start position.
+	      self.volume(from, id);
+
+	      // Fade the volume of one or all sounds.
+	      var ids = self._getSoundIds(id);
+	      for (var i=0; i<ids.length; i++) {
+	        // Get the sound.
+	        var sound = self._soundById(ids[i]);
+
+	        // Create a linear fade or fall back to timeouts with HTML5 Audio.
+	        if (sound) {
+	          // Stop the previous fade if no sprite is being used (otherwise, volume handles this).
+	          if (!id) {
+	            self._stopFade(ids[i]);
+	          }
+
+	          // If we are using Web Audio, let the native methods do the actual fade.
+	          if (self._webAudio && !sound._muted) {
+	            var currentTime = Howler.ctx.currentTime;
+	            var end = currentTime + (len / 1000);
+	            sound._volume = from;
+	            sound._node.gain.setValueAtTime(from, currentTime);
+	            sound._node.gain.linearRampToValueAtTime(to, end);
+	          }
+
+	          var vol = from;
+	          sound._interval = setInterval(function(soundId, sound) {
+	            // Update the volume amount, but only if the volume should change.
+	            if (steps > 0) {
+	              vol += (dir === 'in' ? 0.01 : -0.01);
+	            }
+
+	            // Make sure the volume is in the right bounds.
+	            vol = Math.max(0, vol);
+	            vol = Math.min(1, vol);
+
+	            // Round to within 2 decimal points.
+	            vol = Math.round(vol * 100) / 100;
+
+	            // Change the volume.
+	            if (self._webAudio) {
+	              if (typeof id === 'undefined') {
+	                self._volume = vol;
+	              }
+
+	              sound._volume = vol;
+	            } else {
+	              self.volume(vol, soundId, true);
+	            }
+
+	            // When the fade is complete, stop it and fire event.
+	            if (vol === to) {
+	              clearInterval(sound._interval);
+	              sound._interval = null;
+	              self.volume(vol, soundId);
+	              self._emit('fade', soundId);
+	            }
+	          }.bind(self, ids[i], sound), stepLen);
+	        }
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Internal method that stops the currently playing fade when
+	     * a new fade starts, volume is changed or the sound is stopped.
+	     * @param  {Number} id The sound id.
+	     * @return {Howl}
+	     */
+	    _stopFade: function(id) {
+	      var self = this;
+	      var sound = self._soundById(id);
+
+	      if (sound && sound._interval) {
+	        if (self._webAudio) {
+	          sound._node.gain.cancelScheduledValues(Howler.ctx.currentTime);
+	        }
+
+	        clearInterval(sound._interval);
+	        sound._interval = null;
+	        self._emit('fade', id);
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Get/set the loop parameter on a sound. This method can optionally take 0, 1 or 2 arguments.
+	     *   loop() -> Returns the group's loop value.
+	     *   loop(id) -> Returns the sound id's loop value.
+	     *   loop(loop) -> Sets the loop value for all sounds in this Howl group.
+	     *   loop(loop, id) -> Sets the loop value of passed sound id.
+	     * @return {Howl/Boolean} Returns self or current loop value.
+	     */
+	    loop: function() {
+	      var self = this;
+	      var args = arguments;
+	      var loop, id, sound;
+
+	      // Determine the values for loop and id.
+	      if (args.length === 0) {
+	        // Return the grou's loop value.
+	        return self._loop;
+	      } else if (args.length === 1) {
+	        if (typeof args[0] === 'boolean') {
+	          loop = args[0];
+	          self._loop = loop;
+	        } else {
+	          // Return this sound's loop value.
+	          sound = self._soundById(parseInt(args[0], 10));
+	          return sound ? sound._loop : false;
+	        }
+	      } else if (args.length === 2) {
+	        loop = args[0];
+	        id = parseInt(args[1], 10);
+	      }
+
+	      // If no id is passed, get all ID's to be looped.
+	      var ids = self._getSoundIds(id);
+	      for (var i=0; i<ids.length; i++) {
+	        sound = self._soundById(ids[i]);
+
+	        if (sound) {
+	          sound._loop = loop;
+	          if (self._webAudio && sound._node && sound._node.bufferSource) {
+	            sound._node.bufferSource.loop = loop;
+	            if (loop) {
+	              sound._node.bufferSource.loopStart = sound._start || 0;
+	              sound._node.bufferSource.loopEnd = sound._stop;
+	            }
+	          }
+	        }
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Get/set the playback rate of a sound. This method can optionally take 0, 1 or 2 arguments.
+	     *   rate() -> Returns the first sound node's current playback rate.
+	     *   rate(id) -> Returns the sound id's current playback rate.
+	     *   rate(rate) -> Sets the playback rate of all sounds in this Howl group.
+	     *   rate(rate, id) -> Sets the playback rate of passed sound id.
+	     * @return {Howl/Number} Returns self or the current playback rate.
+	     */
+	    rate: function() {
+	      var self = this;
+	      var args = arguments;
+	      var rate, id;
+
+	      // Determine the values based on arguments.
+	      if (args.length === 0) {
+	        // We will simply return the current rate of the first node.
+	        id = self._sounds[0]._id;
+	      } else if (args.length === 1) {
+	        // First check if this is an ID, and if not, assume it is a new rate value.
+	        var ids = self._getSoundIds();
+	        var index = ids.indexOf(args[0]);
+	        if (index >= 0) {
+	          id = parseInt(args[0], 10);
+	        } else {
+	          rate = parseFloat(args[0]);
+	        }
+	      } else if (args.length === 2) {
+	        rate = parseFloat(args[0]);
+	        id = parseInt(args[1], 10);
+	      }
+
+	      // Update the playback rate or return the current value.
+	      var sound;
+	      if (typeof rate === 'number') {
+	        // If the sound hasn't loaded, add it to the load queue to change playback rate when capable.
+	        if (self._state !== 'loaded') {
+	          self._queue.push({
+	            event: 'rate',
+	            action: function() {
+	              self.rate.apply(self, args);
+	            }
+	          });
+
+	          return self;
+	        }
+
+	        // Set the group rate.
+	        if (typeof id === 'undefined') {
+	          self._rate = rate;
+	        }
+
+	        // Update one or all volumes.
+	        id = self._getSoundIds(id);
+	        for (var i=0; i<id.length; i++) {
+	          // Get the sound.
+	          sound = self._soundById(id[i]);
+
+	          if (sound) {
+	            // Keep track of our position when the rate changed and update the playback
+	            // start position so we can properly adjust the seek position for time elapsed.
+	            sound._rateSeek = self.seek(id[i]);
+	            sound._playStart = self._webAudio ? Howler.ctx.currentTime : sound._playStart;
+	            sound._rate = rate;
+
+	            // Change the playback rate.
+	            if (self._webAudio && sound._node && sound._node.bufferSource) {
+	              sound._node.bufferSource.playbackRate.value = rate;
+	            } else if (sound._node) {
+	              sound._node.playbackRate = rate;
+	            }
+
+	            // Reset the timers.
+	            var seek = self.seek(id[i]);
+	            var duration = ((self._sprite[sound._sprite][0] + self._sprite[sound._sprite][1]) / 1000) - seek;
+	            var timeout = (duration * 1000) / Math.abs(sound._rate);
+
+	            // Start a new end timer if sound is already playing.
+	            if (self._endTimers[id[i]] || !sound._paused) {
+	              self._clearTimer(id[i]);
+	              self._endTimers[id[i]] = setTimeout(self._ended.bind(self, sound), timeout);
+	            }
+
+	            self._emit('rate', sound._id);
+	          }
+	        }
+	      } else {
+	        sound = self._soundById(id);
+	        return sound ? sound._rate : self._rate;
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Get/set the seek position of a sound. This method can optionally take 0, 1 or 2 arguments.
+	     *   seek() -> Returns the first sound node's current seek position.
+	     *   seek(id) -> Returns the sound id's current seek position.
+	     *   seek(seek) -> Sets the seek position of the first sound node.
+	     *   seek(seek, id) -> Sets the seek position of passed sound id.
+	     * @return {Howl/Number} Returns self or the current seek position.
+	     */
+	    seek: function() {
+	      var self = this;
+	      var args = arguments;
+	      var seek, id;
+
+	      // Determine the values based on arguments.
+	      if (args.length === 0) {
+	        // We will simply return the current position of the first node.
+	        id = self._sounds[0]._id;
+	      } else if (args.length === 1) {
+	        // First check if this is an ID, and if not, assume it is a new seek position.
+	        var ids = self._getSoundIds();
+	        var index = ids.indexOf(args[0]);
+	        if (index >= 0) {
+	          id = parseInt(args[0], 10);
+	        } else {
+	          id = self._sounds[0]._id;
+	          seek = parseFloat(args[0]);
+	        }
+	      } else if (args.length === 2) {
+	        seek = parseFloat(args[0]);
+	        id = parseInt(args[1], 10);
+	      }
+
+	      // If there is no ID, bail out.
+	      if (typeof id === 'undefined') {
+	        return self;
+	      }
+
+	      // If the sound hasn't loaded, add it to the load queue to seek when capable.
+	      if (self._state !== 'loaded') {
+	        self._queue.push({
+	          event: 'seek',
+	          action: function() {
+	            self.seek.apply(self, args);
+	          }
+	        });
+
+	        return self;
+	      }
+
+	      // Get the sound.
+	      var sound = self._soundById(id);
+
+	      if (sound) {
+	        if (typeof seek === 'number' && seek >= 0) {
+	          // Pause the sound and update position for restarting playback.
+	          var playing = self.playing(id);
+	          if (playing) {
+	            self.pause(id, true);
+	          }
+
+	          // Move the position of the track and cancel timer.
+	          sound._seek = seek;
+	          sound._ended = false;
+	          self._clearTimer(id);
+
+	          // Restart the playback if the sound was playing.
+	          if (playing) {
+	            self.play(id, true);
+	          }
+
+	          // Update the seek position for HTML5 Audio.
+	          if (!self._webAudio && sound._node) {
+	            sound._node.currentTime = seek;
+	          }
+
+	          self._emit('seek', id);
+	        } else {
+	          if (self._webAudio) {
+	            var realTime = self.playing(id) ? Howler.ctx.currentTime - sound._playStart : 0;
+	            var rateSeek = sound._rateSeek ? sound._rateSeek - sound._seek : 0;
+	            return sound._seek + (rateSeek + realTime * Math.abs(sound._rate));
+	          } else {
+	            return sound._node.currentTime;
+	          }
+	        }
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Check if a specific sound is currently playing or not (if id is provided), or check if at least one of the sounds in the group is playing or not.
+	     * @param  {Number}  id The sound id to check. If none is passed, the whole sound group is checked.
+	     * @return {Boolean} True if playing and false if not.
+	     */
+	    playing: function(id) {
+	      var self = this;
+
+	      // Check the passed sound ID (if any).
+	      if (typeof id === 'number') {
+	        var sound = self._soundById(id);
+	        return sound ? !sound._paused : false;
+	      }
+
+	      // Otherwise, loop through all sounds and check if any are playing.
+	      for (var i=0; i<self._sounds.length; i++) {
+	        if (!self._sounds[i]._paused) {
+	          return true;
+	        }
+	      }
+
+	      return false;
+	    },
+
+	    /**
+	     * Get the duration of this sound. Passing a sound id will return the sprite duration.
+	     * @param  {Number} id The sound id to check. If none is passed, return full source duration.
+	     * @return {Number} Audio duration in seconds.
+	     */
+	    duration: function(id) {
+	      var self = this;
+	      var duration = self._duration;
+
+	      // If we pass an ID, get the sound and return the sprite length.
+	      var sound = self._soundById(id);
+	      if (sound) {
+	        duration = self._sprite[sound._sprite][1] / 1000;
+	      }
+
+	      return duration;
+	    },
+
+	    /**
+	     * Returns the current loaded state of this Howl.
+	     * @return {String} 'unloaded', 'loading', 'loaded'
+	     */
+	    state: function() {
+	      return this._state;
+	    },
+
+	    /**
+	     * Unload and destroy the current Howl object.
+	     * This will immediately stop all sound instances attached to this group.
+	     */
+	    unload: function() {
+	      var self = this;
+
+	      // Stop playing any active sounds.
+	      var sounds = self._sounds;
+	      for (var i=0; i<sounds.length; i++) {
+	        // Stop the sound if it is currently playing.
+	        if (!sounds[i]._paused) {
+	          self.stop(sounds[i]._id);
+	          self._emit('end', sounds[i]._id);
+	        }
+
+	        // Remove the source or disconnect.
+	        if (!self._webAudio) {
+	          // Set the source to 0-second silence to stop any downloading.
+	          sounds[i]._node.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+
+	          // Remove any event listeners.
+	          sounds[i]._node.removeEventListener('error', sounds[i]._errorFn, false);
+	          sounds[i]._node.removeEventListener(Howler._canPlayEvent, sounds[i]._loadFn, false);
+	        }
+
+	        // Empty out all of the nodes.
+	        delete sounds[i]._node;
+
+	        // Make sure all timers are cleared out.
+	        self._clearTimer(sounds[i]._id);
+
+	        // Remove the references in the global Howler object.
+	        var index = Howler._howls.indexOf(self);
+	        if (index >= 0) {
+	          Howler._howls.splice(index, 1);
+	        }
+	      }
+
+	      // Delete this sound from the cache (if no other Howl is using it).
+	      var remCache = true;
+	      for (i=0; i<Howler._howls.length; i++) {
+	        if (Howler._howls[i]._src === self._src) {
+	          remCache = false;
+	          break;
+	        }
+	      }
+
+	      if (cache && remCache) {
+	        delete cache[self._src];
+	      }
+
+	      // Clear global errors.
+	      Howler.noAudio = false;
+
+	      // Clear out `self`.
+	      self._state = 'unloaded';
+	      self._sounds = [];
+	      self = null;
+
+	      return null;
+	    },
+
+	    /**
+	     * Listen to a custom event.
+	     * @param  {String}   event Event name.
+	     * @param  {Function} fn    Listener to call.
+	     * @param  {Number}   id    (optional) Only listen to events for this sound.
+	     * @param  {Number}   once  (INTERNAL) Marks event to fire only once.
+	     * @return {Howl}
+	     */
+	    on: function(event, fn, id, once) {
+	      var self = this;
+	      var events = self['_on' + event];
+
+	      if (typeof fn === 'function') {
+	        events.push(once ? {id: id, fn: fn, once: once} : {id: id, fn: fn});
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Remove a custom event. Call without parameters to remove all events.
+	     * @param  {String}   event Event name.
+	     * @param  {Function} fn    Listener to remove. Leave empty to remove all.
+	     * @param  {Number}   id    (optional) Only remove events for this sound.
+	     * @return {Howl}
+	     */
+	    off: function(event, fn, id) {
+	      var self = this;
+	      var events = self['_on' + event];
+	      var i = 0;
+
+	      if (fn) {
+	        // Loop through event store and remove the passed function.
+	        for (i=0; i<events.length; i++) {
+	          if (fn === events[i].fn && id === events[i].id) {
+	            events.splice(i, 1);
+	            break;
+	          }
+	        }
+	      } else if (event) {
+	        // Clear out all events of this type.
+	        self['_on' + event] = [];
+	      } else {
+	        // Clear out all events of every type.
+	        var keys = Object.keys(self);
+	        for (i=0; i<keys.length; i++) {
+	          if ((keys[i].indexOf('_on') === 0) && Array.isArray(self[keys[i]])) {
+	            self[keys[i]] = [];
+	          }
+	        }
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Listen to a custom event and remove it once fired.
+	     * @param  {String}   event Event name.
+	     * @param  {Function} fn    Listener to call.
+	     * @param  {Number}   id    (optional) Only listen to events for this sound.
+	     * @return {Howl}
+	     */
+	    once: function(event, fn, id) {
+	      var self = this;
+
+	      // Setup the event listener.
+	      self.on(event, fn, id, 1);
+
+	      return self;
+	    },
+
+	    /**
+	     * Emit all events of a specific type and pass the sound id.
+	     * @param  {String} event Event name.
+	     * @param  {Number} id    Sound ID.
+	     * @param  {Number} msg   Message to go with event.
+	     * @return {Howl}
+	     */
+	    _emit: function(event, id, msg) {
+	      var self = this;
+	      var events = self['_on' + event];
+
+	      // Loop through event store and fire all functions.
+	      for (var i=events.length-1; i>=0; i--) {
+	        if (!events[i].id || events[i].id === id || event === 'load') {
+	          setTimeout(function(fn) {
+	            fn.call(this, id, msg);
+	          }.bind(self, events[i].fn), 0);
+
+	          // If this event was setup with `once`, remove it.
+	          if (events[i].once) {
+	            self.off(event, events[i].fn, events[i].id);
+	          }
+	        }
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Queue of actions initiated before the sound has loaded.
+	     * These will be called in sequence, with the next only firing
+	     * after the previous has finished executing (even if async like play).
+	     * @return {Howl}
+	     */
+	    _loadQueue: function() {
+	      var self = this;
+
+	      if (self._queue.length > 0) {
+	        var task = self._queue[0];
+
+	        // don't move onto the next task until this one is done
+	        self.once(task.event, function() {
+	          self._queue.shift();
+	          self._loadQueue();
+	        });
+
+	        task.action();
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Fired when playback ends at the end of the duration.
+	     * @param  {Sound} sound The sound object to work with.
+	     * @return {Howl}
+	     */
+	    _ended: function(sound) {
+	      var self = this;
+	      var sprite = sound._sprite;
+
+	      // Should this sound loop?
+	      var loop = !!(sound._loop || self._sprite[sprite][2]);
+
+	      // Fire the ended event.
+	      self._emit('end', sound._id);
+
+	      // Restart the playback for HTML5 Audio loop.
+	      if (!self._webAudio && loop) {
+	        self.stop(sound._id, true).play(sound._id);
+	      }
+
+	      // Restart this timer if on a Web Audio loop.
+	      if (self._webAudio && loop) {
+	        self._emit('play', sound._id);
+	        sound._seek = sound._start || 0;
+	        sound._rateSeek = 0;
+	        sound._playStart = Howler.ctx.currentTime;
+
+	        var timeout = ((sound._stop - sound._start) * 1000) / Math.abs(sound._rate);
+	        self._endTimers[sound._id] = setTimeout(self._ended.bind(self, sound), timeout);
+	      }
+
+	      // Mark the node as paused.
+	      if (self._webAudio && !loop) {
+	        sound._paused = true;
+	        sound._ended = true;
+	        sound._seek = sound._start || 0;
+	        sound._rateSeek = 0;
+	        self._clearTimer(sound._id);
+
+	        // Clean up the buffer source.
+	        self._cleanBuffer(sound._node);
+
+	        // Attempt to auto-suspend AudioContext if no sounds are still playing.
+	        Howler._autoSuspend();
+	      }
+
+	      // When using a sprite, end the track.
+	      if (!self._webAudio && !loop) {
+	        self.stop(sound._id);
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Clear the end timer for a sound playback.
+	     * @param  {Number} id The sound ID.
+	     * @return {Howl}
+	     */
+	    _clearTimer: function(id) {
+	      var self = this;
+
+	      if (self._endTimers[id]) {
+	        clearTimeout(self._endTimers[id]);
+	        delete self._endTimers[id];
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Return the sound identified by this ID, or return null.
+	     * @param  {Number} id Sound ID
+	     * @return {Object}    Sound object or null.
+	     */
+	    _soundById: function(id) {
+	      var self = this;
+
+	      // Loop through all sounds and find the one with this ID.
+	      for (var i=0; i<self._sounds.length; i++) {
+	        if (id === self._sounds[i]._id) {
+	          return self._sounds[i];
+	        }
+	      }
+
+	      return null;
+	    },
+
+	    /**
+	     * Return an inactive sound from the pool or create a new one.
+	     * @return {Sound} Sound playback object.
+	     */
+	    _inactiveSound: function() {
+	      var self = this;
+
+	      self._drain();
+
+	      // Find the first inactive node to recycle.
+	      for (var i=0; i<self._sounds.length; i++) {
+	        if (self._sounds[i]._ended) {
+	          return self._sounds[i].reset();
+	        }
+	      }
+
+	      // If no inactive node was found, create a new one.
+	      return new Sound(self);
+	    },
+
+	    /**
+	     * Drain excess inactive sounds from the pool.
+	     */
+	    _drain: function() {
+	      var self = this;
+	      var limit = self._pool;
+	      var cnt = 0;
+	      var i = 0;
+
+	      // If there are less sounds than the max pool size, we are done.
+	      if (self._sounds.length < limit) {
+	        return;
+	      }
+
+	      // Count the number of inactive sounds.
+	      for (i=0; i<self._sounds.length; i++) {
+	        if (self._sounds[i]._ended) {
+	          cnt++;
+	        }
+	      }
+
+	      // Remove excess inactive sounds, going in reverse order.
+	      for (i=self._sounds.length - 1; i>=0; i--) {
+	        if (cnt <= limit) {
+	          return;
+	        }
+
+	        if (self._sounds[i]._ended) {
+	          // Disconnect the audio source when using Web Audio.
+	          if (self._webAudio && self._sounds[i]._node) {
+	            self._sounds[i]._node.disconnect(0);
+	          }
+
+	          // Remove sounds until we have the pool size.
+	          self._sounds.splice(i, 1);
+	          cnt--;
+	        }
+	      }
+	    },
+
+	    /**
+	     * Get all ID's from the sounds pool.
+	     * @param  {Number} id Only return one ID if one is passed.
+	     * @return {Array}    Array of IDs.
+	     */
+	    _getSoundIds: function(id) {
+	      var self = this;
+
+	      if (typeof id === 'undefined') {
+	        var ids = [];
+	        for (var i=0; i<self._sounds.length; i++) {
+	          ids.push(self._sounds[i]._id);
+	        }
+
+	        return ids;
+	      } else {
+	        return [id];
+	      }
+	    },
+
+	    /**
+	     * Load the sound back into the buffer source.
+	     * @param  {Sound} sound The sound object to work with.
+	     * @return {Howl}
+	     */
+	    _refreshBuffer: function(sound) {
+	      var self = this;
+
+	      // Setup the buffer source for playback.
+	      sound._node.bufferSource = Howler.ctx.createBufferSource();
+	      sound._node.bufferSource.buffer = cache[self._src];
+
+	      // Connect to the correct node.
+	      if (sound._panner) {
+	        sound._node.bufferSource.connect(sound._panner);
+	      } else {
+	        sound._node.bufferSource.connect(sound._node);
+	      }
+
+	      // Setup looping and playback rate.
+	      sound._node.bufferSource.loop = sound._loop;
+	      if (sound._loop) {
+	        sound._node.bufferSource.loopStart = sound._start || 0;
+	        sound._node.bufferSource.loopEnd = sound._stop;
+	      }
+	      sound._node.bufferSource.playbackRate.value = sound._rate;
+
+	      return self;
+	    },
+
+	    /**
+	     * Prevent memory leaks by cleaning up the buffer source after playback.
+	     * @param  {Object} node Sound's audio node containing the buffer source.
+	     * @return {Howl}
+	     */
+	    _cleanBuffer: function(node) {
+	      var self = this;
+
+	      if (self._scratchBuffer) {
+	        node.bufferSource.onended = null;
+	        node.bufferSource.disconnect(0);
+	        try { node.bufferSource.buffer = self._scratchBuffer; } catch(e) {}
+	      }
+	      node.bufferSource = null;
+
+	      return self;
+	    }
+	  };
+
+	  /** Single Sound Methods **/
+	  /***************************************************************************/
+
+	  /**
+	   * Setup the sound object, which each node attached to a Howl group is contained in.
+	   * @param {Object} howl The Howl parent group.
+	   */
+	  var Sound = function(howl) {
+	    this._parent = howl;
+	    this.init();
+	  };
+	  Sound.prototype = {
+	    /**
+	     * Initialize a new Sound object.
+	     * @return {Sound}
+	     */
+	    init: function() {
+	      var self = this;
+	      var parent = self._parent;
+
+	      // Setup the default parameters.
+	      self._muted = parent._muted;
+	      self._loop = parent._loop;
+	      self._volume = parent._volume;
+	      self._muted = parent._muted;
+	      self._rate = parent._rate;
+	      self._seek = 0;
+	      self._paused = true;
+	      self._ended = true;
+	      self._sprite = '__default';
+
+	      // Generate a unique ID for this sound.
+	      self._id = Math.round(Date.now() * Math.random());
+
+	      // Add itself to the parent's pool.
+	      parent._sounds.push(self);
+
+	      // Create the new node.
+	      self.create();
+
+	      return self;
+	    },
+
+	    /**
+	     * Create and setup a new sound object, whether HTML5 Audio or Web Audio.
+	     * @return {Sound}
+	     */
+	    create: function() {
+	      var self = this;
+	      var parent = self._parent;
+	      var volume = (Howler._muted || self._muted || self._parent._muted) ? 0 : self._volume;
+
+	      if (parent._webAudio) {
+	        // Create the gain node for controlling volume (the source will connect to this).
+	        self._node = (typeof Howler.ctx.createGain === 'undefined') ? Howler.ctx.createGainNode() : Howler.ctx.createGain();
+	        self._node.gain.setValueAtTime(volume, Howler.ctx.currentTime);
+	        self._node.paused = true;
+	        self._node.connect(Howler.masterGain);
+	      } else {
+	        self._node = new Audio();
+
+	        // Listen for errors (http://dev.w3.org/html5/spec-author-view/spec.html#mediaerror).
+	        self._errorFn = self._errorListener.bind(self);
+	        self._node.addEventListener('error', self._errorFn, false);
+
+	        // Listen for 'canplaythrough' event to let us know the sound is ready.
+	        self._loadFn = self._loadListener.bind(self);
+	        self._node.addEventListener(Howler._canPlayEvent, self._loadFn, false);
+
+	        // Setup the new audio node.
+	        self._node.src = parent._src;
+	        self._node.preload = 'auto';
+	        self._node.volume = volume * Howler.volume();
+
+	        // Begin loading the source.
+	        self._node.load();
+	      }
+
+	      return self;
+	    },
+
+	    /**
+	     * Reset the parameters of this sound to the original state (for recycle).
+	     * @return {Sound}
+	     */
+	    reset: function() {
+	      var self = this;
+	      var parent = self._parent;
+
+	      // Reset all of the parameters of this sound.
+	      self._muted = parent._muted;
+	      self._loop = parent._loop;
+	      self._volume = parent._volume;
+	      self._muted = parent._muted;
+	      self._rate = parent._rate;
+	      self._seek = 0;
+	      self._rateSeek = 0;
+	      self._paused = true;
+	      self._ended = true;
+	      self._sprite = '__default';
+
+	      // Generate a new ID so that it isn't confused with the previous sound.
+	      self._id = Math.round(Date.now() * Math.random());
+
+	      return self;
+	    },
+
+	    /**
+	     * HTML5 Audio error listener callback.
+	     */
+	    _errorListener: function() {
+	      var self = this;
+
+	      // Fire an error event and pass back the code.
+	      self._parent._emit('loaderror', self._id, self._node.error ? self._node.error.code : 0);
+
+	      // Clear the event listener.
+	      self._node.removeEventListener('error', self._errorListener, false);
+	    },
+
+	    /**
+	     * HTML5 Audio canplaythrough listener callback.
+	     */
+	    _loadListener: function() {
+	      var self = this;
+	      var parent = self._parent;
+
+	      // Round up the duration to account for the lower precision in HTML5 Audio.
+	      parent._duration = Math.ceil(self._node.duration * 10) / 10;
+
+	      // Setup a sprite if none is defined.
+	      if (Object.keys(parent._sprite).length === 0) {
+	        parent._sprite = {__default: [0, parent._duration * 1000]};
+	      }
+
+	      if (parent._state !== 'loaded') {
+	        parent._state = 'loaded';
+	        parent._emit('load');
+	        parent._loadQueue();
+	      }
+
+	      // Clear the event listener.
+	      self._node.removeEventListener(Howler._canPlayEvent, self._loadFn, false);
+	    }
+	  };
+
+	  /** Helper Methods **/
+	  /***************************************************************************/
+
+	  var cache = {};
+
+	  /**
+	   * Buffer a sound from URL, Data URI or cache and decode to audio source (Web Audio API).
+	   * @param  {Howl} self
+	   */
+	  var loadBuffer = function(self) {
+	    var url = self._src;
+
+	    // Check if the buffer has already been cached and use it instead.
+	    if (cache[url]) {
+	      // Set the duration from the cache.
+	      self._duration = cache[url].duration;
+
+	      // Load the sound into this Howl.
+	      loadSound(self);
+
+	      return;
+	    }
+
+	    if (/^data:[^;]+;base64,/.test(url)) {
+	      // Decode the base64 data URI without XHR, since some browsers don't support it.
+	      var data = atob(url.split(',')[1]);
+	      var dataView = new Uint8Array(data.length);
+	      for (var i=0; i<data.length; ++i) {
+	        dataView[i] = data.charCodeAt(i);
+	      }
+
+	      decodeAudioData(dataView.buffer, self);
+	    } else {
+	      // Load the buffer from the URL.
+	      var xhr = new XMLHttpRequest();
+	      xhr.open('GET', url, true);
+	      xhr.responseType = 'arraybuffer';
+	      xhr.onload = function() {
+	        // Make sure we get a successful response back.
+	        var code = (xhr.status + '')[0];
+	        if (code !== '0' && code !== '2' && code !== '3') {
+	          self._emit('loaderror', null, 'Failed loading audio file with status: ' + xhr.status + '.');
+	          return;
+	        }
+
+	        decodeAudioData(xhr.response, self);
+	      };
+	      xhr.onerror = function() {
+	        // If there is an error, switch to HTML5 Audio.
+	        if (self._webAudio) {
+	          self._html5 = true;
+	          self._webAudio = false;
+	          self._sounds = [];
+	          delete cache[url];
+	          self.load();
+	        }
+	      };
+	      safeXhrSend(xhr);
+	    }
+	  };
+
+	  /**
+	   * Send the XHR request wrapped in a try/catch.
+	   * @param  {Object} xhr XHR to send.
+	   */
+	  var safeXhrSend = function(xhr) {
+	    try {
+	      xhr.send();
+	    } catch (e) {
+	      xhr.onerror();
+	    }
+	  };
+
+	  /**
+	   * Decode audio data from an array buffer.
+	   * @param  {ArrayBuffer} arraybuffer The audio data.
+	   * @param  {Howl}        self
+	   */
+	  var decodeAudioData = function(arraybuffer, self) {
+	    // Decode the buffer into an audio source.
+	    Howler.ctx.decodeAudioData(arraybuffer, function(buffer) {
+	      if (buffer && self._sounds.length > 0) {
+	        cache[self._src] = buffer;
+	        loadSound(self, buffer);
+	      }
+	    }, function() {
+	      self._emit('loaderror', null, 'Decoding audio data failed.');
+	    });
+	  };
+
+	  /**
+	   * Sound is now loaded, so finish setting everything up and fire the loaded event.
+	   * @param  {Howl} self
+	   * @param  {Object} buffer The decoded buffer sound source.
+	   */
+	  var loadSound = function(self, buffer) {
+	    // Set the duration.
+	    if (buffer && !self._duration) {
+	      self._duration = buffer.duration;
+	    }
+
+	    // Setup a sprite if none is defined.
+	    if (Object.keys(self._sprite).length === 0) {
+	      self._sprite = {__default: [0, self._duration * 1000]};
+	    }
+
+	    // Fire the loaded event.
+	    if (self._state !== 'loaded') {
+	      self._state = 'loaded';
+	      self._emit('load');
+	      self._loadQueue();
+	    }
+	  };
+
+	  /**
+	   * Setup the audio context when available, or switch to HTML5 Audio mode.
+	   */
+	  var setupAudioContext = function() {
+	    // Check if we are using Web Audio and setup the AudioContext if we are.
+	    try {
+	      if (typeof AudioContext !== 'undefined') {
+	        Howler.ctx = new AudioContext();
+	      } else if (typeof webkitAudioContext !== 'undefined') {
+	        Howler.ctx = new webkitAudioContext();
+	      } else {
+	        Howler.usingWebAudio = false;
+	      }
+	    } catch(e) {
+	      Howler.usingWebAudio = false;
+	    }
+
+	    // Check if a webview is being used on iOS8 or earlier (rather than the browser).
+	    // If it is, disable Web Audio as it causes crashing.
+	    var iOS = (/iP(hone|od|ad)/.test(Howler._navigator && Howler._navigator.platform));
+	    var appVersion = Howler._navigator && Howler._navigator.appVersion.match(/OS (\d+)_(\d+)_?(\d+)?/);
+	    var version = appVersion ? parseInt(appVersion[1], 10) : null;
+	    if (iOS && version && version < 9) {
+	      var safari = /safari/.test(Howler._navigator && Howler._navigator.userAgent.toLowerCase());
+	      if (Howler._navigator && Howler._navigator.standalone && !safari || Howler._navigator && !Howler._navigator.standalone && !safari) {
+	        Howler.usingWebAudio = false;
+	      }
+	    }
+
+	    // Create and expose the master GainNode when using Web Audio (useful for plugins or advanced usage).
+	    if (Howler.usingWebAudio) {
+	      Howler.masterGain = (typeof Howler.ctx.createGain === 'undefined') ? Howler.ctx.createGainNode() : Howler.ctx.createGain();
+	      Howler.masterGain.gain.value = 1;
+	      Howler.masterGain.connect(Howler.ctx.destination);
+	    }
+
+	    // Re-run the setup on Howler.
+	    Howler._setup();
+	  };
+
+	  // Add support for AMD (Asynchronous Module Definition) libraries such as require.js.
+	  if (true) {
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function() {
+	      return {
+	        Howler: Howler,
+	        Howl: Howl
+	      };
+	    }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	  }
+
+	  // Add support for CommonJS libraries such as browserify.
+	  if (true) {
+	    exports.Howler = Howler;
+	    exports.Howl = Howl;
+	  }
+
+	  // Define globally in case AMD is not available or unused.
+	  if (typeof window !== 'undefined') {
+	    window.HowlerGlobal = HowlerGlobal;
+	    window.Howler = Howler;
+	    window.Howl = Howl;
+	    window.Sound = Sound;
+	  } else if (typeof global !== 'undefined') { // Add to global in Node.js (for testing, etc).
+	    global.HowlerGlobal = HowlerGlobal;
+	    global.Howler = Howler;
+	    global.Howl = Howl;
+	    global.Sound = Sound;
+	  }
+	})();
+
+
+	/*!
+	 *  Spatial Plugin - Adds support for stereo and 3D audio where Web Audio is supported.
+	 *  
+	 *  howler.js v2.0.2
+	 *  howlerjs.com
+	 *
+	 *  (c) 2013-2016, James Simpson of GoldFire Studios
+	 *  goldfirestudios.com
+	 *
+	 *  MIT License
+	 */
+
+	(function() {
+
+	  'use strict';
+
+	  // Setup default properties.
+	  HowlerGlobal.prototype._pos = [0, 0, 0];
+	  HowlerGlobal.prototype._orientation = [0, 0, -1, 0, 1, 0];
+	  
+	  /** Global Methods **/
+	  /***************************************************************************/
+
+	  /**
+	   * Helper method to update the stereo panning position of all current Howls.
+	   * Future Howls will not use this value unless explicitly set.
+	   * @param  {Number} pan A value of -1.0 is all the way left and 1.0 is all the way right.
+	   * @return {Howler/Number}     Self or current stereo panning value.
+	   */
+	  HowlerGlobal.prototype.stereo = function(pan) {
+	    var self = this;
+
+	    // Stop right here if not using Web Audio.
+	    if (!self.ctx || !self.ctx.listener) {
+	      return self;
+	    }
+
+	    // Loop through all Howls and update their stereo panning.
+	    for (var i=self._howls.length-1; i>=0; i--) {
+	      self._howls[i].stereo(pan);
+	    }
+
+	    return self;
+	  };
+
+	  /**
+	   * Get/set the position of the listener in 3D cartesian space. Sounds using
+	   * 3D position will be relative to the listener's position.
+	   * @param  {Number} x The x-position of the listener.
+	   * @param  {Number} y The y-position of the listener.
+	   * @param  {Number} z The z-position of the listener.
+	   * @return {Howler/Array}   Self or current listener position.
+	   */
+	  HowlerGlobal.prototype.pos = function(x, y, z) {
+	    var self = this;
+
+	    // Stop right here if not using Web Audio.
+	    if (!self.ctx || !self.ctx.listener) {
+	      return self;
+	    }
+
+	    // Set the defaults for optional 'y' & 'z'.
+	    y = (typeof y !== 'number') ? self._pos[1] : y;
+	    z = (typeof z !== 'number') ? self._pos[2] : z;
+
+	    if (typeof x === 'number') {
+	      self._pos = [x, y, z];
+	      self.ctx.listener.setPosition(self._pos[0], self._pos[1], self._pos[2]);
+	    } else {
+	      return self._pos;
+	    }
+
+	    return self;
+	  };
+
+	  /**
+	   * Get/set the direction the listener is pointing in the 3D cartesian space.
+	   * A front and up vector must be provided. The front is the direction the
+	   * face of the listener is pointing, and up is the direction the top of the
+	   * listener is pointing. Thus, these values are expected to be at right angles
+	   * from each other.
+	   * @param  {Number} x   The x-orientation of the listener.
+	   * @param  {Number} y   The y-orientation of the listener.
+	   * @param  {Number} z   The z-orientation of the listener.
+	   * @param  {Number} xUp The x-orientation of the top of the listener.
+	   * @param  {Number} yUp The y-orientation of the top of the listener.
+	   * @param  {Number} zUp The z-orientation of the top of the listener.
+	   * @return {Howler/Array}     Returns self or the current orientation vectors.
+	   */
+	  HowlerGlobal.prototype.orientation = function(x, y, z, xUp, yUp, zUp) {
+	    var self = this;
+
+	    // Stop right here if not using Web Audio.
+	    if (!self.ctx || !self.ctx.listener) {
+	      return self;
+	    }
+
+	    // Set the defaults for optional 'y' & 'z'.
+	    var or = self._orientation;
+	    y = (typeof y !== 'number') ? or[1] : y;
+	    z = (typeof z !== 'number') ? or[2] : z;
+	    xUp = (typeof xUp !== 'number') ? or[3] : xUp;
+	    yUp = (typeof yUp !== 'number') ? or[4] : yUp;
+	    zUp = (typeof zUp !== 'number') ? or[5] : zUp;
+
+	    if (typeof x === 'number') {
+	      self._orientation = [x, y, z, xUp, yUp, zUp];
+	      self.ctx.listener.setOrientation(x, y, z, xUp, yUp, zUp);
+	    } else {
+	      return or;
+	    }
+
+	    return self;
+	  };
+
+	  /** Group Methods **/
+	  /***************************************************************************/
+
+	  /**
+	   * Add new properties to the core init.
+	   * @param  {Function} _super Core init method.
+	   * @return {Howl}
+	   */
+	  Howl.prototype.init = (function(_super) {
+	    return function(o) {
+	      var self = this;
+
+	      // Setup user-defined default properties.
+	      self._orientation = o.orientation || [1, 0, 0];
+	      self._stereo = o.stereo || null;
+	      self._pos = o.pos || null;
+	      self._pannerAttr = {
+	        coneInnerAngle: typeof o.coneInnerAngle !== 'undefined' ? o.coneInnerAngle : 360,
+	        coneOuterAngle: typeof o.coneOuterAngle !== 'undefined' ? o.coneOuterAngle : 360,
+	        coneOuterGain: typeof o.coneOuterGain !== 'undefined' ? o.coneOuterGain : 0,
+	        distanceModel: typeof o.distanceModel !== 'undefined' ? o.distanceModel : 'inverse',
+	        maxDistance: typeof o.maxDistance !== 'undefined' ? o.maxDistance : 10000,
+	        panningModel: typeof o.panningModel !== 'undefined' ? o.panningModel : 'HRTF',
+	        refDistance: typeof o.refDistance !== 'undefined' ? o.refDistance : 1,
+	        rolloffFactor: typeof o.rolloffFactor !== 'undefined' ? o.rolloffFactor : 1
+	      };
+
+	      // Setup event listeners.
+	      self._onstereo = o.onstereo ? [{fn: o.onstereo}] : [];
+	      self._onpos = o.onpos ? [{fn: o.onpos}] : [];
+	      self._onorientation = o.onorientation ? [{fn: o.onorientation}] : [];
+
+	      // Complete initilization with howler.js core's init function.
+	      return _super.call(this, o);
+	    };
+	  })(Howl.prototype.init);
+
+	  /**
+	   * Get/set the stereo panning of the audio source for this sound or all in the group.
+	   * @param  {Number} pan  A value of -1.0 is all the way left and 1.0 is all the way right.
+	   * @param  {Number} id (optional) The sound ID. If none is passed, all in group will be updated.
+	   * @return {Howl/Number}    Returns self or the current stereo panning value.
+	   */
+	  Howl.prototype.stereo = function(pan, id) {
+	    var self = this;
+
+	    // Stop right here if not using Web Audio.
+	    if (!self._webAudio) {
+	      return self;
+	    }
+
+	    // If the sound hasn't loaded, add it to the load queue to change stereo pan when capable.
+	    if (self._state !== 'loaded') {
+	      self._queue.push({
+	        event: 'stereo',
+	        action: function() {
+	          self.stereo(pan, id);
+	        }
+	      });
+
+	      return self;
+	    }
+
+	    // Check for PannerStereoNode support and fallback to PannerNode if it doesn't exist.
+	    var pannerType = (typeof Howler.ctx.createStereoPanner === 'undefined') ? 'spatial' : 'stereo';
+
+	    // Setup the group's stereo panning if no ID is passed.
+	    if (typeof id === 'undefined') {
+	      // Return the group's stereo panning if no parameters are passed.
+	      if (typeof pan === 'number') {
+	        self._stereo = pan;
+	        self._pos = [pan, 0, 0];
+	      } else {
+	        return self._stereo;
+	      }
+	    }
+
+	    // Change the streo panning of one or all sounds in group.
+	    var ids = self._getSoundIds(id);
+	    for (var i=0; i<ids.length; i++) {
+	      // Get the sound.
+	      var sound = self._soundById(ids[i]);
+
+	      if (sound) {
+	        if (typeof pan === 'number') {
+	          sound._stereo = pan;
+	          sound._pos = [pan, 0, 0];
+
+	          if (sound._node) {
+	            // If we are falling back, make sure the panningModel is equalpower.
+	            sound._pannerAttr.panningModel = 'equalpower';
+
+	            // Check if there is a panner setup and create a new one if not.
+	            if (!sound._panner || !sound._panner.pan) {
+	              setupPanner(sound, pannerType);
+	            }
+
+	            if (pannerType === 'spatial') {
+	              sound._panner.setPosition(pan, 0, 0);
+	            } else {
+	              sound._panner.pan.value = pan;
+	            }
+	          }
+
+	          self._emit('stereo', sound._id);
+	        } else {
+	          return sound._stereo;
+	        }
+	      }
+	    }
+
+	    return self;
+	  };
+
+	  /**
+	   * Get/set the 3D spatial position of the audio source for this sound or
+	   * all in the group. The most common usage is to set the 'x' position for
+	   * left/right panning. Setting any value higher than 1.0 will begin to
+	   * decrease the volume of the sound as it moves further away.
+	   * @param  {Number} x  The x-position of the audio from -1000.0 to 1000.0.
+	   * @param  {Number} y  The y-position of the audio from -1000.0 to 1000.0.
+	   * @param  {Number} z  The z-position of the audio from -1000.0 to 1000.0.
+	   * @param  {Number} id (optional) The sound ID. If none is passed, all in group will be updated.
+	   * @return {Howl/Array}    Returns self or the current 3D spatial position: [x, y, z].
+	   */
+	  Howl.prototype.pos = function(x, y, z, id) {
+	    var self = this;
+
+	    // Stop right here if not using Web Audio.
+	    if (!self._webAudio) {
+	      return self;
+	    }
+
+	    // If the sound hasn't loaded, add it to the load queue to change position when capable.
+	    if (self._state !== 'loaded') {
+	      self._queue.push({
+	        event: 'pos',
+	        action: function() {
+	          self.pos(x, y, z, id);
+	        }
+	      });
+
+	      return self;
+	    }
+
+	    // Set the defaults for optional 'y' & 'z'.
+	    y = (typeof y !== 'number') ? 0 : y;
+	    z = (typeof z !== 'number') ? -0.5 : z;
+
+	    // Setup the group's spatial position if no ID is passed.
+	    if (typeof id === 'undefined') {
+	      // Return the group's spatial position if no parameters are passed.
+	      if (typeof x === 'number') {
+	        self._pos = [x, y, z];
+	      } else {
+	        return self._pos;
+	      }
+	    }
+
+	    // Change the spatial position of one or all sounds in group.
+	    var ids = self._getSoundIds(id);
+	    for (var i=0; i<ids.length; i++) {
+	      // Get the sound.
+	      var sound = self._soundById(ids[i]);
+
+	      if (sound) {
+	        if (typeof x === 'number') {
+	          sound._pos = [x, y, z];
+
+	          if (sound._node) {
+	            // Check if there is a panner setup and create a new one if not.
+	            if (!sound._panner || sound._panner.pan) {
+	              setupPanner(sound, 'spatial');
+	            }
+
+	            sound._panner.setPosition(x, y, z);
+	          }
+
+	          self._emit('pos', sound._id);
+	        } else {
+	          return sound._pos;
+	        }
+	      }
+	    }
+
+	    return self;
+	  };
+
+	  /**
+	   * Get/set the direction the audio source is pointing in the 3D cartesian coordinate
+	   * space. Depending on how direction the sound is, based on the `cone` attributes,
+	   * a sound pointing away from the listener can be quiet or silent.
+	   * @param  {Number} x  The x-orientation of the source.
+	   * @param  {Number} y  The y-orientation of the source.
+	   * @param  {Number} z  The z-orientation of the source.
+	   * @param  {Number} id (optional) The sound ID. If none is passed, all in group will be updated.
+	   * @return {Howl/Array}    Returns self or the current 3D spatial orientation: [x, y, z].
+	   */
+	  Howl.prototype.orientation = function(x, y, z, id) {
+	    var self = this;
+
+	    // Stop right here if not using Web Audio.
+	    if (!self._webAudio) {
+	      return self;
+	    }
+
+	    // If the sound hasn't loaded, add it to the load queue to change orientation when capable.
+	    if (self._state !== 'loaded') {
+	      self._queue.push({
+	        event: 'orientation',
+	        action: function() {
+	          self.orientation(x, y, z, id);
+	        }
+	      });
+
+	      return self;
+	    }
+
+	    // Set the defaults for optional 'y' & 'z'.
+	    y = (typeof y !== 'number') ? self._orientation[1] : y;
+	    z = (typeof z !== 'number') ? self._orientation[2] : z;
+
+	    // Setup the group's spatial orientation if no ID is passed.
+	    if (typeof id === 'undefined') {
+	      // Return the group's spatial orientation if no parameters are passed.
+	      if (typeof x === 'number') {
+	        self._orientation = [x, y, z];
+	      } else {
+	        return self._orientation;
+	      }
+	    }
+
+	    // Change the spatial orientation of one or all sounds in group.
+	    var ids = self._getSoundIds(id);
+	    for (var i=0; i<ids.length; i++) {
+	      // Get the sound.
+	      var sound = self._soundById(ids[i]);
+
+	      if (sound) {
+	        if (typeof x === 'number') {
+	          sound._orientation = [x, y, z];
+
+	          if (sound._node) {
+	            // Check if there is a panner setup and create a new one if not.
+	            if (!sound._panner) {
+	              // Make sure we have a position to setup the node with.
+	              if (!sound._pos) {
+	                sound._pos = self._pos || [0, 0, -0.5];
+	              }
+
+	              setupPanner(sound, 'spatial');
+	            }
+
+	            sound._panner.setOrientation(x, y, z);
+	          }
+
+	          self._emit('orientation', sound._id);
+	        } else {
+	          return sound._orientation;
+	        }
+	      }
+	    }
+
+	    return self;
+	  };
+
+	  /**
+	   * Get/set the panner node's attributes for a sound or group of sounds.
+	   * This method can optionall take 0, 1 or 2 arguments.
+	   *   pannerAttr() -> Returns the group's values.
+	   *   pannerAttr(id) -> Returns the sound id's values.
+	   *   pannerAttr(o) -> Set's the values of all sounds in this Howl group.
+	   *   pannerAttr(o, id) -> Set's the values of passed sound id.
+	   *
+	   *   Attributes:
+	   *     coneInnerAngle - (360 by default) There will be no volume reduction inside this angle.
+	   *     coneOuterAngle - (360 by default) The volume will be reduced to a constant value of
+	   *                      `coneOuterGain` outside this angle.
+	   *     coneOuterGain - (0 by default) The amount of volume reduction outside of `coneOuterAngle`.
+	   *     distanceModel - ('inverse' by default) Determines algorithm to use to reduce volume as audio moves
+	   *                      away from listener. Can be `linear`, `inverse` or `exponential`.
+	   *     maxDistance - (10000 by default) Volume won't reduce between source/listener beyond this distance.
+	   *     panningModel - ('HRTF' by default) Determines which spatialization algorithm is used to position audio.
+	   *                     Can be `HRTF` or `equalpower`.
+	   *     refDistance - (1 by default) A reference distance for reducing volume as the source
+	   *                    moves away from the listener.
+	   *     rolloffFactor - (1 by default) How quickly the volume reduces as source moves from listener.
+	   * 
+	   * @return {Howl/Object} Returns self or current panner attributes.
+	   */
+	  Howl.prototype.pannerAttr = function() {
+	    var self = this;
+	    var args = arguments;
+	    var o, id, sound;
+
+	    // Stop right here if not using Web Audio.
+	    if (!self._webAudio) {
+	      return self;
+	    }
+
+	    // Determine the values based on arguments.
+	    if (args.length === 0) {
+	      // Return the group's panner attribute values.
+	      return self._pannerAttr;
+	    } else if (args.length === 1) {
+	      if (typeof args[0] === 'object') {
+	        o = args[0];
+
+	        // Set the grou's panner attribute values.
+	        if (typeof id === 'undefined') {
+	          self._pannerAttr = {
+	            coneInnerAngle: typeof o.coneInnerAngle !== 'undefined' ? o.coneInnerAngle : self._coneInnerAngle,
+	            coneOuterAngle: typeof o.coneOuterAngle !== 'undefined' ? o.coneOuterAngle : self._coneOuterAngle,
+	            coneOuterGain: typeof o.coneOuterGain !== 'undefined' ? o.coneOuterGain : self._coneOuterGain,
+	            distanceModel: typeof o.distanceModel !== 'undefined' ? o.distanceModel : self._distanceModel,
+	            maxDistance: typeof o.maxDistance !== 'undefined' ? o.maxDistance : self._maxDistance,
+	            panningModel: typeof o.panningModel !== 'undefined' ? o.panningModel : self._panningModel,
+	            refDistance: typeof o.refDistance !== 'undefined' ? o.refDistance : self._refDistance,
+	            rolloffFactor: typeof o.rolloffFactor !== 'undefined' ? o.rolloffFactor : self._rolloffFactor
+	          };
+	        }
+	      } else {
+	        // Return this sound's panner attribute values.
+	        sound = self._soundById(parseInt(args[0], 10));
+	        return sound ? sound._pannerAttr : self._pannerAttr;
+	      }
+	    } else if (args.length === 2) {
+	      o = args[0];
+	      id = parseInt(args[1], 10);
+	    }
+
+	    // Update the values of the specified sounds.
+	    var ids = self._getSoundIds(id);
+	    for (var i=0; i<ids.length; i++) {
+	      sound = self._soundById(ids[i]);
+
+	      if (sound) {
+	        // Merge the new values into the sound.
+	        var pa = sound._pannerAttr;
+	        pa = {
+	          coneInnerAngle: typeof o.coneInnerAngle !== 'undefined' ? o.coneInnerAngle : pa.coneInnerAngle,
+	          coneOuterAngle: typeof o.coneOuterAngle !== 'undefined' ? o.coneOuterAngle : pa.coneOuterAngle,
+	          coneOuterGain: typeof o.coneOuterGain !== 'undefined' ? o.coneOuterGain : pa.coneOuterGain,
+	          distanceModel: typeof o.distanceModel !== 'undefined' ? o.distanceModel : pa.distanceModel,
+	          maxDistance: typeof o.maxDistance !== 'undefined' ? o.maxDistance : pa.maxDistance,
+	          panningModel: typeof o.panningModel !== 'undefined' ? o.panningModel : pa.panningModel,
+	          refDistance: typeof o.refDistance !== 'undefined' ? o.refDistance : pa.refDistance,
+	          rolloffFactor: typeof o.rolloffFactor !== 'undefined' ? o.rolloffFactor : pa.rolloffFactor
+	        };
+
+	        // Update the panner values or create a new panner if none exists.
+	        var panner = sound._panner;
+	        if (panner) {
+	          panner.coneInnerAngle = pa.coneInnerAngle;
+	          panner.coneOuterAngle = pa.coneOuterAngle;
+	          panner.coneOuterGain = pa.coneOuterGain;
+	          panner.distanceModel = pa.distanceModel;
+	          panner.maxDistance = pa.maxDistance;
+	          panner.panningModel = pa.panningModel;
+	          panner.refDistance = pa.refDistance;
+	          panner.rolloffFactor = pa.rolloffFactor;
+	        } else {
+	          // Make sure we have a position to setup the node with.
+	          if (!sound._pos) {
+	            sound._pos = self._pos || [0, 0, -0.5];
+	          }
+
+	          // Create a new panner node.
+	          setupPanner(sound, 'spatial');
+	        }
+	      }
+	    }
+
+	    return self;
+	  };
+
+	  /** Single Sound Methods **/
+	  /***************************************************************************/
+
+	  /**
+	   * Add new properties to the core Sound init.
+	   * @param  {Function} _super Core Sound init method.
+	   * @return {Sound}
+	   */
+	  Sound.prototype.init = (function(_super) {
+	    return function() {
+	      var self = this;
+	      var parent = self._parent;
+
+	      // Setup user-defined default properties.
+	      self._orientation = parent._orientation;
+	      self._stereo = parent._stereo;
+	      self._pos = parent._pos;
+	      self._pannerAttr = parent._pannerAttr;
+
+	      // Complete initilization with howler.js core Sound's init function.
+	      _super.call(this);
+
+	      // If a stereo or position was specified, set it up.
+	      if (self._stereo) {
+	        parent.stereo(self._stereo);
+	      } else if (self._pos) {
+	        parent.pos(self._pos[0], self._pos[1], self._pos[2], self._id);
+	      }
+	    };
+	  })(Sound.prototype.init);
+
+	  /**
+	   * Override the Sound.reset method to clean up properties from the spatial plugin.
+	   * @param  {Function} _super Sound reset method.
+	   * @return {Sound}
+	   */
+	  Sound.prototype.reset = (function(_super) {
+	    return function() {
+	      var self = this;
+	      var parent = self._parent;
+
+	      // Reset all spatial plugin properties on this sound.
+	      self._orientation = parent._orientation;
+	      self._pos = parent._pos;
+	      self._pannerAttr = parent._pannerAttr;
+
+	      // Complete resetting of the sound.
+	      return _super.call(this);
+	    };
+	  })(Sound.prototype.reset);
+
+	  /** Helper Methods **/
+	  /***************************************************************************/
+
+	  /**
+	   * Create a new panner node and save it on the sound.
+	   * @param  {Sound} sound Specific sound to setup panning on.
+	   * @param {String} type Type of panner to create: 'stereo' or 'spatial'.
+	   */
+	  var setupPanner = function(sound, type) {
+	    type = type || 'spatial';
+
+	    // Create the new panner node.
+	    if (type === 'spatial') {
+	      sound._panner = Howler.ctx.createPanner();
+	      sound._panner.coneInnerAngle = sound._pannerAttr.coneInnerAngle;
+	      sound._panner.coneOuterAngle = sound._pannerAttr.coneOuterAngle;
+	      sound._panner.coneOuterGain = sound._pannerAttr.coneOuterGain;
+	      sound._panner.distanceModel = sound._pannerAttr.distanceModel;
+	      sound._panner.maxDistance = sound._pannerAttr.maxDistance;
+	      sound._panner.panningModel = sound._pannerAttr.panningModel;
+	      sound._panner.refDistance = sound._pannerAttr.refDistance;
+	      sound._panner.rolloffFactor = sound._pannerAttr.rolloffFactor;
+	      sound._panner.setPosition(sound._pos[0], sound._pos[1], sound._pos[2]);
+	      sound._panner.setOrientation(sound._orientation[0], sound._orientation[1], sound._orientation[2]);
+	    } else {
+	      sound._panner = Howler.ctx.createStereoPanner();
+	      sound._panner.pan.value = sound._stereo;
+	    }
+
+	    sound._panner.connect(sound._node);
+
+	    // Update the connections.
+	    if (!sound._paused) {
+	      sound._parent.pause(sound._id, true).play(sound._id);
+	    }
+	  };
+	})();
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var screen_1 = __webpack_require__(4);
+	var keys_1 = __webpack_require__(7);
+	var highscores_1 = __webpack_require__(2);
+	var events_1 = __webpack_require__(9);
+	var letters = '_abcdefghijklmnopqrstuvwxyz';
+	var InitialsMode = (function (_super) {
+	    __extends(InitialsMode, _super);
+	    function InitialsMode(score) {
+	        var _this = _super.call(this) || this;
+	        _this.index = 1;
+	        _this.score = score;
+	        _this.init();
+	        return _this;
+	    }
+	    InitialsMode.prototype.init = function () {
+	        this.position = 0;
+	        this.index = 1;
+	        this.initials = ['a', '_', '_'];
+	    };
+	    InitialsMode.prototype.update = function (dt) {
+	        if (keys_1.Key.isPressed(keys_1.Key.LEFT)) {
+	            this.index--;
+	            if (this.index < 0) {
+	                this.index = letters.length - 1;
+	            }
+	            this.initials[this.position] = letters[this.index];
+	        }
+	        if (keys_1.Key.isPressed(keys_1.Key.RIGHT)) {
+	            this.index++;
+	            if (this.index > letters.length - 1) {
+	                this.index = 0;
+	            }
+	            this.initials[this.position] = letters[this.index];
+	        }
+	        if (keys_1.Key.isPressed(keys_1.Key.SPACE)) {
+	            this.position++;
+	            if (this.position >= 3) {
+	                highscores_1.highscores.save(this.score, this.initials.join('').replace('_', ' '));
+	                this.init();
+	                this.trigger('done');
+	            }
+	            this.index = 1;
+	            this.initials[this.position] = letters[this.index];
+	        }
+	    };
+	    InitialsMode.prototype.render = function () {
+	        var offset = 165;
+	        var text = (function (t) { return screen_1.default.draw.text(t, 50, offset += 35, '30pt'); });
+	        screen_1.default.draw.background();
+	        screen_1.default.draw.highscore(highscores_1.highscores.top.score);
+	        screen_1.default.draw.scorePlayer1(this.score);
+	        screen_1.default.draw.copyright();
+	        text('your score is one of the ten best');
+	        text('please enter your initials');
+	        text('push rotate to select letter');
+	        text('push hyperspace when letter is correct');
+	        screen_1.default.draw.text3(this.initials.join(''), '60pt', function (width) {
+	            return { x: (screen_1.default.width / 2) - width, y: screen_1.default.height / 2 };
+	        });
+	    };
+	    return InitialsMode;
+	}(events_1.EventSource));
+	exports.InitialsMode = InitialsMode;
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var screen_1 = __webpack_require__(4);
+	var collisions_1 = __webpack_require__(17);
+	var AttractMode = (function () {
+	    function AttractMode(state) {
+	        this.state = state;
+	        this.showPushStart = true;
+	        this.pushStartTimer = 0;
+	        this.init();
+	    }
+	    AttractMode.prototype.init = function () {
+	        if (!this.state.started) {
+	            this.state.startLevel();
+	        }
+	    };
+	    AttractMode.prototype.update = function (dt) {
+	        this.state.levelTimer += dt;
+	        this.state.updateAlienTimer(dt);
+	        if (!this.state.rocks.length && !this.state.explosions.length && !this.state.alien) {
+	            this.state.startLevel();
+	        }
+	        this.updatePushStartTimer(dt);
+	        this.checkCollisions();
+	        this.state.objects.forEach(function (obj) {
+	            if (obj) {
+	                obj.update(dt);
+	            }
+	        });
+	    };
+	    AttractMode.prototype.updatePushStartTimer = function (dt) {
+	        this.pushStartTimer += dt;
+	        if (this.pushStartTimer >= .4) {
+	            this.pushStartTimer = 0;
+	            this.showPushStart = !this.showPushStart;
+	        }
+	    };
+	    AttractMode.prototype.checkCollisions = function () {
+	        var _this = this;
+	        var _a = this.state, alien = _a.alien, rocks = _a.rocks, alienBullets = _a.alienBullets;
+	        var check = !!alien || !!alienBullets.length;
+	        if (!check) {
+	            return;
+	        }
+	        var collisions = new collisions_1.Collisions();
+	        collisions.check([alien], rocks, function (alien, rock) {
+	            _this.state.alienDestroyed();
+	            _this.state.rockDestroyed(rock);
+	        });
+	        collisions.check(alienBullets, rocks, function (bullet, rock) {
+	            _this.state.rockDestroyed(rock);
+	        });
+	    };
+	    AttractMode.prototype.render = function () {
+	        this.drawBackground();
+	        this.drawPushStart();
+	        this.state.objects.forEach(function (obj) {
+	            if (obj) {
+	                obj.render();
+	            }
+	        });
+	    };
+	    AttractMode.prototype.drawBackground = function () {
+	        screen_1.default.draw.background();
+	        screen_1.default.draw.scorePlayer1(this.state.score);
+	        screen_1.default.draw.oneCoinOnePlay();
+	        screen_1.default.draw.highscore(this.state.highscore);
+	        screen_1.default.draw.copyright();
+	    };
+	    AttractMode.prototype.drawPushStart = function () {
+	        if (this.showPushStart) {
+	            screen_1.default.draw.pushStart();
+	        }
+	    };
+	    return AttractMode;
+	}());
+	exports.AttractMode = AttractMode;
+
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var screen_1 = __webpack_require__(4);
+	var quadtree_1 = __webpack_require__(18);
+	var Collisions = (function () {
+	    function Collisions() {
+	        this.tree = new quadtree_1.Quadtree({
+	            x: 0,
+	            y: 0,
+	            width: screen_1.default.width,
+	            height: screen_1.default.height
+	        }, 1);
+	    }
+	    Collisions.prototype.check = function (sources, targets, cb, dcb) {
+	        var _this = this;
+	        if (!sources || !sources.length || !targets || !targets.length) {
+	            return;
+	        }
+	        this.tree.clear();
+	        targets.forEach(function (target) {
+	            _this.tree.insert(target);
+	        });
+	        sources.forEach(function (source) {
+	            var candidates = [];
+	            candidates.push.apply(candidates, _this.tree.retrieve(source));
+	            candidates.forEach(function (candidate) {
+	                if (candidate.collided(source)) {
+	                    if (_this.pointsInPolygon(source, candidate)) {
+	                        cb(source, candidate);
+	                    }
+	                }
+	                else if (dcb) {
+	                    dcb(source, candidate);
+	                }
+	            });
+	        });
+	    };
+	    Collisions.prototype.pointsInPolygon = function (source, target) {
+	        var vert1 = source.vertices;
+	        var vert2 = target.vertices;
+	        for (var i = 0, l = vert2.length; i < l; i++) {
+	            if (this.pointInPoly(vert1, vert2[i])) {
+	                return true;
+	            }
+	        }
+	        return false;
+	    };
+	    Collisions.prototype.pointInPoly = function (points, t) {
+	        var j = points.length - 1;
+	        var c = 0;
+	        for (var i = 0, l = points.length; i < l; i++) {
+	            if ((points[i].y < t.y && points[j].y >= t.y || points[j].y < t.y && points[i].y >= t.y) &&
+	                (points[i].x <= t.x || points[j].x <= t.x)) {
+	                c ^= points[i].x + (t.y - points[i].y) / (points[j].y - points[i].y) * (points[j].x - points[i].x) < t.x;
+	            }
+	            j = i;
+	        }
+	        return c % 2 === 0;
+	    };
+	    return Collisions;
+	}());
+	exports.Collisions = Collisions;
+
+
+/***/ },
+/* 18 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var Quadtree = (function () {
+	    function Quadtree(bounds, maxObjects, maxLevels, level) {
+	        if (maxObjects === void 0) { maxObjects = 10; }
+	        if (maxLevels === void 0) { maxLevels = 4; }
+	        if (level === void 0) { level = 0; }
+	        this.bounds = bounds;
+	        this.maxObjects = maxObjects;
+	        this.maxLevels = maxLevels;
+	        this.level = level;
+	        this.objects = [];
+	        this.nodes = [];
+	        this.width2 = this.bounds.width / 2;
+	        this.height2 = this.bounds.height / 2;
+	        this.xmid = this.bounds.x + this.width2;
+	        this.ymid = this.bounds.y + this.height2;
+	    }
+	    Quadtree.prototype.insert = function (rect) {
+	        var _this = this;
+	        if (!rect) {
+	            return;
+	        }
+	        var i = 0;
+	        var indices;
+	        if (this.nodes.length) {
+	            indices = this.getIndex(rect);
+	            if (indices.length) {
+	                indices.forEach(function (i) {
+	                    _this.nodes[i].insert(rect);
+	                });
+	                return;
+	            }
+	        }
+	        this.objects.push(rect);
+	        if (this.objects.length > this.maxObjects && this.level < this.maxLevels) {
+	            if (!this.nodes.length) {
+	                this.split();
+	            }
+	            var _loop_1 = function () {
+	                indices = this_1.getIndex(this_1.objects[i]);
+	                if (indices.length) {
+	                    var object_1 = this_1.objects.splice(i, 1)[0];
+	                    indices.forEach(function (n) {
+	                        _this.nodes[n].insert(object_1);
+	                    });
+	                }
+	                else {
+	                    i = i + 1;
+	                }
+	            };
+	            var this_1 = this;
+	            while (i < this.objects.length) {
+	                _loop_1();
+	            }
+	        }
+	    };
+	    Quadtree.prototype.retrieve = function (rect) {
+	        var _this = this;
+	        if (!rect) {
+	            return [];
+	        }
+	        var indices = this.getIndex(rect);
+	        var result = this.objects;
+	        if (this.nodes.length) {
+	            if (indices.length) {
+	                indices.forEach(function (i) {
+	                    result = result.concat(_this.nodes[i].retrieve(rect));
+	                });
+	            }
+	            else {
+	                for (var i = 0; i < this.nodes.length; i++) {
+	                    result = result.concat(this.nodes[i].retrieve(rect));
+	                }
+	            }
+	        }
+	        return result.filter(function (x, n, a) { return a.indexOf(x) === n; });
+	    };
+	    ;
+	    Quadtree.prototype.clear = function () {
+	        this.objects = [];
+	        for (var i = 0; i < this.nodes.length; i++) {
+	            if (this.nodes[i]) {
+	                this.nodes[i].clear();
+	            }
+	        }
+	        this.nodes = [];
+	    };
+	    ;
+	    Quadtree.prototype.getIndex = function (rect) {
+	        if (!rect) {
+	            return [];
+	        }
+	        var results = [];
+	        var _a = this, xmid = _a.xmid, ymid = _a.ymid;
+	        var top = (rect.y <= ymid);
+	        var bottom = (rect.y > ymid);
+	        if (rect.x <= xmid) {
+	            if (top) {
+	                results.push(1);
+	                var zero = false;
+	                if (rect.x + rect.width > xmid) {
+	                    results.push(0);
+	                    zero = true;
+	                }
+	                if (rect.y + rect.height > ymid) {
+	                    results.push(2);
+	                    if (zero) {
+	                        results.push(3);
+	                    }
+	                }
+	            }
+	            else if (bottom) {
+	                results.push(2);
+	                if (rect.x + rect.width > xmid) {
+	                    results.push(3);
+	                }
+	            }
+	        }
+	        else if (rect.x > xmid) {
+	            if (top) {
+	                results.push(0);
+	                if (rect.y + rect.height > ymid) {
+	                    results.push(3);
+	                }
+	            }
+	            else {
+	                results.push(3);
+	            }
+	        }
+	        return results;
+	    };
+	    ;
+	    Quadtree.prototype.split = function () {
+	        var _this = this;
+	        var width = Math.round(this.width2);
+	        var height = Math.round(this.height2);
+	        var x = Math.round(this.bounds.x);
+	        var y = Math.round(this.bounds.y);
+	        var create = function (x, y) {
+	            var bounds = {
+	                x: x,
+	                y: y,
+	                width: width,
+	                height: height
+	            };
+	            return new Quadtree(bounds, _this.maxObjects, _this.maxLevels, _this.level + 1);
+	        };
+	        this.nodes = [create(x + width, y), create(x, y), create(x, y + height), create(x + width, y + height)];
+	    };
+	    ;
+	    return Quadtree;
+	}());
+	exports.Quadtree = Quadtree;
+
+
+/***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var keys_1 = __webpack_require__(7);
+	var events_1 = __webpack_require__(9);
+	var collisions_1 = __webpack_require__(17);
+	var screen_1 = __webpack_require__(4);
+	var sounds_1 = __webpack_require__(13);
+	var Thumper = (function () {
+	    function Thumper() {
+	        this.lo = true;
+	        this.reset();
+	    }
+	    Thumper.prototype.reset = function () {
+	        this.thumpBeatTimer = 0;
+	        this.thumpBeat = 1;
+	        this.thumpTimer = 0;
+	        this.thumpTime = 10;
+	        this.max = false;
+	    };
+	    Thumper.prototype.update = function (dt) {
+	        var DEC = .2;
+	        this.thumpTimer += dt;
+	        this.thumpBeatTimer += dt;
+	        if (this.thumpBeatTimer >= this.thumpBeat) {
+	            if (this.lo) {
+	                sounds_1.thumpLo.play();
+	            }
+	            else {
+	                sounds_1.thumpHi.play();
+	            }
+	            this.lo = !this.lo;
+	            this.thumpBeatTimer = 0;
+	        }
+	        if (!this.max && this.thumpTimer >= this.thumpTime) {
+	            this.thumpBeat -= DEC;
+	            if (this.thumpBeat <= DEC) {
+	                this.thumpBeat = DEC;
+	                this.max = true;
+	            }
+	            this.thumpTimer = 0;
+	        }
+	    };
+	    return Thumper;
+	}());
+	var GameMode = (function (_super) {
+	    __extends(GameMode, _super);
+	    function GameMode(state) {
+	        var _this = _super.call(this) || this;
+	        _this.state = state;
+	        _this.debug = false;
+	        _this.bounds = [];
+	        return _this;
+	    }
+	    GameMode.prototype.init = function () {
+	        this.state.addShip(screen_1.default.width2, screen_1.default.height2);
+	        this.state.startLevel();
+	        this.thumper = new Thumper();
+	    };
+	    GameMode.prototype.update = function (dt) {
+	        if (keys_1.Key.isPressed(keys_1.Key.DEBUG)) {
+	            this.debug = !this.debug;
+	        }
+	        if (keys_1.Key.isPressed(keys_1.Key.PAUSE)) {
+	            this.state.paused = !this.state.paused;
+	        }
+	        if (keys_1.Key.isPressed(keys_1.Key.SPACE)) {
+	            this.state.hyperspace();
+	        }
+	        if (this.state.paused) {
+	            return;
+	        }
+	        this.state.levelTimer += dt;
+	        if (this.thumper && this.state.ship) {
+	            this.thumper.update(dt);
+	        }
+	        if (this.state.gameOver) {
+	            this.state.gameOverTimer += dt;
+	            if (this.state.gameOverTimer >= 5) {
+	                this.trigger('done', this.state);
+	            }
+	        }
+	        if (!this.state.started) {
+	            if (this.state.levelTimer >= 2) {
+	                this.init();
+	                this.state.started = true;
+	            }
+	            return;
+	        }
+	        this.state.updateAlienTimer(dt);
+	        if (!this.state.gameOver) {
+	            if (this.state.shouldTryToPlaceShip()) {
+	                this.state.tryPlaceShip(dt);
+	            }
+	            if (this.state.shouldCheckForNextLevel()) {
+	                this.state.startLevel();
+	                this.thumper.reset();
+	            }
+	        }
+	        if (!this.state.lives) {
+	            this.state.gameOver = true;
+	        }
+	        this.checkCollisions();
+	        this.state.objects.forEach(function (obj) {
+	            if (obj) {
+	                obj.update(dt);
+	            }
+	        });
+	    };
+	    GameMode.prototype.render = function (delta) {
+	        this.renderStatic();
+	        this.state.objects.forEach(function (obj) {
+	            if (obj) {
+	                obj.render();
+	            }
+	        });
+	    };
+	    GameMode.prototype.renderStatic = function () {
+	        screen_1.default.draw.background();
+	        screen_1.default.draw.copyright();
+	        screen_1.default.draw.scorePlayer1(this.state.score);
+	        screen_1.default.draw.highscore(this.state.highscore);
+	        screen_1.default.draw.drawExtraLives(this.state.lives);
+	        if (!this.state.started) {
+	            screen_1.default.draw.player1();
+	        }
+	        if (this.state.gameOver) {
+	            screen_1.default.draw.gameOver();
+	        }
+	        if (this.debug) {
+	            this.renderDebug();
+	        }
+	    };
+	    GameMode.prototype.renderDebug = function () {
+	        screen_1.default.draw.text2('debug mode', '12pt', function (width) {
+	            return { x: screen_1.default.width - width - 10, y: screen_1.default.height - 40 };
+	        });
+	        if (this.bounds) {
+	            this.bounds.forEach(function (r) {
+	                screen_1.default.draw.bounds(r, '#fc058d');
+	            });
+	        }
+	        if (!this.state.ship && this.state.lives) {
+	            var rect = {
+	                x: screen_1.default.width2 - 120,
+	                y: screen_1.default.height2 - 120,
+	                width: 240,
+	                height: 240
+	            };
+	            screen_1.default.draw.bounds(rect, '#00ff00');
+	        }
+	        if (this.state.ship) {
+	            screen_1.default.draw.text(this.state.ship.angle.toString(), this.state.ship.origin.x + 20, this.state.ship.origin.y + 20, '10pt');
+	        }
+	        var date = new Date(null);
+	        date.setSeconds(this.state.levelTimer);
+	        screen_1.default.draw.text2(date.toISOString().substr(11, 8), '12pt', function (width) {
+	            return { x: 10, y: screen_1.default.height - 40 };
+	        });
+	    };
+	    GameMode.prototype.checkCollisions = function () {
+	        var _this = this;
+	        var _a = this.state, ship = _a.ship, rocks = _a.rocks, shipBullets = _a.shipBullets, alien = _a.alien, alienBullets = _a.alienBullets;
+	        if (!this.state.shouldCheckCollisions()) {
+	            return;
+	        }
+	        this.bounds = [];
+	        var collisions = new collisions_1.Collisions();
+	        collisions.check(shipBullets, rocks, function (bullet, rock) {
+	            _this.state.addScore(rock.score);
+	            _this.state.rockDestroyed(rock);
+	            bullet.destroy();
+	        }, function (bullet, rock) {
+	            if (_this.debug) {
+	                _this.bounds.push(rock);
+	            }
+	        });
+	        collisions.check(shipBullets, [alien], function (bullet, alien) {
+	            _this.state.addScore(alien.score);
+	            _this.state.alienDestroyed();
+	            bullet.destroy();
+	        }, function (bullet, alien) {
+	            if (_this.debug) {
+	                _this.bounds.push(alien);
+	            }
+	        });
+	        collisions.check([ship], rocks, function (ship, rock) {
+	            _this.state.addScore(rock.score);
+	            _this.state.rockDestroyed(rock);
+	            _this.state.shipDestroyed();
+	        }, function (ship, rock) {
+	            if (_this.debug) {
+	                _this.bounds.push(rock);
+	            }
+	        });
+	        collisions.check([ship], [alien], function (ship, alien) {
+	            _this.state.addScore(alien.score);
+	            _this.state.alienDestroyed();
+	            _this.state.shipDestroyed();
+	        }, function (ship, alien) {
+	            if (_this.debug) {
+	                _this.bounds.push(alien);
+	            }
+	        });
+	        collisions.check([alien], rocks, function (alien, rock) {
+	            _this.state.alienDestroyed();
+	            _this.state.rockDestroyed(rock);
+	        }, function (alien, rock) {
+	            if (_this.debug) {
+	                _this.bounds.push(rock);
+	            }
+	        });
+	        collisions.check(alienBullets, rocks, function (bullet, rock) {
+	            _this.state.rockDestroyed(rock);
+	        }, function (bullet, rock) {
+	            if (_this.debug) {
+	                _this.bounds.push(rock);
+	            }
+	        });
+	        collisions.check(alienBullets, [ship], function (bullet, ship) {
+	            _this.state.shipDestroyed();
+	            bullet.destroy();
+	        }, function (bullet, ship) {
+	            if (_this.debug) {
+	                _this.bounds.push(ship);
+	            }
+	        });
+	    };
+	    return GameMode;
+	}(events_1.EventSource));
+	exports.GameMode = GameMode;
+
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var ship_1 = __webpack_require__(6);
+	var alien_1 = __webpack_require__(21);
+	var explosion_1 = __webpack_require__(23);
+	var rocks_1 = __webpack_require__(24);
+	var vector_1 = __webpack_require__(11);
+	var util_1 = __webpack_require__(22);
+	var screen_1 = __webpack_require__(4);
+	var sounds_1 = __webpack_require__(13);
+	var EXTRA_LIFE = 10000;
+	var State = (function () {
+	    function State(highscore) {
+	        this.level = 0;
+	        this.extraLifeScore = 0;
+	        this.score = 0;
+	        this.lives = 3;
+	        this.shipBullets = [];
+	        this.alienBullets = [];
+	        this.explosions = [];
+	        this.rocks = [];
+	        this.shipTimer = 0;
+	        this.alienTimer = 0;
+	        this.levelTimer = 0;
+	        this.gameOverTimer = 0;
+	        this.gameOver = false;
+	        this.started = false;
+	        this.paused = false;
+	        this.highscore = highscore;
+	    }
+	    Object.defineProperty(State.prototype, "objects", {
+	        get: function () {
+	            return [this.ship, this.alien].concat(this.shipBullets, this.alienBullets, this.rocks, this.explosions);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    State.prototype.startLevel = function () {
+	        this.level++;
+	        this.levelTimer = 0;
+	        this.alienTimer = util_1.random(10, 15);
+	        this.addRocks();
+	    };
+	    State.prototype.addRocks = function () {
+	        var count = Math.min(this.level + 3, 7);
+	        var speed = 150;
+	        for (var i = 0; i < count; i++) {
+	            var zone = util_1.random(1, 4);
+	            var v = new vector_1.Vector(util_1.random(1, 360));
+	            var x = void 0;
+	            var y = void 0;
+	            switch (zone) {
+	                case 1:
+	                    x = util_1.random(40, screen_1.default.width - 40);
+	                    y = util_1.random(40, 80);
+	                    break;
+	                case 2:
+	                    x = util_1.random(screen_1.default.width - 80, screen_1.default.width - 40);
+	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
+	                    break;
+	                case 3:
+	                    x = util_1.random(40, screen_1.default.width - 40);
+	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
+	                    break;
+	                default:
+	                    x = util_1.random(40, 80);
+	                    y = util_1.random(screen_1.default.height - 40, screen_1.default.height - 40);
+	                    break;
+	            }
+	            var rock = new rocks_1.Rock(x, y, v, rocks_1.RockSize.Large, speed);
+	            this.rocks.push(rock);
+	        }
+	    };
+	    State.prototype.addShip = function (x, y) {
+	        var _this = this;
+	        this.ship = new ship_1.Ship(x, y);
+	        this.ship.on('fire', function (ship, bullet) {
+	            bullet.on('expired', function () {
+	                _this.shipBullets = _this.shipBullets.filter(function (x) { return x !== bullet; });
+	            });
+	            _this.shipBullets.push(bullet);
+	        });
+	    };
+	    State.prototype.createExplosion = function (x, y) {
+	        var _this = this;
+	        var explosion = new explosion_1.Explosion(x, y);
+	        explosion.on('expired', function () {
+	            _this.explosions = _this.explosions.filter(function (x) { return x !== explosion; });
+	        });
+	        this.explosions.push(explosion);
+	    };
+	    State.prototype.shipDestroyed = function () {
+	        sounds_1.largeExplosion.play();
+	        this.createExplosion(this.ship.origin.x, this.ship.origin.y);
+	        this.lives--;
+	        this.ship = null;
+	        this.shipBullets = [];
+	    };
+	    State.prototype.alienDestroyed = function () {
+	        this.alien.destroy();
+	        this.createExplosion(this.alien.origin.x, this.alien.origin.y);
+	        this.alien = null;
+	        this.alienBullets = [];
+	        sounds_1.largeExplosion.play();
+	    };
+	    State.prototype.rockDestroyed = function (rock) {
+	        this.createExplosion(rock.origin.x, rock.origin.y);
+	        this.rocks = this.rocks.filter(function (x) { return x !== rock; });
+	        (_a = this.rocks).push.apply(_a, rock.split());
+	        rock = null;
+	        var _a;
+	    };
+	    State.prototype.addAlien = function () {
+	        var _this = this;
+	        var lvl = Math.min(this.level, 7);
+	        if (this.score >= 40000) {
+	            this.alien = new alien_1.SmallAlien(this.ship);
+	        }
+	        else {
+	            var little = false;
+	            switch (lvl) {
+	                case 1:
+	                    little = this.levelTimer > 60 && util_1.random(1, 3) === 2;
+	                    break;
+	                case 2:
+	                    little = this.levelTimer > 30 && util_1.random(1, 10) % 2 === 0;
+	                    break;
+	                default:
+	                    little = util_1.random(1, 10) <= lvl + 2;
+	                    break;
+	            }
+	            this.alien = little ? new alien_1.SmallAlien(this.ship) : new alien_1.BigAlien();
+	        }
+	        this.alien.on('expired', function () {
+	            _this.alien = null;
+	            _this.alienBullets.forEach(function (b) { return b.destroy(); });
+	            _this.alienBullets = [];
+	        });
+	        this.alien.on('fire', function (alien, bullet) {
+	            bullet.on('expired', function () {
+	                _this.alienBullets = _this.alienBullets.filter(function (x) { return x !== bullet; });
+	            });
+	            _this.alienBullets.push(bullet);
+	        });
+	    };
+	    State.prototype.hyperspace = function () {
+	        var x = util_1.random(40, screen_1.default.width - 40);
+	        var y = util_1.random(40, screen_1.default.height - 40);
+	        var angle = this.ship.angle;
+	        this.addShip(x, y);
+	        if (this.ship.angle > angle) {
+	            angle = -(this.ship.angle - angle);
+	        }
+	        else if (this.ship.angle < angle) {
+	            angle = angle - this.ship.angle;
+	        }
+	        this.ship.rotate(angle);
+	    };
+	    State.prototype.addScore = function (score) {
+	        this.score += score;
+	        this.extraLifeScore += score;
+	        if (this.score > this.highscore) {
+	            this.highscore = this.score;
+	        }
+	        if (this.extraLifeScore >= EXTRA_LIFE) {
+	            this.lives++;
+	            this.extraLifeScore = 0;
+	            sounds_1.extraLife.play();
+	        }
+	    };
+	    State.prototype.tryPlaceShip = function (dt) {
+	        this.shipTimer += dt;
+	        if (this.shipTimer <= 2) {
+	            return;
+	        }
+	        var rect = {
+	            x: screen_1.default.width2 - 120,
+	            y: screen_1.default.height2 - 120,
+	            width: 240,
+	            height: 240
+	        };
+	        var collided = false;
+	        this.rocks.forEach(function (rock) {
+	            collided = collided || rock.collided(rect);
+	        });
+	        if (this.alien) {
+	            collided = collided || this.alien.collided(rect);
+	        }
+	        if (!collided) {
+	            this.shipTimer = 0;
+	            this.addShip(screen_1.default.width2, screen_1.default.height2);
+	        }
+	    };
+	    State.prototype.updateAlienTimer = function (dt) {
+	        var level = Math.min(this.level, 7);
+	        if (!this.alien) {
+	            this.alienTimer -= dt;
+	            if (this.alienTimer <= 0) {
+	                this.addAlien();
+	                this.alienTimer = util_1.random(10 - level, 15 - level);
+	            }
+	        }
+	    };
+	    State.prototype.shouldTryToPlaceShip = function () {
+	        return !!this.shipTimer || (!this.ship && this.lives && !this.explosions.length);
+	    };
+	    State.prototype.shouldCheckForNextLevel = function () {
+	        return !this.rocks.length && this.lives && !this.explosions.length && !this.alien;
+	    };
+	    State.prototype.shouldCheckCollisions = function () {
+	        return !!this.ship || !!this.shipBullets.length || !!this.alien || !!this.alienBullets.length;
+	    };
+	    return State;
+	}());
+	exports.State = State;
+
+
+/***/ },
+/* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var screen_1 = __webpack_require__(4);
+	var util_1 = __webpack_require__(22);
+	var object2d_1 = __webpack_require__(8);
+	var bullet_1 = __webpack_require__(12);
+	var vector_1 = __webpack_require__(11);
+	var sounds_1 = __webpack_require__(13);
+	var BULLET_SPEED = 600;
+	var BIG_ALIEN_SPEED = 225;
+	var SMALL_ALIEN_SPEED = 250;
+	var Alien = (function (_super) {
+	    __extends(Alien, _super);
+	    function Alien(speed) {
+	        var _this = _super.call(this, 0, 0) || this;
+	        _this.moveTimer = 0;
+	        _this.moveTime = 1;
+	        _this.bulletTimer = 0;
+	        _this.bulletTime = .7;
+	        _this.vy = 0;
+	        _this.origin.y = util_1.random(100, screen_1.default.height - 100);
+	        if (_this.origin.y % 2 === 0) {
+	            _this.origin.x = 40;
+	            _this.vx = speed;
+	        }
+	        else {
+	            _this.origin.x = screen_1.default.width - 40;
+	            _this.vx = -speed;
+	        }
+	        _this.points = [
+	            { x: .5, y: -2 },
+	            { x: 1, y: -1 },
+	            { x: 2.5, y: 0 },
+	            { x: 1, y: 1 },
+	            { x: -1, y: 1 },
+	            { x: -2.5, y: 0 },
+	            { x: -1, y: -1 },
+	            { x: -.5, y: -2 },
+	            { x: .5, y: -2 }
+	        ];
+	        return _this;
+	    }
+	    Alien.prototype.update = function (dt) {
+	        this.move(dt);
+	        if (this.origin.x >= screen_1.default.width - 5 || this.origin.x <= 5) {
+	            this.trigger('expired');
+	            this.onExpired();
+	            return;
+	        }
+	        this.moveTimer += dt;
+	        if (this.moveTimer >= 1 && this.vy !== 0) {
+	            this.vy = 0;
+	            this.moveTimer = 0;
+	        }
+	        if (this.moveTimer >= this.moveTime) {
+	            var move = util_1.random(1, 20) % 2 === 0;
+	            if (move) {
+	                this.vy = this.origin.x % 2 === 0 ? this.vx : -this.vx;
+	            }
+	            this.moveTimer = 0;
+	        }
+	        this.bulletTimer += dt;
+	        if (this.bulletTimer >= this.bulletTime) {
+	            this.fire();
+	            this.bulletTimer = 0;
+	        }
+	    };
+	    Alien.prototype.render = function () {
+	        this.draw();
+	    };
+	    Alien.prototype.draw = function () {
+	        _super.prototype.draw.call(this);
+	        screen_1.default.draw.shape([this.points[1], this.points[6]], this.origin.x, this.origin.y);
+	        screen_1.default.draw.shape([this.points[2], this.points[5]], this.origin.x, this.origin.y);
+	    };
+	    return Alien;
+	}(object2d_1.Object2D));
+	exports.Alien = Alien;
+	var BigAlien = (function (_super) {
+	    __extends(BigAlien, _super);
+	    function BigAlien() {
+	        var _this = _super.call(this, BIG_ALIEN_SPEED) || this;
+	        _this.score = 200;
+	        _this.scale(7);
+	        sounds_1.largeAlien.play();
+	        return _this;
+	    }
+	    BigAlien.prototype.fire = function () {
+	        var v = new vector_1.Vector(util_1.random(1, 360), BULLET_SPEED);
+	        var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
+	        this.trigger('fire', bullet);
+	        sounds_1.alienFire.play();
+	    };
+	    BigAlien.prototype.onExpired = function () {
+	        this.destroy();
+	    };
+	    BigAlien.prototype.destroy = function () {
+	        sounds_1.largeAlien.stop();
+	    };
+	    return BigAlien;
+	}(Alien));
+	exports.BigAlien = BigAlien;
+	var SmallAlien = (function (_super) {
+	    __extends(SmallAlien, _super);
+	    function SmallAlien(ship) {
+	        var _this = _super.call(this, SMALL_ALIEN_SPEED) || this;
+	        _this.ship = ship;
+	        _this.score = 1000;
+	        _this.bulletTime = 1;
+	        _this.scale(4);
+	        sounds_1.smallAlien.play();
+	        return _this;
+	    }
+	    SmallAlien.prototype.fire = function () {
+	        var bullet;
+	        if (this.ship) {
+	            var v = vector_1.Vector.fromXY(this.ship.origin, this.origin, BULLET_SPEED);
+	            bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
+	        }
+	        else {
+	            var v = new vector_1.Vector(util_1.random(1, 360), BULLET_SPEED);
+	            bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
+	        }
+	        this.trigger('fire', bullet);
+	        sounds_1.alienFire.stop();
+	        sounds_1.alienFire.play();
+	    };
+	    SmallAlien.prototype.onExpired = function () {
+	        this.destroy();
+	    };
+	    SmallAlien.prototype.destroy = function () {
+	        this.ship = null;
+	        sounds_1.smallAlien.stop();
+	    };
+	    return SmallAlien;
+	}(Alien));
+	exports.SmallAlien = SmallAlien;
+
+
+/***/ },
+/* 22 */
+/***/ function(module, exports) {
+
+	"use strict";
+	function random(start, end) {
+	    return Math.floor(Math.random() * (end - start + 1)) + start;
+	}
+	exports.random = random;
+
+
+/***/ },
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var events_1 = __webpack_require__(9);
+	var screen_1 = __webpack_require__(4);
+	var vector_1 = __webpack_require__(11);
+	var util_1 = __webpack_require__(22);
+	var VELOCITY = 150;
+	var Explosion = (function (_super) {
+	    __extends(Explosion, _super);
+	    function Explosion(x, y) {
+	        var _this = _super.call(this) || this;
+	        _this.life = 1.25;
+	        _this.points = [];
+	        for (var i = 0; i < 15; i++) {
+	            var v = new vector_1.Vector(util_1.random(1, 360), Math.random() * VELOCITY);
+	            _this.points.push({ x: x, y: y, vx: v.x, vy: v.y });
+	        }
+	        return _this;
+	    }
+	    Explosion.prototype.update = function (dt) {
+	        this.points.forEach(function (point) {
+	            point.x += point.vx * dt;
+	            point.y += point.vy * dt;
+	        });
+	        this.life -= dt;
+	        if (this.life <= 0) {
+	            this.trigger('expired');
+	        }
+	    };
+	    Explosion.prototype.render = function (dt) {
+	        var _this = this;
+	        this.points.forEach(function (point) {
+	            screen_1.default.draw.point(point, "rgba(255,255,255," + _this.life + ")");
+	        });
+	    };
+	    return Explosion;
+	}(events_1.EventSource));
+	exports.Explosion = Explosion;
+
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
+	var object2d_1 = __webpack_require__(8);
+	var vector_1 = __webpack_require__(11);
+	var util_1 = __webpack_require__(22);
+	var sounds_1 = __webpack_require__(13);
+	var RockSize;
+	(function (RockSize) {
+	    RockSize[RockSize["Small"] = 5] = "Small";
+	    RockSize[RockSize["Medium"] = 10] = "Medium";
+	    RockSize[RockSize["Large"] = 20] = "Large";
+	})(RockSize = exports.RockSize || (exports.RockSize = {}));
+	var Rock = (function (_super) {
+	    __extends(Rock, _super);
+	    function Rock(x, y, v, size, speed) {
+	        if (speed === void 0) { speed = 1; }
+	        var _this = _super.call(this, x, y) || this;
+	        _this.rotTimer = 0;
+	        _this.rock1 = [
+	            [.5, -2],
+	            [2, -1],
+	            [2, -.7],
+	            [1.2, 0],
+	            [2, 1],
+	            [1, 2],
+	            [.5, 1.5],
+	            [-1, 2],
+	            [-2, .7],
+	            [-2, -1],
+	            [-.5, -1],
+	            [-1, -2],
+	            [.5, -2]
+	        ];
+	        _this.rock2 = [
+	            [0, -1.5],
+	            [1, -2],
+	            [2, -1],
+	            [1, -.5],
+	            [2, .5],
+	            [1, 2],
+	            [-.5, 1.5],
+	            [-1, 2],
+	            [-2, 1],
+	            [-1.5, 0],
+	            [-2, -1],
+	            [-1, -2],
+	            [0, -1.5]
+	        ];
+	        _this.rock3 = [
+	            [0, -1],
+	            [1, -2],
+	            [2, -1],
+	            [1.5, 0],
+	            [2, 1],
+	            [1, 2],
+	            [-1, 2],
+	            [-2, 1],
+	            [-2, -1],
+	            [-1, -2],
+	            [0, -1]
+	        ];
+	        _this.rocks = [_this.rock1, _this.rock2, _this.rock3];
+	        _this.vx = v.x * speed;
+	        _this.vy = v.y * speed;
+	        var type = util_1.random(0, 2);
+	        var def = _this.rocks[type];
+	        _this.points = def.map(function (p) {
+	            return {
+	                x: p[0] * size,
+	                y: p[1] * size
+	            };
+	        });
+	        _this.size = size;
+	        _this.rotate(util_1.random(1, 90));
+	        _this.rot = util_1.random(.01, 1) % 2 === 0 ? 1 : -1;
+	        _this.timeToRot = util_1.random(1, 5);
+	        return _this;
+	    }
+	    Rock.prototype.update = function (dt) {
+	        this.rotTimer += 1;
+	        this.move(dt);
+	        if (this.rotTimer === this.timeToRot) {
+	            this.rotate(this.rot);
+	            this.rotTimer = 0;
+	        }
+	    };
+	    Rock.prototype.render = function () {
+	        this.draw();
+	    };
+	    Object.defineProperty(Rock.prototype, "direction", {
+	        get: function () {
+	            var radians = Math.atan2(this.vy, this.vx);
+	            var degrees = radians * (180 / Math.PI);
+	            degrees = degrees > 0.0 ? degrees : 360 + degrees;
+	            return Math.floor(degrees);
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    Rock.prototype.split = function () {
+	        switch (this.size) {
+	            case RockSize.Large:
+	                sounds_1.largeExplosion.play();
+	                break;
+	            case RockSize.Medium:
+	                sounds_1.mediumExplosion.play();
+	                break;
+	            case RockSize.Small:
+	                sounds_1.smallExplosion.play();
+	                break;
+	        }
+	        if (this.size > RockSize.Small) {
+	            var angle1 = util_1.random(this.direction, this.direction + 80);
+	            var angle2 = util_1.random(this.direction - 80, this.direction);
+	            if (angle1 < 0) {
+	                angle1 += 360;
+	            }
+	            if (angle1 > 360) {
+	                angle1 -= 360;
+	            }
+	            if (angle2 < 0) {
+	                angle2 += 360;
+	            }
+	            if (angle2 > 360) {
+	                angle2 -= 360;
+	            }
+	            var size = this.size === RockSize.Large ? RockSize.Medium : RockSize.Small;
+	            var v1 = new vector_1.Vector(angle1);
+	            var v2 = new vector_1.Vector(angle2);
+	            var speed1 = size === RockSize.Medium ? util_1.random(150, 250) : util_1.random(250, 350);
+	            var speed2 = size === RockSize.Medium ? util_1.random(150, 250) : util_1.random(250, 350);
+	            var rock1 = new Rock(this.origin.x, this.origin.y, v1, size, speed1);
+	            var rock2 = new Rock(this.origin.x, this.origin.y, v2, size, speed2);
+	            return [rock1, rock2];
+	        }
+	        return [];
+	    };
+	    Object.defineProperty(Rock.prototype, "score", {
+	        get: function () {
+	            return this.size === RockSize.Large ? 20 : this.size === RockSize.Medium ? 50 : 100;
+	        },
+	        enumerable: true,
+	        configurable: true
+	    });
+	    return Rock;
+	}(object2d_1.Object2D));
+	exports.Rock = Rock;
+
+
+/***/ }
+/******/ ]);

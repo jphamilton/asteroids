@@ -108,8 +108,6 @@ export class Rock extends Object2D {
     }
 
     split(): Rock[] {
-        console.log('sound should play');
-
         switch(this.size) {
             case RockSize.Large:
                 largeExplosion.play();
