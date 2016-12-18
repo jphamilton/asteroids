@@ -10,6 +10,7 @@ This is an attempt to recreate the classic arcade game, Asteroids.
 * Up arrow/pan up to thrust
 * Ctrl/tap to fire
 * Space/pinch out for hyperspace
+* D for debug mode (during game only). Primarily shows collision related information.
 
 ## Screenshots
 
