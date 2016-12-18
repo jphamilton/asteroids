@@ -39,7 +39,7 @@ export class HighScoreMode {
     private drawHighScores() {
         const screenX = screen.width / 2;
 
-        screen.draw.text2('high scores', '30pt', (width) => {
+        screen.draw.text2('high scores', '24pt', (width) => {
             return {
                 x: screenX - (width / 2),
                 y: 200
@@ -50,7 +50,7 @@ export class HighScoreMode {
             const y = 280 + (i * 40);
             const text = `${this.pad(i + 1, ' ', 2)}.${this.pad(highscores.scores[i].score, ' ', 6)} ${highscores.scores[i].initials}`;
 
-            screen.draw.text2(text, '30pt', (width) => {
+            screen.draw.text2(text, '24pt', (width) => {
                 return {
                     x: screenX - (width / 2),
                     y: y

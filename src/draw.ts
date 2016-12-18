@@ -142,7 +142,7 @@ export class Draw {
     }
 
     pushStart() {
-        screen.draw.text2('push start', '30pt', (width) => {
+        screen.draw.text2('push start', '24pt', (width) => {
             return {
                 x: screen.width2 - (width / 2),
                 y: 120

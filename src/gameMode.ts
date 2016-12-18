@@ -27,6 +27,8 @@ class Thumper {
     }
 
     update(dt: number) {
+        const DEC = .2;
+
         this.thumpTimer += dt;
         this.thumpBeatTimer += dt;
 
@@ -42,10 +44,10 @@ class Thumper {
         }
 
         if (!this.max && this.thumpTimer >= this.thumpTime) {
-            this.thumpBeat -= .2;
+            this.thumpBeat -= DEC;
             
-            if (this.thumpBeat <= .2) {
-                this.thumpBeat = .2;
+            if (this.thumpBeat <= DEC) {
+                this.thumpBeat = DEC;
                 this.max = true;
             }
             
@@ -233,16 +235,6 @@ export class GameMode extends EventSource {
         
         const collisions = new Collisions();
 
-        collisions.check([ship], rocks, (ship, rock) => {
-            this.state.addScore(rock.score);
-            this.state.rockDestroyed(rock);
-            this.state.shipDestroyed();
-        }, (ship, rock) => {
-            if (this.debug) {
-                this.bounds.push(rock);
-            }
-        });
-
         collisions.check(shipBullets, rocks, (bullet, rock) => {
             this.state.addScore(rock.score);
             this.state.rockDestroyed(rock);
@@ -263,6 +255,16 @@ export class GameMode extends EventSource {
             }
         });
 
+        collisions.check([ship], rocks, (ship, rock) => {
+            this.state.addScore(rock.score);
+            this.state.rockDestroyed(rock);
+            this.state.shipDestroyed();
+        }, (ship, rock) => {
+            if (this.debug) {
+                this.bounds.push(rock);
+            }
+        });
+
         collisions.check([ship], [alien], (ship, alien) => {
             this.state.addScore(alien.score)
             this.state.alienDestroyed();
@@ -273,6 +275,15 @@ export class GameMode extends EventSource {
             }
         });
 
+        collisions.check([alien], rocks, (alien, rock) => {
+            this.state.alienDestroyed();
+            this.state.rockDestroyed(rock);
+        }, (alien, rock) => {
+            if (this.debug) {
+                this.bounds.push(rock);
+            }
+        });
+        
         collisions.check(alienBullets, rocks, (bullet, rock) => {
             this.state.rockDestroyed(rock);
         }, (bullet, rock) => {
@@ -290,14 +301,6 @@ export class GameMode extends EventSource {
             }
         });
 
-        collisions.check([alien], rocks, (alien, rock) => {
-            this.state.alienDestroyed();
-            this.state.rockDestroyed(rock);
-        }, (alien, rock) => {
-            if (this.debug) {
-                this.bounds.push(rock);
-            }
-        });
     }
 
 }
