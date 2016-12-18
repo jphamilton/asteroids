@@ -1,14 +1,14 @@
 import { loop } from './loop';
 import { highscores } from './highscores';
-import { HighScoreState } from './highscorestate';
-import { EnterHighScoreState } from './enterhighscorestate';
-import { AttractState } from './attractstate';
-import { GameState } from './gamestate';
+import { HighScoreMode } from './highScoreMode';
+import { InitialsMode } from './initialsMode';
+import { AttractMode } from './attractMode';
+import { GameMode } from './gameMode';
 import { Key } from './keys';
 
 const ATTRACT_TIME = 15;
 
-enum States {
+enum Modes {
     Attract,
     Game,
     Initials,
@@ -17,13 +17,13 @@ enum States {
 
 export class Asteroids {
 
-    private state: States;    
+    private mode: Modes;    
     private attractTimer;
     private lastScore = 0;
-    private highScoreState;
-    private attractState;
-    private gameState;
-    private initialsState;
+    private highScoreMode;
+    private attractMode;
+    private gameMode;
+    private initialsMode;
     private attractStarted;
 
     constructor() {
@@ -32,23 +32,23 @@ export class Asteroids {
 
     init() {
 
-        this.state = States.Start;
-        this.highScoreState = new HighScoreState(this.lastScore);
-        this.attractState = new AttractState(this.lastScore);
-        this.gameState = new GameState();
+        this.mode = Modes.Start;
+        this.highScoreMode = new HighScoreMode(this.lastScore);
+        this.attractMode = new AttractMode(this.lastScore);
+        this.gameMode = new GameMode();
         this.attractTimer = 0;
                 
-        this.gameState.on('done', (source, score) => {
+        this.gameMode.on('done', (source, score) => {
             this.lastScore = score;
 
             if (highscores.qualifies(score)) {
-                this.initialsState = new EnterHighScoreState(score);
+                this.initialsMode = new InitialsMode(score);
                 
-                this.initialsState.on('done', () => {
+                this.initialsMode.on('done', () => {
                     this.init();
                 });
 
-                this.state = States.Initials;
+                this.mode = Modes.Initials;
             } else {
                 this.init();
             }
@@ -59,56 +59,56 @@ export class Asteroids {
 
     update(dt) {
 
-        switch(this.state) {
-            case States.Start:
-                this.highScoreState.update(dt);
+        switch(this.mode) {
+            case Modes.Start:
+                this.highScoreMode.update(dt);
                 
                 if (this.attractStarted) {
                     // attract mode runs in the background
                     // even when it is not rendered
-                    this.attractState.update(dt);
+                    this.attractMode.update(dt);
                 }
 
                 if (Key.isPressed(Key.ONE)) {
-                    this.state = States.Game;
+                    this.mode = Modes.Game;
                 }
                 
                 this.updateAttractTimer(dt);
                 break;
 
-            case States.Attract:
-                this.attractState.update(dt);
+            case Modes.Attract:
+                this.attractMode.update(dt);
 
                 if (Key.isPressed(Key.ONE)) {
-                    this.state = States.Game;
+                    this.mode = Modes.Game;
                 }
                  
                 this.updateAttractTimer(dt);
                 break;
 
-            case States.Initials:
-                this.initialsState.update(dt);
+            case Modes.Initials:
+                this.initialsMode.update(dt);
                 break;
 
-            case States.Game:
-                this.gameState.update(dt);
+            case Modes.Game:
+                this.gameMode.update(dt);
                 break;
         }
     }
 
     render(dt) {
-        switch(this.state) {
-            case States.Start:
-                this.highScoreState.render(dt);
+        switch(this.mode) {
+            case Modes.Start:
+                this.highScoreMode.render(dt);
                 break;
-            case States.Attract:
-                this.attractState.render(dt);
+            case Modes.Attract:
+                this.attractMode.render(dt);
                 break;
-            case States.Initials:
-                this.initialsState.render(dt);
+            case Modes.Initials:
+                this.initialsMode.render(dt);
                 break;
-            case States.Game:
-                this.gameState.render(dt);
+            case Modes.Game:
+                this.gameMode.render(dt);
                 break;
         }
 
@@ -120,7 +120,7 @@ export class Asteroids {
             
         if (this.attractTimer >= ATTRACT_TIME) {
             this.attractTimer = 0;
-            this.state = this.state === States.Attract ? States.Start : States.Attract;
+            this.mode = this.mode === Modes.Attract ? Modes.Start : Modes.Attract;
         }
     }
 }

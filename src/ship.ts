@@ -132,6 +132,8 @@ export class Ship extends Object2D {
             const v = new Vector(this.angle);
             const bullet = new Bullet(this.origin.x, this.origin.y, v);
 
+            bullet.life = 1;
+            
             bullet.on('expired', () => {
                 this.bulletCount--;
             });

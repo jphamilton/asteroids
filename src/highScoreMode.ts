@@ -3,7 +3,7 @@ import { Key } from './keys';
 import { highscores } from './highscores';
 import { Object2D } from './object2d';
 
-export class HighScoreState {
+export class HighScoreMode {
 
     blink: number = 0;
     showPushStart: boolean = true;

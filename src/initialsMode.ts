@@ -6,7 +6,7 @@ import { EventSource } from './events';
 
 const letters = '_abcdefghijklmnopqrstuvwxyz';
 
-export class EnterHighScoreState extends EventSource {
+export class InitialsMode extends EventSource {
     index: number = 1;
     position: number;
     score: number;

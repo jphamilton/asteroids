@@ -10,7 +10,7 @@ import { Explosion } from './explosion';
 import { Collisions } from './collisions';
 import { Vector } from './vector';
 
-export class AttractState {
+export class AttractMode {
 
     level: number = 0;
     highscore: number;

@@ -176,21 +176,5 @@ export class Draw {
         });
     }
 
-    quadtree(tree) {
-        if (!tree) {
-            return;
-        }
-        
-        const drawNodes = (nodes) => {
-            if (!nodes) {
-                return;
-            }
-            nodes.forEach(n => {
-                screen.draw.bounds(n.bounds);
-                drawNodes(n.nodes);
-            });
-        }
-
-        drawNodes(tree.nodes);
-    }
+    
 }

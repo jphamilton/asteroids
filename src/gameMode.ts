@@ -2,7 +2,7 @@ import { Key } from './keys';
 import { EventSource } from './events';
 import { Object2D } from './object2d';
 import { Ship } from './ship';
-import { BigAlien, SmallAlien } from './alien';
+import { Alien, BigAlien, SmallAlien } from './alien';
 import { Rock, RockSize } from './rocks';
 import { Bullet } from './bullet';
 import { Explosion } from './explosion';
@@ -12,9 +12,40 @@ import screen from './screen';
 import { highscores } from './highscores';
 import { random } from './util';
 
+
+// class State {
+//     level: number = 0;
+//     extraLifeScore: number = 0;
+//     highscore: number; // Global
+//     score: number = 0;
+//     lives: number = 3;
+    
+//     ship: Ship;
+//     shipBullets: Bullet[] = [];
+//     alien: Alien;
+//     alienBullets: Bullet[] = [];
+//     explosions: Explosion[] = [];
+//     rocks: Rock[] = [];
+//     bounds: Rect[] = [];
+    
+//     shipTimer: number = 0;
+//     alienTimer: number = 0;
+//     levelTimer: number = 0;
+//     gameOverTimer: number = 0;
+    
+//     gameOver: boolean = false;
+//     started: boolean = false;
+//     debug: boolean = false;
+//     paused: boolean = false;
+
+//     constructor(highscore: number) {
+//         this.highscore = highscore;
+//     }
+// }
+
 // manages game objects, score, collisions, etc.
 // todo: refactor this to a Player class, leaving common stuff like score
-export class GameState extends EventSource {
+export class GameMode extends EventSource {
 
     level: number = 0;
     extraLifeScore: number = 0;
@@ -34,12 +65,12 @@ export class GameState extends EventSource {
     alienTimer: number = 0;
     levelTimer: number = 0;
     gameOverTimer: number = 0;
+    
     gameOver: boolean = false;
     started: boolean = false;
     debug: boolean = false;
     paused: boolean = false;
-    collisions: Collisions;
-    
+
     constructor() {
         super();
         this.highscore = highscores.top.score;
@@ -273,9 +304,9 @@ export class GameState extends EventSource {
 
         this.bounds = [];
         
-        this.collisions = new Collisions();
+        const collisions = new Collisions();
 
-        this.collisions.check([this.ship], this.rocks, (ship, rock) => {
+        collisions.check([this.ship], this.rocks, (ship, rock) => {
             this.addScore(rock.score);
             this.rockDestroyed(rock);
             this.shipDestroyed();
@@ -285,7 +316,7 @@ export class GameState extends EventSource {
             }
         });
 
-        this.collisions.check(this.shipBullets, this.rocks, (bullet, rock) => {
+        collisions.check(this.shipBullets, this.rocks, (bullet, rock) => {
             this.addScore(rock.score);
             this.rockDestroyed(rock);
             bullet.destroy();
@@ -295,7 +326,7 @@ export class GameState extends EventSource {
             }
         });
 
-        this.collisions.check(this.shipBullets, [this.alien], (bullet, alien) => {
+        collisions.check(this.shipBullets, [this.alien], (bullet, alien) => {
             this.addScore(alien.score)
             this.alienDestroyed();
             bullet.destroy();
@@ -305,7 +336,7 @@ export class GameState extends EventSource {
             }
         });
 
-        this.collisions.check([this.ship], [this.alien], (ship, alien) => {
+        collisions.check([this.ship], [this.alien], (ship, alien) => {
             this.addScore(alien.score)
             this.alienDestroyed();
             this.shipDestroyed();
@@ -315,7 +346,7 @@ export class GameState extends EventSource {
             }
         });
 
-        this.collisions.check(this.alienBullets, this.rocks, (bullet, rock) => {
+        collisions.check(this.alienBullets, this.rocks, (bullet, rock) => {
             this.rockDestroyed(rock);
         }, (bullet, rock) => {
             if (this.debug) {
@@ -323,7 +354,7 @@ export class GameState extends EventSource {
             }
         });
 
-        this.collisions.check(this.alienBullets, [this.ship], (bullet, ship) => {
+        collisions.check(this.alienBullets, [this.ship], (bullet, ship) => {
             this.shipDestroyed();
             bullet.destroy();
         }, (bullet, ship) => {
@@ -332,7 +363,7 @@ export class GameState extends EventSource {
             }
         });
 
-        this.collisions.check([this.alien], this.rocks, (alien, rock) => {
+        collisions.check([this.alien], this.rocks, (alien, rock) => {
             this.alienDestroyed();
             this.rockDestroyed(rock);
         }, (alien, rock) => {

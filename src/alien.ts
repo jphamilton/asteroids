@@ -10,7 +10,7 @@ const BIG_ALIEN_SPEED: number = 225;
 const SMALL_ALIEN_SPEED: number = 250;
 
 
-abstract class Alien extends Object2D {
+export abstract class Alien extends Object2D {
 
     moveTimer: number = 0;
     moveTime: number = 1;
