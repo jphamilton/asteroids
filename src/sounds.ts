@@ -2,17 +2,6 @@ declare var require;
 
 import { Howl } from 'howler';
 
-let shipFireWav  = require('../assets/fire.wav');
-let explode1Wav = require('../assets/explode1.wav');
-let explode2Wav = require('../assets/explode2.wav');
-let explode3Wav = require('../assets/explode3.wav');
-let alienFireWav = require('../assets/sfire.wav');
-let thrustWav = require('../assets/thrust.wav');
-let largeAlienWav = require('../assets/lsaucer.wav');
-let loWav = require('../assets/thumplo.wav');
-let hiWav = require('../assets/thumphi.wav');
-let extraLifeWav = require('../assets/life.wav');
-
 const VOLUME = .5;
 
 let soundOn: boolean = true;
@@ -37,53 +26,53 @@ function createSound(options) {
 }
 
 export const fire = createSound({
-    src: [shipFireWav],
+    src: ['./assets/fire.wav'],
     volume: VOLUME
 });
 
 export const thrust = createSound({
-    src: [thrustWav],
+    src: ['./assets/thrust.wav'],
     volume: 0.4
 });
 
 export const alienFire = createSound({
-    src: [alienFireWav],
+    src: ['./assets/sfire.wav'],
     volume: VOLUME
 });
 
 export const largeExplosion = createSound({
-    src: [explode1Wav],
+    src: ['./assets/explode1.wav'],
     volume: VOLUME
 });
 
 export const mediumExplosion = createSound({
-    src: [explode2Wav],
+    src: ['./assets/explode2.wav'],
     volume: VOLUME
 });
 
 export const smallExplosion = createSound({
-    src: [explode3Wav],
+    src: ['./assets/explode3.wav'],
     volume: VOLUME
 });
 
 export const largeAlien = createSound({
-    src: [largeAlienWav],
+    src: ['./assets/lsaucer.wav'],
     volume: VOLUME,
     loop: true
 });
 
 export const thumpLo = createSound({
-    src: [loWav],
+    src: ['./assets/thumplo.wav'],
     volume: 1
 });
 
 export const thumpHi = createSound({
-    src: [hiWav],
+    src: ['./assets/thumphi.wav'],
     volume: 1
 });
 
 export const extraLife = createSound({
-    src: [extraLifeWav],
+    src: ['./assets/life.wav'],
     volume: .5
 });
 
