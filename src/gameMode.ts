@@ -11,7 +11,7 @@ class Thumper {
     thumpBeat: number;
     thumpTimer: number;
     thumpTime: number;
-    lo: boolean;
+    lo: boolean = true;
     max: boolean;
 
     constructor() {
@@ -23,7 +23,7 @@ class Thumper {
         this.thumpBeat = 1;
         this.thumpTimer = 0;
         this.thumpTime = 10;
-        this.lo = true;
+        //this.lo = true;
         this.max = false;
     }
 

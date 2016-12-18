@@ -45,8 +45,7 @@ export class InitialsMode extends EventSource {
             this.position++;
             
             if (this.position >= 3) {
-                console.log(this.score, this.initials.join(''));
-                highscores.save(this.score, this.initials.join(''));
+                highscores.save(this.score, this.initials.join('').replace('_',' '));
                 this.init();
                 this.trigger('done');
             }
