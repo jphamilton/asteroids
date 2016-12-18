@@ -1,9 +1,16 @@
+import * as Hammer from 'hammerjs';
+
+console.log('HAMMER', Hammer);
+
 const LEN = 222;
 
 export class _Key {
 
     keys: boolean[];
     prev: boolean[];
+    tapped: boolean = false;
+
+    mc: any;
 
     SPACE = 32; // hyperspace
     LEFT = 37;
@@ -31,12 +38,54 @@ export class _Key {
             this.keys[event.keyCode] = false;
         }
 
+        const stage = document.getElementById('game');
+        this.mc = new Hammer.Manager(stage);
+        
+        const pan = new Hammer.Pan();
+        const tap = new Hammer.Tap();
+
+        this.mc.add(pan);
+        this.mc.add(tap, {
+            interval: 50
+        });
+
+        this.mc.on('panup', (e) => {
+            this.keys[this.UP] = true;
+        });
+
+        this.mc.on('panleft', (e) => {
+            this.keys[this.LEFT] = true;
+        });
+
+        this.mc.on('panright', (e) => {
+            this.keys[this.RIGHT] = true;
+        });
+
+        this.mc.on('panend', (e) => {
+            this.keys[this.UP] = false;
+            this.keys[this.LEFT] = false;
+            this.keys[this.RIGHT] = false;
+        });
+
+        this.mc.on('tap', (e) => {
+            this.keys[this.CTRL] = true;
+            this.keys[this.ONE] = true;
+            this.tapped = true;
+        });
+
     }
 
     update() {
         for (let i = 0; i < LEN; i++) {
             this.prev[i] = this.keys[i];
         }
+
+        if (this.tapped) {
+            this.keys[this.CTRL] = false;
+            this.keys[this.ONE] = false;
+        }
+
+        this.tapped = !this.tapped;
     }
 
     isPressed(key) {

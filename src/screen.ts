@@ -97,6 +97,3 @@ export class Screen implements Rect {
 }
 
 export default new Screen();
-
-
-
