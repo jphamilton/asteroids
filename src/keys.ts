@@ -8,7 +8,7 @@ export class _Key {
 
     keys: boolean[];
     prev: boolean[];
-    tapped: boolean = false;
+    touched: boolean = false;
 
     mc: any;
 
@@ -43,6 +43,7 @@ export class _Key {
         
         const pan = new Hammer.Pan();
         const tap = new Hammer.Tap();
+        const pinch = new Hammer.Pinch();
 
         this.mc.add(pan);
         this.mc.add(tap, {
@@ -70,9 +71,16 @@ export class _Key {
         this.mc.on('tap', (e) => {
             this.keys[this.CTRL] = true;
             this.keys[this.ONE] = true;
-            this.tapped = true;
+            this.touched = true;
         });
 
+        this.mc.on('pinchin', (e) => {
+            this.keys[this.SPACE] = true;
+        });
+
+        this.mc.on('pinchend', (e) => {
+            this.keys[this.SPACE] = false;
+        });
     }
 
     update() {
@@ -80,12 +88,12 @@ export class _Key {
             this.prev[i] = this.keys[i];
         }
 
-        if (this.tapped) {
+        if (this.touched) {
             this.keys[this.CTRL] = false;
             this.keys[this.ONE] = false;
         }
 
-        this.tapped = !this.tapped;
+        this.touched = !this.touched;
     }
 
     isPressed(key) {
