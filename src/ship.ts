@@ -10,7 +10,7 @@ console.log('SCREEN', screen);
 const ACCELERATION: number = 0.1;
 const BULLET_SPEED: number = 800 * screen.objectScale;
 const BULLET_TIME: number = .1;
-const FRICTION: number = 0.007;
+const FRICTION: number = 0.005;
 const ROTATION: number = 5;
 const MAX_ACCELERATION: number = 1100 * screen.objectScale;
 const MAX_BULLETS: number = 4;

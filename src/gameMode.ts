@@ -62,7 +62,8 @@ export class GameMode extends EventSource implements IGameState {
     debug: boolean = false;
     bounds: Rect[] = [];
     thumper: Thumper;
-    
+    god: boolean = false;
+
     constructor(private state: State) {
         super();
     }
@@ -74,6 +75,10 @@ export class GameMode extends EventSource implements IGameState {
     }
 
     update(dt: number) {
+        if (Key.isPressed(Key.GOD)) {
+            this.god = !this.god;
+        }
+
         if (Key.isPressed(Key.DEBUG)) {
             this.debug = !this.debug; 
         }
@@ -188,6 +193,13 @@ export class GameMode extends EventSource implements IGameState {
     }
 
     private renderDebug() {
+        
+        if (this.god) {
+            screen.draw.text2('god', screen.font.small, (width) => {
+                return { x: screen.width - width - 10, y: screen.height - 80 };
+            });
+        }
+        
         screen.draw.text2('debug mode', screen.font.small, (width) => {
             return { x: screen.width - width - 10, y: screen.height - 40 };
         });
@@ -247,25 +259,36 @@ export class GameMode extends EventSource implements IGameState {
             }
         });
 
-        collisions.check([ship], rocks, (ship, rock) => {
-            this.state.addScore(rock.score);
-            this.state.rockDestroyed(rock);
-            this.state.shipDestroyed();
-        }, (ship, rock) => {
-            if (this.debug) {
-                this.bounds.push(rock);
-            }
-        });
+        if (!this.god) {
+            collisions.check([ship], rocks, (ship, rock) => {
+                this.state.addScore(rock.score);
+                this.state.rockDestroyed(rock);
+                this.state.shipDestroyed();
+            }, (ship, rock) => {
+                if (this.debug) {
+                    this.bounds.push(rock);
+                }
+            });
 
-        collisions.check([ship], [alien], (ship, alien) => {
-            this.state.addScore(alien.score)
-            this.state.alienDestroyed();
-            this.state.shipDestroyed();
-        }, (ship, alien) => {
-            if (this.debug) {
-                this.bounds.push(alien);
-            }
-        });
+            collisions.check([ship], [alien], (ship, alien) => {
+                this.state.addScore(alien.score)
+                this.state.alienDestroyed();
+                this.state.shipDestroyed();
+            }, (ship, alien) => {
+                if (this.debug) {
+                    this.bounds.push(alien);
+                }
+            });
+
+            collisions.check(alienBullets, [ship], (bullet, ship) => {
+                this.state.shipDestroyed();
+                bullet.destroy();
+            }, (bullet, ship) => {
+                if (this.debug) {
+                    this.bounds.push(ship);
+                }
+            });
+        }
 
         collisions.check([alien], rocks, (alien, rock) => {
             this.state.alienDestroyed();
@@ -283,16 +306,6 @@ export class GameMode extends EventSource implements IGameState {
                 this.bounds.push(rock);
             }
         });
-
-        collisions.check(alienBullets, [ship], (bullet, ship) => {
-            this.state.shipDestroyed();
-            bullet.destroy();
-        }, (bullet, ship) => {
-            if (this.debug) {
-                this.bounds.push(ship);
-            }
-        });
-
     }
 
 }

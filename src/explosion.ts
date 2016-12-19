@@ -7,6 +7,7 @@ import { random } from './util';
 
 const VELOCITY = 150 * screen.objectScale;
 
+// general, garden variety explosion
 export class Explosion extends EventSource {
 
     life: number = 1.25;   

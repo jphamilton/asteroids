@@ -10,7 +10,7 @@ I tried to be faithful to the original as much as possible, recreating all scree
 The game will cycle between the highscore screen and 'attraction mode' every 15 seconds. Like the cabinet, attraction mode will continue to play itself out until a new game is started. 
 After a game is completed, attraction mode will continue, using the state of the last game. High scores are tracked and saved in local storage.
 
-There are a few minor differences (e.g. rocks rotate!). I'm sure all my timers are completely wrong (e.g. when aliens appear and what type, the thump thump pulse etc).
+There are a few minor differences (e.g. rocks rotate, ship explosion is different). I'm sure all my timers are completely wrong (e.g. when aliens appear and what type, the thump thump pulse etc).
 I will probably tweak some of this when I get bored sometime in the future.
 
 Collision detection occurs in 3 stages. First, a quadtree is used to determine potential collision candidates. Second, candidates are checked using Axis-Aligned Bounding Boxes (AABB).

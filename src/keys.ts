@@ -20,7 +20,8 @@ export class _Key {
     ONE = 49;    // 1 player start
     DEBUG = 68;  // toggle debug mode
     PAUSE = 80;
-
+    GOD = 71;
+    
     constructor() {
         this.keys = new Array(LEN);
         this.prev = new Array(LEN);
