@@ -58,6 +58,10 @@ export class Ship extends Object2D {
         this.angle = 270;
     }
 
+    get pointInPolyCheck() {
+        return true;
+    }
+    
     render() {
         screen.draw.shape(this.points, this.origin.x, this.origin.y, this.color);
         if (this.moving && (Math.floor(Math.random() * 10) + 1) % 2 === 0) {
@@ -166,4 +170,5 @@ export class Ship extends Object2D {
             this.trigger('fire', bullet);
         }
     }
+
 }

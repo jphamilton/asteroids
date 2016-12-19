@@ -14,8 +14,8 @@ There are a few minor differences (e.g. rocks rotate, ship explosion is differen
 I will probably tweak some of this when I get bored sometime in the future.
 
 Collision detection occurs in 3 stages. First, a quadtree is used to determine potential collision candidates. Second, candidates are checked using Axis-Aligned Bounding Boxes (AABB).
-Finally, if the bounds of any objects overlap, a point in polygon routine (from http://alienryderflex.com/polygon/ and translated to js by me) is used to determine if an actual collision has taken place. 
-This process is visualized in debug mode (hit D during game to view).
+Finally, if the ship is involved, a point in polygon routine (credit Lascha Lagidse http://alienryderflex.com/polygon/) is used to determine if an actual collision has taken place. 
+Using point in poly for all collisions didn't "feel right". This process is visualized in debug mode (hit D during game to view).
 
 I only used two libraries for the game: [howler.js](https://howlerjs.com/) for sound and [hammer.js](http://hammerjs.github.io/) for touch support. I have to say, both of the libraries are amazing. 
 I can't believe how quickly I was able to put them to use. As for the rest of the game, it was important for me to do all the dirty work myself. I had almost zero exposure to the HTML 5 canvas before

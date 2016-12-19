@@ -29,13 +29,17 @@ export class Collisions {
         sources.forEach(source => {
             let candidates = [];
 
-            candidates.push(...this.tree.retrieve(source));
+            candidates.push(...this.tree.retrieve(source) as any);
             
             candidates.forEach(candidate => {
                 
                 // AABB first
                if (candidate.collided(source)) {
-                    if (this.pointsInPolygon(source, candidate)) {
+                    if (source.pointInPolyCheck || candidate.pointInPolyCheck) {
+                        if (this.pointsInPolygon(source, candidate)) {
+                            cb(source, candidate);
+                        }
+                    } else {
                         cb(source, candidate);
                     }
                 } else if (dcb) {
