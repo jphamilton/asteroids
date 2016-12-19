@@ -25,12 +25,16 @@ export class Draw {
 
     shape(points: Point[], x: number, y: number, color: string = VectorLine) {
         let p1, p2;
-
-        for(let i = 0; i < points.length - 1; i++) {
+        let l = points.length - 1;
+        let i = 0;
+        
+        for(let i = 0; i < l; i++) {
             p1 = {x: x + points[i].x, y: y + points[i].y};
             p2 = {x: x + points[i + 1].x, y: y + points[i + 1].y};
             this.line(p1, p2, color, 2);
         }
+        
+        this.line({x: x + points[l].x, y: y + points[l].y}, {x: x + points[0].x, y: y + points[0].y}, color, 2);
     }
 
     rect(p1: Point, p2: Point, color: string = VectorLine) {

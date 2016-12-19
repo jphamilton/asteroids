@@ -34,7 +34,7 @@ export class Collisions {
             candidates.forEach(candidate => {
                 
                 // AABB first
-                if (candidate.collided(source)) {
+               if (candidate.collided(source)) {
                     if (this.pointsInPolygon(source, candidate)) {
                         cb(source, candidate);
                     }
@@ -47,9 +47,9 @@ export class Collisions {
 
     }
 
-    private pointsInPolygon(source: Object2D, target: Object2D): boolean {
-        let vert1 = source.vertices;
-        let vert2 = target.vertices;
+    private pointsInPolygon(source: Object2D, candidate: Object2D): boolean {
+        let vert1 = source.vertices.length > candidate.vertices.length ? source.vertices : candidate.vertices;
+        let vert2 = source.vertices.length <= candidate.vertices.length ? source.vertices : candidate.vertices;
 
         for (let i = 0, l = vert2.length; i < l; i++) {
             if (this.pointInPoly(vert1, vert2[i])) {
@@ -60,20 +60,23 @@ export class Collisions {
         return false;
     }
 
-    // credit: Nathan Mercer http://alienryderflex.com/polygon/
-    private pointInPoly(points: Point[], t: Point): boolean {
-        let j = points.length - 1;
-        let c = 0;
+    private pointInPoly(v: Point[], t: Point) {
+        let polyCorners = v.length - 1;
+        let i, j = polyCorners - 1;
+        let polyX = v.map(p => p.x);
+        let polyY = v.map(p => p.y);
+        let x = t.x;
+        let y = t.y;
+        let oddNodes = 0;
+  
+        for (i=0; i<polyCorners; i++) {
+            if ((polyY[i]< y && polyY[j]>=y
+            ||   polyY[j]< y && polyY[i]>=y)
+            &&  (polyX[i]<=x || polyX[j]<=x)) {
+            oddNodes^=(polyX[i] + (y-polyY[i]) / (polyY[j] - polyY[i]) * (polyX[j]-polyX[i]) < x as any); }
+            j=i; }
 
-        for(let i = 0, l = points.length; i < l; i++) {
-            if ((points[i].y < t.y && points[j].y >= t.y  || points[j].y < t.y && points[i].y >= t.y) && 
-                (points[i].x <= t.x || points[j].x <= t.x)) {
-                c ^= (points[i].x + (t.y - points[i].y) / (points[j].y - points[i].y) * (points[j].x - points[i].x) < t.x as any);    
-            }
-            j = i;
-        }
-
-        return c % 2 === 0;
+        return oddNodes; 
     }
 }
 

@@ -18,6 +18,8 @@ export class AttractMode implements IGameState {
     }
 
     update(dt) {
+        this.checkCollisions();
+
         this.state.updateAlienTimer(dt);
 
         if (!this.state.rocks.length && !this.state.explosions.length && !this.state.alien) {  
@@ -25,13 +27,8 @@ export class AttractMode implements IGameState {
         }
 
         this.updatePushStartTimer(dt);
-        this.checkCollisions();
-
-        this.state.objects.forEach(obj => {
-            if (obj) {
-                obj.update(dt);
-            }
-        });
+        
+        this.state.update(dt);
     }
 
     updatePushStartTimer(dt: number) {
@@ -64,15 +61,10 @@ export class AttractMode implements IGameState {
         });
     }
 
-    render() {
+    render(delta?: number) {
         this.drawBackground();
         this.drawPushStart();
-
-        this.state.objects.forEach(obj => {
-            if (obj) {
-                obj.render();
-            }
-        });
+        this.state.render(delta);
     }
 
     private drawBackground() {

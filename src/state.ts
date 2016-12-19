@@ -42,6 +42,22 @@ export class State {
         return [this.ship, this.alien, ...this.shipBullets, ...this.alienBullets, ...this.rocks, ...this.explosions];
     }
 
+    update(dt: number) {
+        this.objects.forEach(obj => {
+            if (obj) {
+                obj.update(dt);
+            }
+        });
+    }
+    
+    render(delta?: number) {
+        this.objects.forEach(obj => {
+            if (obj) {
+                obj.render(delta);
+            }
+        });
+    }
+
     startLevel() {
         this.level++;
         this.levelTimer = 0;

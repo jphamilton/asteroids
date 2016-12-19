@@ -1,5 +1,6 @@
 import { Key } from './keys';
 import { EventSource } from './events';
+import { Object2D } from './object2D';
 import { Collisions } from './collisions';
 import screen from './screen';
 import { random } from './util';
@@ -60,7 +61,7 @@ class Thumper {
 export class GameMode extends EventSource implements IGameState {
 
     debug: boolean = false;
-    bounds: Rect[] = [];
+    bounds: Object2D[] = [];
     thumper: Thumper;
     god: boolean = false;
 
@@ -117,6 +118,9 @@ export class GameMode extends EventSource implements IGameState {
             return;
         }
 
+        // collisions
+        this.checkCollisions();
+
         // alien?
         this.state.updateAlienTimer(dt);
 
@@ -140,25 +144,13 @@ export class GameMode extends EventSource implements IGameState {
             this.state.gameOver = true;
         }
 
-        // collisions
-        this.checkCollisions();
-
         // update all objects
-        this.state.objects.forEach(obj => {
-            if (obj) {
-                obj.update(dt);
-            }
-        });
+        this.state.update(dt);
     }
 
     render(delta: number) {
         this.renderStatic();
-
-        this.state.objects.forEach(obj => {
-            if (obj) {
-                obj.render();
-            }
-        });
+        this.state.render(delta);
     }
 
     private renderStatic() {

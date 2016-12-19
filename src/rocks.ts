@@ -29,8 +29,7 @@ export class Rock extends Object2D {
         [ -2, .7 ],
         [ -2, -1 ],
         [ -.5, -1 ],
-        [ -1, -2 ],
-        [ .5, -2 ]
+        [ -1, -2 ]
     ];
 
     private rock2 = [
@@ -45,8 +44,7 @@ export class Rock extends Object2D {
         [ -2, 1 ],
         [ -1.5, 0 ],
         [ -2, -1 ],
-        [ -1, -2 ],
-        [ 0, -1.5 ]
+        [ -1, -2 ]
     ];
 
     private rock3 = [
@@ -59,8 +57,7 @@ export class Rock extends Object2D {
         [ -1, 2 ],
         [ -2, 1 ],
         [ -2, -1 ],
-        [ -1, -2 ],
-        [ 0, -1 ]
+        [ -1, -2 ]
     ];
 
     private rocks = [this.rock1, this.rock2, this.rock3];
