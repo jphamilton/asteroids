@@ -32,7 +32,7 @@ export const fire = createSound({
 
 export const thrust = createSound({
     src: ['./assets/thrust.wav'],
-    volume: 0.4
+    volume: 0.3
 });
 
 export const alienFire = createSound({

@@ -35,6 +35,7 @@ export class Asteroids {
     init(state?: State) {
         
         Sound.stop();
+        Sound.off();
         
         this.mode = Modes.Start;
         this.highScoreMode = new HighScoreMode(this.lastScore);
@@ -53,6 +54,7 @@ export class Asteroids {
                 });
 
                 Sound.stop();
+                Sound.off();
                 this.mode = Modes.Initials;
             } else {
                 this.init(state);
