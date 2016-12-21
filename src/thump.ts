@@ -1,6 +1,7 @@
 import { thumpLo, thumpHi } from './sounds';
 
-const DEC = .2;
+const MIN = .15;
+const MAX_VOL = 1;
 
 export class Thumper {
     thumpBeatTimer: number;
@@ -25,6 +26,11 @@ export class Thumper {
     update(dt: number) {
         this.thumpTimer += dt;
         this.thumpBeatTimer += dt;
+        this.thumpBeat -= .0002;
+
+        if (this.thumpBeat <= MIN) {
+            this.thumpBeat = MIN;
+        }
 
         if (this.thumpBeatTimer >= this.thumpBeat) {
             if (this.lo) {
@@ -37,15 +43,5 @@ export class Thumper {
             this.thumpBeatTimer = 0;
         }
 
-        if (!this.max && this.thumpTimer >= this.thumpTime) {
-            this.thumpBeat -= DEC;
-            
-            if (this.thumpBeat <= DEC) {
-                this.thumpBeat = DEC;
-                this.max = true;
-            }
-            
-            this.thumpTimer = 0;
-        }
     }    
 }

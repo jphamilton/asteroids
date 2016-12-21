@@ -69,12 +69,12 @@ export const smallAlien = createSound({
 
 export const thumpLo = createSound({
     src: ['./assets/thumplo.wav'],
-    volume: .5
+    volume: 1
 });
 
 export const thumpHi = createSound({
     src: ['./assets/thumphi.wav'],
-    volume: .5
+    volume: 1
 });
 
 export const extraLife = createSound({
