@@ -11,14 +11,13 @@ export class _Key {
     touched: boolean = false;
     mc: any;
 
-    SPACE = 32; // hyperspace
-    LEFT = 37;
-    UP = 38;
-    RIGHT = 39;
-    SHIFT = 16;  // special weapon?
-    CTRL = 17;   // fire
-    ONE = 49;    // 1 player start
-    DEBUG = 68;  // toggle debug mode
+    HYPERSPACE = 32; 
+    ROTATE_LEFT = 37;
+    ROTATE_RIGHT = 39;
+    THRUST = 38;
+    FIRE = 17;   
+    PLAYER_ONE_START = 49;    
+    DEBUG = 68;  
     PAUSE = 80;
     GOD = 71;
     
@@ -54,35 +53,35 @@ export class _Key {
         this.mc.add(pinch);
 
         this.mc.on('panup', (e) => {
-            this.keys[this.UP] = true;
+            this.keys[this.THRUST] = true;
         });
 
         this.mc.on('panleft', (e) => {
-            this.keys[this.LEFT] = true;
+            this.keys[this.ROTATE_LEFT] = true;
         });
 
         this.mc.on('panright', (e) => {
-            this.keys[this.RIGHT] = true;
+            this.keys[this.ROTATE_RIGHT] = true;
         });
 
         this.mc.on('panend', (e) => {
-            this.keys[this.UP] = false;
-            this.keys[this.LEFT] = false;
-            this.keys[this.RIGHT] = false;
+            this.keys[this.THRUST] = false;
+            this.keys[this.ROTATE_LEFT] = false;
+            this.keys[this.ROTATE_RIGHT] = false;
         });
 
         this.mc.on('tap', (e) => {
-            this.keys[this.CTRL] = true;
-            this.keys[this.ONE] = true;
+            this.keys[this.FIRE] = true;
+            this.keys[this.PLAYER_ONE_START] = true;
             this.touched = true;
         });
 
         this.mc.on('pinchout', (e) => {
-            this.keys[this.SPACE] = true;
+            this.keys[this.HYPERSPACE] = true;
         });
 
         this.mc.on('pinchend', (e) => {
-            this.keys[this.SPACE] = false;
+            this.keys[this.HYPERSPACE] = false;
         });
 
     }
@@ -93,8 +92,8 @@ export class _Key {
         }
 
         if (this.touched) {
-            this.keys[this.CTRL] = false;
-            this.keys[this.ONE] = false;
+            this.keys[this.FIRE] = false;
+            this.keys[this.PLAYER_ONE_START] = false;
         }
 
         this.touched = !this.touched;

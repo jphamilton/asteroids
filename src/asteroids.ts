@@ -34,7 +34,7 @@ export class Asteroids {
 
     init(state?: State) {
         
-        Sound.off();
+        Sound.stop();
         
         this.mode = Modes.Start;
         this.highScoreMode = new HighScoreMode(this.lastScore);
@@ -52,7 +52,7 @@ export class Asteroids {
                     this.init(state);
                 });
 
-                Sound.off();
+                Sound.stop();
                 this.mode = Modes.Initials;
             } else {
                 this.init(state);
@@ -74,7 +74,7 @@ export class Asteroids {
                     this.attractMode.update(dt);
                 }
 
-                if (Key.isPressed(Key.ONE)) {
+                if (Key.isPressed(Key.PLAYER_ONE_START)) {
                     Sound.on();
                     this.mode = Modes.Game;
                 } else {
@@ -85,7 +85,7 @@ export class Asteroids {
             case Modes.Attract:
                 this.attractMode.update(dt);
 
-                if (Key.isPressed(Key.ONE)) {
+                if (Key.isPressed(Key.PLAYER_ONE_START)) {
                     Sound.on();
                     this.mode = Modes.Game;
                 } else {

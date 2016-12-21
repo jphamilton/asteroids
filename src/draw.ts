@@ -23,7 +23,7 @@ export class Draw {
         ctx.closePath();
     }
 
-    shape(points: Point[], x: number, y: number, color: string = VectorLine) {
+    shape(points: Point[], x: number, y: number, color: string = VectorLine, closed: boolean = true) {
         let p1, p2;
         let l = points.length - 1;
         let i = 0;
@@ -34,7 +34,9 @@ export class Draw {
             this.line(p1, p2, color, 2);
         }
         
-        this.line({x: x + points[l].x, y: y + points[l].y}, {x: x + points[0].x, y: y + points[0].y}, color, 2);
+        if (closed) {
+            this.line({x: x + points[l].x, y: y + points[l].y}, {x: x + points[0].x, y: y + points[0].y}, color, 2);
+        }
     }
 
     rect(p1: Point, p2: Point, color: string = VectorLine) {

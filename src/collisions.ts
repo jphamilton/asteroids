@@ -64,6 +64,7 @@ export class Collisions {
         return false;
     }
 
+    // credit: Lascha Lagidse http://alienryderflex.com/polygon/
     private pointInPoly(v: Point[], t: Point) {
         let polyCorners = v.length - 1;
         let i, j = polyCorners - 1;

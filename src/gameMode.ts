@@ -5,58 +5,8 @@ import { Collisions } from './collisions';
 import screen from './screen';
 import { random } from './util';
 import { State } from './state';
-import { thumpLo, thumpHi } from './sounds';
-
-class Thumper {
-    thumpBeatTimer: number;
-    thumpBeat: number;
-    thumpTimer: number;
-    thumpTime: number;
-    lo: boolean = true;
-    max: boolean;
-
-    constructor() {
-        this.reset();
-    }
-
-    reset() {
-        this.thumpBeatTimer = 0;
-        this.thumpBeat = 1;
-        this.thumpTimer = 0;
-        this.thumpTime = 10;
-        this.max = false;
-    }
-
-    update(dt: number) {
-        const DEC = .2;
-
-        this.thumpTimer += dt;
-        this.thumpBeatTimer += dt;
-
-        if (this.thumpBeatTimer >= this.thumpBeat) {
-            if (this.lo) {
-                thumpLo.play();
-            } else {
-                thumpHi.play();
-            }
-
-            this.lo = !this.lo;
-            this.thumpBeatTimer = 0;
-        }
-
-        if (!this.max && this.thumpTimer >= this.thumpTime) {
-            this.thumpBeat -= DEC;
-            
-            if (this.thumpBeat <= DEC) {
-                this.thumpBeat = DEC;
-                this.max = true;
-            }
-            
-            this.thumpTimer = 0;
-        }
-    }    
-}
-
+import { Sound } from './sounds';
+import { Thumper } from './thump';
 
 export class GameMode extends EventSource implements IGameState {
 
@@ -86,9 +36,14 @@ export class GameMode extends EventSource implements IGameState {
 
         if (Key.isPressed(Key.PAUSE)) {
             this.state.paused = !this.state.paused; 
+            if (this.state.paused) {
+                Sound.off();
+            } else {
+                Sound.on();
+            }
         }
         
-        if (Key.isPressed(Key.SPACE)) {
+        if (Key.isPressed(Key.HYPERSPACE)) {
             this.state.hyperspace(); 
         }
 

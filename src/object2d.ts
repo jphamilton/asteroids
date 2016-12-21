@@ -110,8 +110,8 @@ export abstract class Object2D extends EventSource implements Rect {
         this.calcBounds();
     }
 
-    draw() {
-        screen.draw.shape(this.points, this.origin.x, this.origin.y, this.color);
+    draw(closed: boolean = true) {
+        screen.draw.shape(this.points, this.origin.x, this.origin.y, this.color, closed);
     }
 
     get magnitude() {

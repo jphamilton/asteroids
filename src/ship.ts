@@ -33,7 +33,7 @@ class Flame extends Object2D {
     }
 
     render() {
-        this.draw();    
+        this.draw(false);
     }
 }
 
@@ -63,9 +63,9 @@ export class Ship extends Object2D {
     }
     
     render() {
-        screen.draw.shape(this.points, this.origin.x, this.origin.y, this.color);
+        this.draw();
         if (this.moving && (Math.floor(Math.random() * 10) + 1) % 2 === 0) {
-            this.flame.draw();
+            this.flame.draw(false);
         }
     }
 
@@ -73,30 +73,30 @@ export class Ship extends Object2D {
         this.move(dt);
         this.flame.move(dt);
 
-        if (Key.isDown(Key.UP)) {
+        if (Key.isDown(Key.THRUST)) {
             this.moving = true;
             this.thrust();
         } else {
             this.moving = false;
         }
 
-        if (Key.isPressed(Key.LEFT)) {
+        if (Key.isPressed(Key.ROTATE_LEFT)) {
             this.rotate(-1);
         }
 
-        if (Key.isDown(Key.LEFT)) {
+        if (Key.isDown(Key.ROTATE_LEFT)) {
             this.rotate(-ROTATION);
         }
 
-        if (Key.isPressed(Key.RIGHT)) {
+        if (Key.isPressed(Key.ROTATE_RIGHT)) {
             this.rotate(1);
         }
 
-        if (Key.isDown(Key.RIGHT)) {
+        if (Key.isDown(Key.ROTATE_RIGHT)) {
             this.rotate(ROTATION);
         }
 
-        if (Key.isDown(Key.CTRL)) {
+        if (Key.isDown(Key.FIRE)) {
             this.fire();
         }
 
@@ -135,7 +135,6 @@ export class Ship extends Object2D {
     private fire() {
         if (this.bulletTimer <= 0 && this.bulletCount < MAX_BULLETS) {
             
-            //fire.stop();
             fire.play();
 
             this.bulletTimer = BULLET_TIME;

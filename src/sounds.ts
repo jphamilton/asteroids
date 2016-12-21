@@ -91,5 +91,8 @@ export const Sound = {
         soundOn = false;
         // do not "stop" sound, just set volume to 0.
         all.forEach(sound => sound.volume(0));
+    },
+    stop: () => {
+        all.forEach(sound => sound.stop());
     }
 }
