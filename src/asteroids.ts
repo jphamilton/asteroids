@@ -1,6 +1,6 @@
 import { loop } from './loop';
 import { Key } from './keys';
-import { State } from './state';
+import { World } from './world';
 import { Sound } from './sounds';
 import { highscores } from './highscores';
 import { HighScoreMode } from './highScoreMode';
@@ -32,32 +32,32 @@ export class Asteroids {
         this.init();
     }
 
-    init(state?: State) {
+    init(world?: World) {
         
         Sound.stop();
         Sound.off();
         
         this.mode = Modes.Start;
         this.highScoreMode = new HighScoreMode(this.lastScore);
-        this.attractMode = new AttractMode(state || new State(highscores.top.score));
-        this.gameMode = new GameMode(new State(highscores.top.score));
+        this.attractMode = new AttractMode(world || new World(highscores.top.score));
+        this.gameMode = new GameMode(new World(highscores.top.score));
         this.attractTimer = 0;
                 
-        this.gameMode.on('done', (source, state) => {
-            this.lastScore = state.score;
+        this.gameMode.on('done', (source, world) => {
+            this.lastScore = world.score;
 
-            if (highscores.qualifies(state.score)) {
-                this.initialsMode = new InitialsMode(state.score);
+            if (highscores.qualifies(world.score)) {
+                this.initialsMode = new InitialsMode(world.score);
                 
                 this.initialsMode.on('done', () => {
-                    this.init(state);
+                    this.init(world);
                 });
 
                 Sound.stop();
                 Sound.off();
                 this.mode = Modes.Initials;
             } else {
-                this.init(state);
+                this.init(world);
             }
         });
 

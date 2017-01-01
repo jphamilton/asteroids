@@ -11,7 +11,7 @@ import { smallAlien, largeAlien, alienFire, largeExplosion, extraLife } from './
 
 const EXTRA_LIFE = 10000;
 
-export class State {
+export class World {
     level: number = 0;
     extraLifeScore: number = 0;
     highscore: number; 

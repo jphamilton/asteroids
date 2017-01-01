@@ -5,8 +5,6 @@ import { Vector } from './vector';
 import { Bullet } from './bullet';
 import { fire, thrust } from './sounds';
 
-console.log('SCREEN', screen);
-
 const ACCELERATION: number = 0.1;
 const BULLET_SPEED: number = 800 * screen.objectScale;
 const BULLET_TIME: number = .1;

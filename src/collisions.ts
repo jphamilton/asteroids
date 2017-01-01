@@ -76,10 +76,12 @@ export class Collisions {
   
         for (i=0; i<polyCorners; i++) {
             if ((polyY[i]< y && polyY[j]>=y
-            ||   polyY[j]< y && polyY[i]>=y)
-            &&  (polyX[i]<=x || polyX[j]<=x)) {
-            oddNodes^=(polyX[i] + (y-polyY[i]) / (polyY[j] - polyY[i]) * (polyX[j]-polyX[i]) < x as any); }
-            j=i; }
+                ||   polyY[j]< y && polyY[i]>=y)
+                &&  (polyX[i]<=x || polyX[j]<=x)) {
+                oddNodes^=(polyX[i] + (y-polyY[i]) / (polyY[j] - polyY[i]) * (polyX[j]-polyX[i]) < x as any); 
+            }
+            j=i; 
+        }
 
         return oddNodes; 
     }

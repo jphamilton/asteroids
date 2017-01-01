@@ -1,34 +1,34 @@
 import screen from './screen';
 import { Collisions } from './collisions';
-import { State } from './state';
+import { World } from './world';
 
 export class AttractMode implements IGameState {
 
     showPushStart: boolean = true;
     pushStartTimer: number = 0;
     
-    constructor(private state: State) {
+    constructor(private world: World) {
         this.init();
     }
 
     init() {
-        if (!this.state.started) {
-            this.state.startLevel();
+        if (!this.world.started) {
+            this.world.startLevel();
         }
     }
 
     update(dt) {
         this.checkCollisions();
 
-        this.state.updateAlienTimer(dt);
+        this.world.updateAlienTimer(dt);
 
-        if (!this.state.rocks.length && !this.state.explosions.length && !this.state.alien) {  
-            this.state.startLevel();
+        if (!this.world.rocks.length && !this.world.explosions.length && !this.world.alien) {  
+            this.world.startLevel();
         }
 
         this.updatePushStartTimer(dt);
         
-        this.state.update(dt);
+        this.world.update(dt);
     }
 
     updatePushStartTimer(dt: number) {
@@ -42,7 +42,7 @@ export class AttractMode implements IGameState {
 
     
     checkCollisions() {
-        const { alien, rocks, alienBullets } = this.state;
+        const { alien, rocks, alienBullets } = this.world;
         const check = !!alien || !!alienBullets.length;
 
         if (!check) {
@@ -52,26 +52,26 @@ export class AttractMode implements IGameState {
         const collisions = new Collisions();
 
         collisions.check([alien], rocks, (alien, rock) => {
-            this.state.alienDestroyed();
-            this.state.rockDestroyed(rock);
+            this.world.alienDestroyed();
+            this.world.rockDestroyed(rock);
         });
 
         collisions.check(alienBullets, rocks, (bullet, rock) => {
-            this.state.rockDestroyed(rock);
+            this.world.rockDestroyed(rock);
         });
     }
 
     render(delta?: number) {
         this.drawBackground();
         this.drawPushStart();
-        this.state.render(delta);
+        this.world.render(delta);
     }
 
     private drawBackground() {
         screen.draw.background();
-        screen.draw.scorePlayer1(this.state.score);
+        screen.draw.scorePlayer1(this.world.score);
         screen.draw.oneCoinOnePlay();
-        screen.draw.highscore(this.state.highscore);
+        screen.draw.highscore(this.world.highscore);
         screen.draw.copyright();
     }
 

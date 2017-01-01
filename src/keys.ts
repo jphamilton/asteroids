@@ -1,7 +1,5 @@
 import * as Hammer from 'hammerjs';
 
-console.log('HAMMER', Hammer);
-
 const LEN = 222;
 
 export class _Key {

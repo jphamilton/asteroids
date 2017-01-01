@@ -4,7 +4,7 @@ import { Object2D } from './object2D';
 import { Collisions } from './collisions';
 import screen from './screen';
 import { random } from './util';
-import { State } from './state';
+import { World } from './world';
 import { Sound } from './sounds';
 import { Thumper } from './thump';
 
@@ -15,13 +15,13 @@ export class GameMode extends EventSource implements IGameState {
     thumper: Thumper;
     god: boolean = false;
 
-    constructor(private state: State) {
+    constructor(private world: World) {
         super();
     }
 
     init() {
-        this.state.addShip(screen.width2, screen.height2);
-        this.state.startLevel();
+        this.world.addShip(screen.width2, screen.height2);
+        this.world.startLevel();
         this.thumper = new Thumper();
     }
 
@@ -35,40 +35,40 @@ export class GameMode extends EventSource implements IGameState {
         }
 
         if (Key.isPressed(Key.PAUSE)) {
-            this.state.paused = !this.state.paused; 
-            if (this.state.paused) {
+            this.world.paused = !this.world.paused; 
+            if (this.world.paused) {
                 Sound.off();
             } else {
                 Sound.on();
             }
         }
         
-        if (Key.isPressed(Key.HYPERSPACE)) {
-            this.state.hyperspace(); 
-        }
-
-        if (this.state.paused) {
+        if (this.world.paused) {
             return;
         }
-
-        this.state.levelTimer += dt;
         
-        if (this.thumper && this.state.ship) {
+        if (Key.isPressed(Key.HYPERSPACE)) {
+            this.world.hyperspace(); 
+        }
+
+        this.world.levelTimer += dt;
+        
+        if (this.thumper && this.world.ship) {
             this.thumper.update(dt);
         }
 
-        if (this.state.gameOver) {
-            this.state.gameOverTimer += dt;
+        if (this.world.gameOver) {
+            this.world.gameOverTimer += dt;
 
-            if (this.state.gameOverTimer >= 5) {
-                this.trigger('done', this.state);
+            if (this.world.gameOverTimer >= 5) {
+                this.trigger('done', this.world);
             }
         }
 
-        if (!this.state.started) {
-            if (this.state.levelTimer >= 2) {
+        if (!this.world.started) {
+            if (this.world.levelTimer >= 2) {
                 this.init();
-                this.state.started = true;
+                this.world.started = true;
             }
             return;
         }
@@ -77,35 +77,35 @@ export class GameMode extends EventSource implements IGameState {
         this.checkCollisions();
 
         // alien?
-        this.state.updateAlienTimer(dt);
+        this.world.updateAlienTimer(dt);
 
-        if (!this.state.gameOver) {
+        if (!this.world.gameOver) {
             
             // place ship after crash
-            if (this.state.shouldTryToPlaceShip()) { 
-                this.state.tryPlaceShip(dt);
+            if (this.world.shouldTryToPlaceShip()) { 
+                this.world.tryPlaceShip(dt);
             }
             
             // check for next level
-            if (this.state.shouldCheckForNextLevel()) {  
-                this.state.startLevel();
+            if (this.world.shouldCheckForNextLevel()) {  
+                this.world.startLevel();
                 this.thumper.reset();
             }
 
         }
 
         // game over
-        if (!this.state.lives) {  
-            this.state.gameOver = true;
+        if (!this.world.lives) {  
+            this.world.gameOver = true;
         }
 
         // update all objects
-        this.state.update(dt);
+        this.world.update(dt);
     }
 
     render(delta: number) {
         this.renderStatic();
-        this.state.render(delta);
+        this.world.render(delta);
     }
 
     private renderStatic() {
@@ -116,20 +116,20 @@ export class GameMode extends EventSource implements IGameState {
         screen.draw.copyright();
 
         // score
-        screen.draw.scorePlayer1(this.state.score);
+        screen.draw.scorePlayer1(this.world.score);
 
         // high score
-        screen.draw.highscore(this.state.highscore);
+        screen.draw.highscore(this.world.highscore);
 
         // extra lives
-        screen.draw.drawExtraLives(this.state.lives);
+        screen.draw.drawExtraLives(this.world.lives);
 
         // player 1
-        if (!this.state.started) {
+        if (!this.world.started) {
             screen.draw.player1();
         }
 
-        if (this.state.gameOver) {
+        if (this.world.gameOver) {
             screen.draw.gameOver();
         }
 
@@ -157,17 +157,17 @@ export class GameMode extends EventSource implements IGameState {
             });
         }
 
-        if (!this.state.ship && this.state.lives) {
+        if (!this.world.ship && this.world.lives) {
             let rect: Rect = screen.shipRect;
             screen.draw.bounds(rect, '#00ff00');
         }
 
-        if (this.state.ship) {
-            screen.draw.text(this.state.ship.angle.toString(), this.state.ship.origin.x + 20, this.state.ship.origin.y + 20, 10);
+        if (this.world.ship) {
+            screen.draw.text(this.world.ship.angle.toString(), this.world.ship.origin.x + 20, this.world.ship.origin.y + 20, 10);
         }
 
         const date = new Date(null);
-        date.setSeconds(this.state.levelTimer);
+        date.setSeconds(this.world.levelTimer);
 
         screen.draw.text2(date.toISOString().substr(11, 8), screen.font.small, (width) => {
             return { x: 10, y: screen.height - 40 };
@@ -176,9 +176,9 @@ export class GameMode extends EventSource implements IGameState {
     }
 
     private checkCollisions() {
-        const { ship, rocks, shipBullets, alien, alienBullets } = this.state;
+        const { ship, rocks, shipBullets, alien, alienBullets } = this.world;
         
-        if (!this.state.shouldCheckCollisions()) {
+        if (!this.world.shouldCheckCollisions()) {
             return;
         }
 
@@ -187,8 +187,8 @@ export class GameMode extends EventSource implements IGameState {
         const collisions = new Collisions();
 
         collisions.check(shipBullets, rocks, (bullet, rock) => {
-            this.state.addScore(rock.score);
-            this.state.rockDestroyed(rock);
+            this.world.addScore(rock.score);
+            this.world.rockDestroyed(rock);
             bullet.destroy();
         }, (bullet, rock) => {
             if (this.debug) {
@@ -197,8 +197,8 @@ export class GameMode extends EventSource implements IGameState {
         });
 
         collisions.check(shipBullets, [alien], (bullet, alien) => {
-            this.state.addScore(alien.score)
-            this.state.alienDestroyed();
+            this.world.addScore(alien.score)
+            this.world.alienDestroyed();
             bullet.destroy();
         }, (bullet, alien) => {
             if (this.debug) {
@@ -208,9 +208,9 @@ export class GameMode extends EventSource implements IGameState {
 
         if (!this.god) {
             collisions.check([ship], rocks, (ship, rock) => {
-                this.state.addScore(rock.score);
-                this.state.rockDestroyed(rock);
-                this.state.shipDestroyed();
+                this.world.addScore(rock.score);
+                this.world.rockDestroyed(rock);
+                this.world.shipDestroyed();
             }, (ship, rock) => {
                 if (this.debug) {
                     this.bounds.push(rock);
@@ -218,9 +218,9 @@ export class GameMode extends EventSource implements IGameState {
             });
 
             collisions.check([ship], [alien], (ship, alien) => {
-                this.state.addScore(alien.score)
-                this.state.alienDestroyed();
-                this.state.shipDestroyed();
+                this.world.addScore(alien.score)
+                this.world.alienDestroyed();
+                this.world.shipDestroyed();
             }, (ship, alien) => {
                 if (this.debug) {
                     this.bounds.push(alien);
@@ -228,7 +228,7 @@ export class GameMode extends EventSource implements IGameState {
             });
 
             collisions.check(alienBullets, [ship], (bullet, ship) => {
-                this.state.shipDestroyed();
+                this.world.shipDestroyed();
                 bullet.destroy();
             }, (bullet, ship) => {
                 if (this.debug) {
@@ -238,8 +238,8 @@ export class GameMode extends EventSource implements IGameState {
         }
 
         collisions.check([alien], rocks, (alien, rock) => {
-            this.state.alienDestroyed();
-            this.state.rockDestroyed(rock);
+            this.world.alienDestroyed();
+            this.world.rockDestroyed(rock);
         }, (alien, rock) => {
             if (this.debug) {
                 this.bounds.push(rock);
@@ -247,7 +247,7 @@ export class GameMode extends EventSource implements IGameState {
         });
         
         collisions.check(alienBullets, rocks, (bullet, rock) => {
-            this.state.rockDestroyed(rock);
+            this.world.rockDestroyed(rock);
         }, (bullet, rock) => {
             if (this.debug) {
                 this.bounds.push(rock);

@@ -4,6 +4,7 @@ import { Ship } from './ship';
 
 const VectorLine = 'rgba(255,255,255,1)';
 const Y_START = 20;
+const DEFAULT_LINE_WIDTH = 2;
 
 export class Draw {
 
@@ -11,7 +12,7 @@ export class Draw {
 
     }
 
-    line(p1: Point, p2: Point, color: string = VectorLine, width: number = 2) {
+    line(p1: Point, p2: Point, color: string = VectorLine, width: number = DEFAULT_LINE_WIDTH) {
         const { ctx } = this;
         
         ctx.beginPath();
@@ -31,11 +32,11 @@ export class Draw {
         for(let i = 0; i < l; i++) {
             p1 = {x: x + points[i].x, y: y + points[i].y};
             p2 = {x: x + points[i + 1].x, y: y + points[i + 1].y};
-            this.line(p1, p2, color, 2);
+            this.line(p1, p2, color);
         }
         
         if (closed) {
-            this.line({x: x + points[l].x, y: y + points[l].y}, {x: x + points[0].x, y: y + points[0].y}, color, 2);
+            this.line({x: x + points[l].x, y: y + points[l].y}, {x: x + points[0].x, y: y + points[0].y}, color);
         }
     }
 
