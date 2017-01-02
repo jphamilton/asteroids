@@ -14,7 +14,7 @@ import { smallAlien, largeAlien, alienFire, largeExplosion, extraLife } from './
 const EXTRA_LIFE = 10000;
 
 export class World {
-    level: number = 0;
+    level: number = 7;
     extraLifeScore: number = 0;
     highscore: number; 
     score: number = 0;
@@ -72,12 +72,15 @@ export class World {
         }
         
         this.explosions = [];
+        this.shipBullets.forEach(bullet => bullet.destroy());
+
         this.addRocks();
     }
 
     private addRocks() {
         const count = Math.min(this.level + 3, 10);
         const speed = 150;
+        const offset = 20;
 
         for(let i = 0; i < count; i++) {
             const zone = random(1,4);
@@ -87,20 +90,20 @@ export class World {
 
             switch (zone) {
                 case 1:
-                    x = random(40, screen.width - 40); 
-                    y = random(40, 80); 
+                    x = random(offset, screen.width - offset); 
+                    y = random(offset, offset * 2); 
                     break;
                 case 2:
-                    x = random(screen.width - 80, screen.width - 40);
-                    y = random(screen.height - 40, screen.height - 40);
+                    x = random(screen.width - (offset * 2), screen.width - offset);
+                    y = random(screen.height - offset, screen.height - offset);
                     break;
                 case 3:
-                    x = random(40, screen.width - 40);
-                    y = random(screen.height - 40, screen.height - 40); 
+                    x = random(offset, screen.width - offset);
+                    y = random(screen.height - offset, screen.height - offset); 
                     break;
                 default:
-                    x = random(40, 80);
-                    y = random(screen.height - 40, screen.height - 40);
+                    x = random(offset, offset * 2);
+                    y = random(screen.height - offset, screen.height - offset);
                     break;
             }
 
@@ -122,9 +125,9 @@ export class World {
         });
     }
 
-    createExplosion(x: number, y: number, size: number = 100, multiplier: number = 1): { explosion: Explosion, shockwave: Shockwave } {
-        const explosion = new Explosion(x, y, size);
-        const shockwave = new Shockwave(x, y, size, multiplier);
+    createExplosion(obj: Object2D, size: number = 100, multiplier: number = 1): { explosion: Explosion, shockwave: Shockwave } {
+        const explosion = new Explosion(obj.origin.x, obj.origin.y, size);
+        const shockwave = new Shockwave(obj.origin.x, obj.origin.y, obj.vx, obj.vy, size, multiplier);
 
         explosion.on('expired', ()=> {
             this.explosions = this.explosions.filter(x => x !== explosion);
@@ -145,7 +148,7 @@ export class World {
 
     shipDestroyed() {
         largeExplosion.play();
-        this.createExplosion(this.ship.origin.x, this.ship.origin.y);
+        this.createExplosion(this.ship);
         this.lives--;
         this.ship = null;
         this.shipBullets = [];
@@ -153,7 +156,7 @@ export class World {
 
     alienDestroyed() {
         if (this.alien) {
-            this.createExplosion(this.alien.origin.x, this.alien.origin.y);
+            this.createExplosion(this.alien);
             this.alien.destroy();
         }
         this.alienBullets = [];
@@ -161,7 +164,7 @@ export class World {
     }
 
     rockDestroyed(rock: Rock, multiplier: number = 1) {
-        let boom = this.createExplosion(rock.origin.x, rock.origin.y, rock.size * 5, multiplier);
+        let boom = this.createExplosion(rock, rock.size * 5, multiplier);
         let debris = rock.split();
         this.rocks = this.rocks.filter(x => x !== rock);
         
@@ -307,10 +310,10 @@ export class World {
     }
 
     shouldCheckForNextLevel(): boolean {
-        return !this.rocks.length && !!this.lives;// && !this.alien;
+        return !this.rocks.length && !!this.lives;
     }
 
     shouldCheckCollisions(): boolean {
-        return !!this.ship || !!this.shipBullets.length;// || !!this.alien || !!this.alienBullets.length;
+        return !!this.ship || !!this.shipBullets.length;
     }
 }

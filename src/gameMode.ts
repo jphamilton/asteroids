@@ -125,7 +125,6 @@ export class GameMode extends EventSource implements IGameState {
 
         this.world.render(delta);
 
-        
         if (this.shakeTime > 0) {
             screen.postShake();
         }
@@ -189,6 +188,12 @@ export class GameMode extends EventSource implements IGameState {
     
     }
 
+    private setShake() {
+        if (this.shakeTime <= 0.0) {
+            this.shakeTime = SHAKE_TIME;
+        }
+    }
+
     private checkCollisions() {
         const { ship, rocks, shipBullets, alien, alienBullets, shockwaves } = this.world;
         
@@ -201,7 +206,7 @@ export class GameMode extends EventSource implements IGameState {
         const collisions = new Collisions();
 
         collisions.check(shipBullets, rocks, (bullet, rock) => {
-            this.shakeTime = SHAKE_TIME;
+            this.setShake();
             this.world.addScore(rock);
             this.world.rockDestroyed(rock);
             bullet.destroy();
@@ -212,7 +217,7 @@ export class GameMode extends EventSource implements IGameState {
         });
 
         collisions.check(shipBullets, [alien], (bullet, alien) => {
-            this.shakeTime = SHAKE_TIME;
+            this.setShake();
             this.world.addScore(alien)
             this.world.alienDestroyed();
             bullet.destroy();
@@ -223,7 +228,7 @@ export class GameMode extends EventSource implements IGameState {
         });
 
         collisions.check(shipBullets, [alien], (bullet, alien) => {
-            this.shakeTime = SHAKE_TIME;
+            this.setShake();
             this.world.addScore(alien)
             this.world.alienDestroyed();
             bullet.destroy();
@@ -240,7 +245,7 @@ export class GameMode extends EventSource implements IGameState {
         let indians = this.world.rocks.filter(x => cowboys.indexOf(x) < 0);
 
         collisions.check(cowboys, indians, (cowboy, indian) => {
-            this.shakeTime = SHAKE_TIME;
+            this.setShake();
             //cowboy.score *= cowboy.multiplier;
             //indian.score *= indian.multiplier;
             //cowboy.multiplier++;

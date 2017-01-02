@@ -57,14 +57,15 @@ export class Draw {
 
     background() {
         const { ctx } = this;
-        const grd = ctx.createLinearGradient(0, 0, 0, screen.height);
-        // monitor burn
-        grd.addColorStop(0, '#000000');
-        grd.addColorStop(.3, '#030303');
-        grd.addColorStop(.5, '#050505');
-        grd.addColorStop(.7, '#090909');
-        grd.addColorStop(1, '#111111');
-        ctx.fillStyle=grd;
+        // const grd = ctx.createLinearGradient(0, 0, 0, screen.height);
+        // // monitor burn
+        // grd.addColorStop(0, '#000000');
+        // grd.addColorStop(.3, '#030303');
+        // grd.addColorStop(.5, '#050505');
+        // grd.addColorStop(.7, '#090909');
+        // grd.addColorStop(1, '#111111');
+        // ctx.fillStyle=grd;
+        ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, screen.width, screen.height);
     }
 
@@ -213,8 +214,6 @@ export class Draw {
         const { ctx } = this;
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
-        //ctx.fillStyle = color;
-        //ctx.fill();
         ctx.strokeStyle = color;
         ctx.stroke();
         ctx.closePath();

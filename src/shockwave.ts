@@ -13,7 +13,7 @@ export class Shockwave extends Object2D {
     radius: number = 1;
     rocks: Rock[] = [];
     
-    constructor(x: number, y: number, public size: number, public multiplier: number = 1) {
+    constructor(x: number, y: number, public vx: number, public vy: number, public size: number, public multiplier: number = 1) {
         super(x, y);
 
     }
@@ -22,6 +22,9 @@ export class Shockwave extends Object2D {
         this.frame++;
         this.radius = this.size * (this.frame / 10);
         this.life -= dt;
+
+        this.origin.x += this.vx * dt;
+        this.origin.y += this.vy * dt;
 
         if (this.life <= .1) {
             this.rocks = [];

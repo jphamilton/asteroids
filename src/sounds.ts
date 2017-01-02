@@ -14,17 +14,25 @@ function createSound(options) {
     const sound = new Howl(options);
 
     sound.on('end', () => {
-        console.log('sound over');
-        count--;
+        if (options.max) {
+            count--;
+        }
     });
 
     const play = sound.play.bind(sound);
     const canPlay = options.max ? count < options.max && soundOn : soundOn;
 
     sound.play = () => {
-        if (canPlay) {
-            count++;
-            play();
+        if (soundOn) {
+            
+            if (options.max) {
+                if (count < options.max) {
+                    play();
+                    count++;
+                }
+            } else {
+                play();
+            }
         }
     };
 
@@ -36,7 +44,7 @@ function createSound(options) {
 
 export const fire = createSound({
     src: ['./assets/fire.wav'],
-    volume: VOLUME
+    volume: .2
 });
 
 export const thrust = createSound({
@@ -81,12 +89,12 @@ export const smallAlien = createSound({
 
 export const thumpLo = createSound({
     src: ['./assets/thumplo.wav'],
-    volume: VOLUME
+    volume: .3
 });
 
 export const thumpHi = createSound({
     src: ['./assets/thumphi.wav'],
-    volume: VOLUME
+    volume: .3
 });
 
 export const extraLife = createSound({
