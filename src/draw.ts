@@ -56,7 +56,16 @@ export class Draw {
     }
 
     background() {
-        this.rect({ x: 0, y: 0}, { x: screen.width, y: screen.height }, '#000000');
+        const { ctx } = this;
+        const grd = ctx.createLinearGradient(0, 0, 0, screen.height);
+        // monitor burn
+        grd.addColorStop(0, '#000000');
+        grd.addColorStop(.3, '#030303');
+        grd.addColorStop(.5, '#050505');
+        grd.addColorStop(.7, '#090909');
+        grd.addColorStop(1, '#111111');
+        ctx.fillStyle=grd;
+        ctx.fillRect(0, 0, screen.width, screen.height);
     }
 
     bounds(rect: Rect, color: string = VectorLine) {
@@ -80,14 +89,14 @@ export class Draw {
         ctx.restore();
     }
 
-    text(text: string, x: number, y: number, size: number) {
+    text(text: string, x: number, y: number, size: number, color: string = VectorLine) {
         const { ctx } = this;
         
         ctx.save();
         ctx.font = `${size}pt hyperspace`;
         ctx.textBaseline = 'middle';
         ctx.lineWidth = 1;
-        ctx.strokeStyle = VectorLine;
+        ctx.strokeStyle = color;
         ctx.strokeText(text, x, y);
         ctx.restore();
     }
@@ -198,5 +207,16 @@ export class Draw {
             life.origin.y = y;
             life.render();
         }
+    }
+
+    circle(x: number, y: number, radius: number, color: string = VectorLine) {
+        const { ctx } = this;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+        //ctx.fillStyle = color;
+        //ctx.fill();
+        ctx.strokeStyle = color;
+        ctx.stroke();
+        ctx.closePath();
     }
 }

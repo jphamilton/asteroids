@@ -2,7 +2,9 @@ import { Ship } from './ship';
 import { Bullet } from './bullet';
 import { Alien, SmallAlien, BigAlien } from './alien';
 import { Explosion } from './explosion';
+import { Shockwave } from './shockwave';
 import { Rock, RockSize } from './rocks';
+import { ScoreMarker } from './scoreMarker';
 import { Object2D } from './object2d';
 import { Vector } from './vector';
 import { random } from './util';
@@ -23,8 +25,10 @@ export class World {
     alien: Alien;
     alienBullets: Bullet[] = [];
     explosions: Explosion[] = [];
+    shockwaves: Shockwave[] = [];
     rocks: Rock[] = [];
-    
+    markers: ScoreMarker[] = [];
+
     shipTimer: number = 0;
     alienTimer: number = 0;
     levelTimer: number = 0;
@@ -39,7 +43,7 @@ export class World {
     }
 
     get objects(): any {
-        return [this.ship, this.alien, ...this.shipBullets, ...this.alienBullets, ...this.rocks, ...this.explosions];
+        return [this.ship, this.alien, ...this.shipBullets, ...this.alienBullets, ...this.rocks, ...this.explosions, ...this.shockwaves, ...this.markers];
     }
 
     update(dt: number) {
@@ -61,12 +65,17 @@ export class World {
     startLevel() {
         this.level++;
         this.levelTimer = 0;
-        this.alienTimer = random(10, 15);
+        
+        if (!this.alienTimer) {
+            this.alienTimer = random(10, 15);
+        }
+        
+        this.explosions = [];
         this.addRocks();
     }
 
     private addRocks() {
-        const count = Math.min(this.level + 3, 7);
+        const count = Math.min(this.level + 3, 10);
         const speed = 150;
 
         for(let i = 0; i < count; i++) {
@@ -112,14 +121,25 @@ export class World {
         });
     }
 
-    createExplosion(x: number, y: number) {
-        const explosion = new Explosion(x, y);
+    createExplosion(x: number, y: number, size: number = 100): { explosion: Explosion, shockwave: Shockwave } {
+        const explosion = new Explosion(x, y, size);
+        const shockwave = new Shockwave(x, y, size);
 
         explosion.on('expired', ()=> {
             this.explosions = this.explosions.filter(x => x !== explosion);
         });
 
+        shockwave.on('expired', () => {
+            this.shockwaves = this.shockwaves.filter(x => x !== shockwave);
+        });
+
         this.explosions.push(explosion);
+        this.shockwaves.push(shockwave);
+
+        return {
+            explosion,
+            shockwave
+        }
     }
 
     shipDestroyed() {
@@ -131,16 +151,19 @@ export class World {
     }
 
     alienDestroyed() {
-        this.createExplosion(this.alien.origin.x, this.alien.origin.y);
-        this.alien.destroy();
+        if (this.alien) {
+            this.createExplosion(this.alien.origin.x, this.alien.origin.y);
+            this.alien.destroy();
+        }
         this.alienBullets = [];
         largeExplosion.play();
     }
 
     rockDestroyed(rock: Rock) {
-        this.createExplosion(rock.origin.x, rock.origin.y);
+        let boom = this.createExplosion(rock.origin.x, rock.origin.y, rock.size * 5);
+        let debris = rock.split();
         this.rocks = this.rocks.filter(x => x !== rock);
-        this.rocks.push(...rock.split());
+        this.rocks.push(...debris);
         rock = null;
     }
 
@@ -210,9 +233,9 @@ export class World {
         this.ship.rotate(angle);
     }
 
-    addScore(score) {
-        this.score += score;
-        this.extraLifeScore += score;
+    addScore(obj: Object2D) {
+        this.score += obj.score;
+        this.extraLifeScore += obj.score;
 
         if (this.score > this.highscore) {
             this.highscore = this.score;
@@ -223,6 +246,16 @@ export class World {
             this.extraLifeScore = 0;
             extraLife.play();
         }
+
+        let marker = new ScoreMarker(obj, `+${obj.score}`);
+        
+        marker.on('expired', () => {
+            console.clear();
+            console.log('marker expired');
+            this.markers = this.markers.filter(x => x !== marker);
+        });
+
+        this.markers.push(marker);
     }
 
     tryPlaceShip(dt) {
@@ -265,14 +298,14 @@ export class World {
     }
 
     shouldTryToPlaceShip(): boolean {
-        return !!this.shipTimer || (!this.ship && this.lives && !this.explosions.length);
+        return !!this.shipTimer || (!this.ship && !!this.lives);
     }
 
     shouldCheckForNextLevel(): boolean {
-        return !this.rocks.length && this.lives && !this.explosions.length && !this.alien;
+        return !this.rocks.length && !!this.lives;// && !this.alien;
     }
 
     shouldCheckCollisions(): boolean {
-        return !!this.ship || !!this.shipBullets.length || !!this.alien || !!this.alienBullets.length;
+        return !!this.ship || !!this.shipBullets.length;// || !!this.alien || !!this.alienBullets.length;
     }
 }

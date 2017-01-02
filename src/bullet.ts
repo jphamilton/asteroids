@@ -5,7 +5,8 @@ import { Object2D } from './object2d';
 export class Bullet extends Object2D { 
 
     life: number = 1.25;   // in seconds
-    
+    frame: number = 0;
+
     constructor(x: number, y: number, v: Vector) {
         super(x, y);
         this.vx = v.x;
@@ -17,6 +18,8 @@ export class Bullet extends Object2D {
     }
 
     update(dt: number) {
+        this.frame++;
+
         this.move(dt);
 
         this.life -= dt;
@@ -28,7 +31,8 @@ export class Bullet extends Object2D {
     }
 
     draw() {
-        screen.draw.point({x: this.origin.x, y: this.origin.y});
+        let size = this.frame <= 1 ? 8 * screen.objectScale : 4 * screen.objectScale;
+        screen.draw.rect({x: this.origin.x - (size / 2), y: this.origin.y}, { x: size, y: size });
     }
 
     destroy() {

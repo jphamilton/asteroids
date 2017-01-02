@@ -6,13 +6,13 @@ import { Bullet } from './bullet';
 import { fire, thrust } from './sounds';
 
 const ACCELERATION: number = 0.1;
-const BULLET_SPEED: number = 800 * screen.objectScale;
-const BULLET_TIME: number = .1;
+const BULLET_SPEED: number = 1000 * screen.objectScale;
+const BULLET_TIME: number = .05;
 const FRICTION: number = 0.005;
 const ROTATION: number = 5;
 const MAX_ACCELERATION: number = 1100 * screen.objectScale;
-const MAX_BULLETS: number = 4;
-const VELOCITY = 100 * screen.objectScale;
+const MAX_BULLETS: number = 20;
+const VELOCITY = 150 * screen.objectScale;
 
 class Flame extends Object2D {
 
@@ -164,6 +164,14 @@ export class Ship extends Object2D {
             bullet.vx *= speed;
             bullet.vy *= speed;
 
+            // kick back
+            let kba = (this.angle + 180) % 360;
+            let kbv = new Vector(kba, 3);
+            this.origin.x += kbv.x;
+            this.origin.y += kbv.y;
+            this.flame.origin.x += kbv.x;
+            this.flame.origin.y += kbv.y;
+            
             this.trigger('fire', bullet);
         }
     }

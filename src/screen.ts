@@ -94,6 +94,17 @@ export class Screen implements Rect {
     get shipRect() {
         return this._shipRect;
     }
+
+    preShake() {
+        this.ctx.save();
+        var dx = Math.random()*10;
+        var dy = Math.random()*10;
+        this.ctx.translate(dx, dy);  
+    }
+
+    postShake() {
+        this.ctx.restore();
+    }
 }
 
 export default new Screen();

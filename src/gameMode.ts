@@ -8,13 +8,16 @@ import { World } from './world';
 import { Sound } from './sounds';
 import { Thumper } from './thump';
 
+const SHAKE_TIME = .5;
+
 export class GameMode extends EventSource implements IGameState {
 
     debug: boolean = false;
     bounds: Object2D[] = [];
     thumper: Thumper;
     god: boolean = false;
-
+    shakeTime: number = 0;
+    
     constructor(private world: World) {
         super();
     }
@@ -79,6 +82,11 @@ export class GameMode extends EventSource implements IGameState {
         // alien?
         this.world.updateAlienTimer(dt);
 
+        // shaky "cam"
+        if (this.shakeTime > 0) {
+            this.shakeTime -= dt;
+        }
+
         if (!this.world.gameOver) {
             
             // place ship after crash
@@ -104,24 +112,30 @@ export class GameMode extends EventSource implements IGameState {
     }
 
     render(delta: number) {
+        
+        if (this.world.paused) {
+            return;
+        }
+        
+        if (this.shakeTime > 0) {
+            screen.preShake();
+        }
+
         this.renderStatic();
+
         this.world.render(delta);
+
+        
+        if (this.shakeTime > 0) {
+            screen.postShake();
+        }
     }
 
     private renderStatic() {
-        // black background
         screen.draw.background();
-
-        // copyright
         screen.draw.copyright();
-
-        // score
         screen.draw.scorePlayer1(this.world.score);
-
-        // high score
         screen.draw.highscore(this.world.highscore);
-
-        // extra lives
         screen.draw.drawExtraLives(this.world.lives);
 
         // player 1
@@ -176,7 +190,7 @@ export class GameMode extends EventSource implements IGameState {
     }
 
     private checkCollisions() {
-        const { ship, rocks, shipBullets, alien, alienBullets } = this.world;
+        const { ship, rocks, shipBullets, alien, alienBullets, shockwaves } = this.world;
         
         if (!this.world.shouldCheckCollisions()) {
             return;
@@ -187,7 +201,8 @@ export class GameMode extends EventSource implements IGameState {
         const collisions = new Collisions();
 
         collisions.check(shipBullets, rocks, (bullet, rock) => {
-            this.world.addScore(rock.score);
+            this.shakeTime = SHAKE_TIME;
+            this.world.addScore(rock);
             this.world.rockDestroyed(rock);
             bullet.destroy();
         }, (bullet, rock) => {
@@ -197,7 +212,8 @@ export class GameMode extends EventSource implements IGameState {
         });
 
         collisions.check(shipBullets, [alien], (bullet, alien) => {
-            this.world.addScore(alien.score)
+            this.shakeTime = SHAKE_TIME;
+            this.world.addScore(alien)
             this.world.alienDestroyed();
             bullet.destroy();
         }, (bullet, alien) => {
@@ -206,9 +222,21 @@ export class GameMode extends EventSource implements IGameState {
             }
         });
 
+        collisions.check(shipBullets, [alien], (bullet, alien) => {
+            this.shakeTime = SHAKE_TIME;
+            this.world.addScore(alien)
+            this.world.alienDestroyed();
+            bullet.destroy();
+        }, (bullet, alien) => {
+            if (this.debug) {
+                this.bounds.push(alien);
+            } 
+        });
+
         if (!this.god) {
             collisions.check([ship], rocks, (ship, rock) => {
-                this.world.addScore(rock.score);
+                this.shakeTime = SHAKE_TIME;
+                this.world.addScore(rock);
                 this.world.rockDestroyed(rock);
                 this.world.shipDestroyed();
             }, (ship, rock) => {
@@ -218,7 +246,8 @@ export class GameMode extends EventSource implements IGameState {
             });
 
             collisions.check([ship], [alien], (ship, alien) => {
-                this.world.addScore(alien.score)
+                this.shakeTime = SHAKE_TIME;
+                this.world.addScore(alien);
                 this.world.alienDestroyed();
                 this.world.shipDestroyed();
             }, (ship, alien) => {
@@ -228,6 +257,7 @@ export class GameMode extends EventSource implements IGameState {
             });
 
             collisions.check(alienBullets, [ship], (bullet, ship) => {
+                this.shakeTime = SHAKE_TIME;
                 this.world.shipDestroyed();
                 bullet.destroy();
             }, (bullet, ship) => {
@@ -238,6 +268,7 @@ export class GameMode extends EventSource implements IGameState {
         }
 
         collisions.check([alien], rocks, (alien, rock) => {
+            this.shakeTime = SHAKE_TIME;
             this.world.alienDestroyed();
             this.world.rockDestroyed(rock);
         }, (alien, rock) => {
@@ -247,6 +278,7 @@ export class GameMode extends EventSource implements IGameState {
         });
         
         collisions.check(alienBullets, rocks, (bullet, rock) => {
+            this.shakeTime = SHAKE_TIME;
             this.world.rockDestroyed(rock);
         }, (bullet, rock) => {
             if (this.debug) {
@@ -254,5 +286,6 @@ export class GameMode extends EventSource implements IGameState {
             }
         });
     }
+
 
 }
