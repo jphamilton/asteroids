@@ -26,6 +26,7 @@ export class World {
     alienBullets: Bullet[] = [];
     explosions: Explosion[] = [];
     shockwaves: Shockwave[] = [];
+    shockwaveRocks: Rock[] = [];
     rocks: Rock[] = [];
     markers: ScoreMarker[] = [];
 
@@ -121,9 +122,9 @@ export class World {
         });
     }
 
-    createExplosion(x: number, y: number, size: number = 100): { explosion: Explosion, shockwave: Shockwave } {
+    createExplosion(x: number, y: number, size: number = 100, multiplier: number = 1): { explosion: Explosion, shockwave: Shockwave } {
         const explosion = new Explosion(x, y, size);
-        const shockwave = new Shockwave(x, y, size);
+        const shockwave = new Shockwave(x, y, size, multiplier);
 
         explosion.on('expired', ()=> {
             this.explosions = this.explosions.filter(x => x !== explosion);
@@ -159,11 +160,17 @@ export class World {
         largeExplosion.play();
     }
 
-    rockDestroyed(rock: Rock) {
-        let boom = this.createExplosion(rock.origin.x, rock.origin.y, rock.size * 5);
+    rockDestroyed(rock: Rock, multiplier: number = 1) {
+        let boom = this.createExplosion(rock.origin.x, rock.origin.y, rock.size * 5, multiplier);
         let debris = rock.split();
         this.rocks = this.rocks.filter(x => x !== rock);
+        
+        this.shockwaves.forEach(shockwave => {
+            shockwave.rocks = shockwave.rocks.filter(x => x !== rock);
+        });
+
         this.rocks.push(...debris);
+        boom.shockwave.rocks = debris;
         rock = null;
     }
 
@@ -250,8 +257,6 @@ export class World {
         let marker = new ScoreMarker(obj, `+${obj.score}`);
         
         marker.on('expired', () => {
-            console.clear();
-            console.log('marker expired');
             this.markers = this.markers.filter(x => x !== marker);
         });
 
@@ -292,7 +297,7 @@ export class World {
             
             if (this.alienTimer <= 0) {
                 this.addAlien();
-                this.alienTimer = random(10 - level, 15 - level);
+                this.alienTimer = random(10 - level, 15);
             }
         }
     }

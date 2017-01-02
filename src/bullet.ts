@@ -25,7 +25,6 @@ export class Bullet extends Object2D {
         this.life -= dt;
 
         if (this.life <= 0) {
-            this.trigger('expired');
             this.destroy();
         }
     }
@@ -36,8 +35,7 @@ export class Bullet extends Object2D {
     }
 
     destroy() {
-        this.life = 0;
-        this.trigger('expire');
+        this.trigger('expired');
     }
 
     get vertices(): Point[] {

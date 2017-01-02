@@ -39,7 +39,7 @@ export class Explosion extends EventSource {
 
     render(dt?: number) {
         this.points.forEach(point => {
-            screen.draw.point(point, `rgba(255,255,255,${point.alpha})`);
+            screen.draw.rect(point, { x: 2, y: 2 }, `rgba(255,255,255,${point.alpha})`);
         });
     }
 }

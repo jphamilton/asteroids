@@ -97,8 +97,8 @@ export class Screen implements Rect {
 
     preShake() {
         this.ctx.save();
-        var dx = Math.random()*10;
-        var dy = Math.random()*10;
+        var dx = Math.random() * 10;
+        var dy = Math.random() * 10;
         this.ctx.translate(dx, dy);  
     }
 

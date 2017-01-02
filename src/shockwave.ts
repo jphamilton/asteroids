@@ -2,6 +2,7 @@ import { EventSource } from './events';
 import { Key } from './keys';
 import screen from './screen';
 import { Object2D } from './object2d';
+import { Rock } from './rocks';
 import { Vector } from './vector';
 import { random } from './util';
 
@@ -10,7 +11,7 @@ export class Shockwave extends Object2D {
     life: number = 1;   
     frame: number = 0;
     radius: number = 1;
-    active: boolean = true; // shockwaves can only damage once
+    rocks: Rock[] = [];
     
     constructor(x: number, y: number, public size: number, public multiplier: number = 1) {
         super(x, y);
@@ -23,6 +24,7 @@ export class Shockwave extends Object2D {
         this.life -= dt;
 
         if (this.life <= .1) {
+            this.rocks = [];
             this.trigger('expired');
         }
     }

@@ -9,12 +9,21 @@ let soundOn: boolean = true;
 export const all = [];
 
 function createSound(options) {
+    let count = 0;
+
     const sound = new Howl(options);
 
+    sound.on('end', () => {
+        console.log('sound over');
+        count--;
+    });
+
     const play = sound.play.bind(sound);
+    const canPlay = options.max ? count < options.max && soundOn : soundOn;
 
     sound.play = () => {
-        if (soundOn) {
+        if (canPlay) {
+            count++;
             play();
         }
     };
@@ -42,17 +51,20 @@ export const alienFire = createSound({
 
 export const largeExplosion = createSound({
     src: ['./assets/explode1.wav'],
-    volume: VOLUME
+    volume: VOLUME,
+    max: 1
 });
 
 export const mediumExplosion = createSound({
     src: ['./assets/explode2.wav'],
-    volume: VOLUME
+    volume: VOLUME,
+    max: 1
 });
 
 export const smallExplosion = createSound({
     src: ['./assets/explode3.wav'],
-    volume: VOLUME
+    volume: VOLUME,
+    max: 1
 });
 
 export const largeAlien = createSound({

@@ -160,5 +160,7 @@ export class Rock extends Object2D {
     get score(): number {
         return this.size === RockSize.Large ? 20 : this.size === RockSize.Medium ? 50 : 100;
     }
+
+    
 }
 

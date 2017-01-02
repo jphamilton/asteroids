@@ -233,6 +233,44 @@ export class GameMode extends EventSource implements IGameState {
             } 
         });
 
+        let cowboys = []; 
+        
+        shockwaves.filter(x => x.rocks.length).forEach(y => cowboys.push(...y.rocks));
+        
+        let indians = this.world.rocks.filter(x => cowboys.indexOf(x) < 0);
+
+        collisions.check(cowboys, indians, (cowboy, indian) => {
+            this.shakeTime = SHAKE_TIME;
+            //cowboy.score *= cowboy.multiplier;
+            //indian.score *= indian.multiplier;
+            //cowboy.multiplier++;
+            //indian.multiplier++;
+            this.world.addScore(cowboy);
+            this.world.addScore(indian);
+            this.world.rockDestroyed(cowboy);
+            this.world.rockDestroyed(indian);
+        });
+
+        /*
+        shockwaves.forEach(shockwave => {
+            if (shockwave.rocks.length) {
+                let cowboys = shockwave.rocks;
+                let indians = this.world.rocks.filter(x => cowboys.indexOf(x) < 0);
+
+                collisions.check(cowboys, indians, (cowboy, indian) => {
+                    this.shakeTime = SHAKE_TIME;
+                    console.log(shockwave.multiplier);
+                    cowboy.score *= shockwave.multiplier;
+                    indian.score *= shockwave.multiplier;
+                    this.world.addScore(cowboy);
+                    this.world.addScore(indian);
+                    this.world.rockDestroyed(cowboy, shockwave.multiplier++);
+                    this.world.rockDestroyed(indian, shockwave.multiplier++);
+                });
+            }
+        });
+         */
+        
         if (!this.god) {
             collisions.check([ship], rocks, (ship, rock) => {
                 this.shakeTime = SHAKE_TIME;

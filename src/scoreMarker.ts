@@ -34,7 +34,5 @@ export class ScoreMarker extends Object2D {
         this.trigger('expired');
     }
 
-    get vertices(): Point[] {
-        return [this.origin];
-    }
+    
 }
