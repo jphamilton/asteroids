@@ -77,7 +77,7 @@ export class GameMode extends EventSource implements IGameState {
         }
 
         // collisions
-        this.checkCollisions();
+        this.checkCollisions(dt);
 
         // alien?
         this.world.updateAlienTimer(dt);
@@ -137,6 +137,14 @@ export class GameMode extends EventSource implements IGameState {
         screen.draw.highscore(this.world.highscore);
         screen.draw.drawExtraLives(this.world.lives);
 
+        // remaining shields
+        if (this.world.ship) {
+            //screen.ctx.save();
+            screen.draw.line({x: 40, y: 80}, {x: 140, y: 80}, `rgba(255,255,255,.4)`);
+            screen.draw.line({x: 40, y: 80}, {x: 40 + this.world.ship.shield * 50, y: 80}, `rgba(255,255,255,.6)`);
+            //screen.ctx.restore();
+        }
+
         // player 1
         if (!this.world.started) {
             screen.draw.player1();
@@ -194,7 +202,7 @@ export class GameMode extends EventSource implements IGameState {
         }
     }
 
-    private checkCollisions() {
+    private checkCollisions(dt: number) {
         const { ship, rocks, shipBullets, alien, alienBullets, shockwaves } = this.world;
         
         if (!this.world.shouldCheckCollisions()) {
@@ -246,42 +254,24 @@ export class GameMode extends EventSource implements IGameState {
 
         collisions.check(cowboys, indians, (cowboy, indian) => {
             this.setShake();
-            //cowboy.score *= cowboy.multiplier;
-            //indian.score *= indian.multiplier;
-            //cowboy.multiplier++;
-            //indian.multiplier++;
             this.world.addScore(cowboy);
             this.world.addScore(indian);
             this.world.rockDestroyed(cowboy);
             this.world.rockDestroyed(indian);
         });
 
-        /*
-        shockwaves.forEach(shockwave => {
-            if (shockwave.rocks.length) {
-                let cowboys = shockwave.rocks;
-                let indians = this.world.rocks.filter(x => cowboys.indexOf(x) < 0);
-
-                collisions.check(cowboys, indians, (cowboy, indian) => {
-                    this.shakeTime = SHAKE_TIME;
-                    console.log(shockwave.multiplier);
-                    cowboy.score *= shockwave.multiplier;
-                    indian.score *= shockwave.multiplier;
-                    this.world.addScore(cowboy);
-                    this.world.addScore(indian);
-                    this.world.rockDestroyed(cowboy, shockwave.multiplier++);
-                    this.world.rockDestroyed(indian, shockwave.multiplier++);
-                });
-            }
-        });
-         */
-        
         if (!this.god) {
             collisions.check([ship], rocks, (ship, rock) => {
                 this.shakeTime = SHAKE_TIME;
                 this.world.addScore(rock);
                 this.world.rockDestroyed(rock);
-                this.world.shipDestroyed();
+
+                ship.shield -= .5;
+                
+                if (ship.shield <= 0) {
+                    this.world.shipDestroyed();
+                }
+                
             }, (ship, rock) => {
                 if (this.debug) {
                     this.bounds.push(rock);
@@ -292,7 +282,13 @@ export class GameMode extends EventSource implements IGameState {
                 this.shakeTime = SHAKE_TIME;
                 this.world.addScore(alien);
                 this.world.alienDestroyed();
-                this.world.shipDestroyed();
+
+                ship.shield -= .5;
+
+                if (ship.shield <= 0) {
+                    this.world.shipDestroyed();
+                }
+
             }, (ship, alien) => {
                 if (this.debug) {
                     this.bounds.push(alien);
@@ -301,8 +297,14 @@ export class GameMode extends EventSource implements IGameState {
 
             collisions.check(alienBullets, [ship], (bullet, ship) => {
                 this.shakeTime = SHAKE_TIME;
-                this.world.shipDestroyed();
+                ship.shield -= 1;
+
+                if (ship.shield <= 0) {
+                    this.world.shipDestroyed();
+                }
+
                 bullet.destroy();
+
             }, (bullet, ship) => {
                 if (this.debug) {
                     this.bounds.push(ship);

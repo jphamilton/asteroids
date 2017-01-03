@@ -7,7 +7,7 @@ import { fire, thrust } from './sounds';
 
 const ACCELERATION: number = 0.1;
 const BULLET_SPEED: number = 1000 * screen.objectScale;
-const BULLET_TIME: number = .05;
+const BULLET_TIME: number = .02;
 const FRICTION: number = 0.005;
 const ROTATION: number = 5;
 const MAX_ACCELERATION: number = 1100 * screen.objectScale;
@@ -41,6 +41,7 @@ export class Ship extends Object2D {
     private bulletCount: number = 0;
     private bulletTimer: number = 0;
     private flame: Flame;
+    public shield: number = 2;
 
     constructor(x: number, y: number) {
         super(x, y);
@@ -131,7 +132,7 @@ export class Ship extends Object2D {
     }
 
     private fire() {
-        if (this.bulletTimer <= 0 && this.bulletCount < MAX_BULLETS) {
+        if (this.bulletTimer <= 0) { //&& this.bulletCount < MAX_BULLETS) {
             
             fire.play();
 
@@ -175,5 +176,7 @@ export class Ship extends Object2D {
             this.trigger('fire', bullet);
         }
     }
+
+    
 
 }

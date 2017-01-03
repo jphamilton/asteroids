@@ -178,7 +178,7 @@ export class World {
     }
 
     addAlien() {
-        const lvl = Math.min(this.level, 7);
+        const lvl = Math.min(this.level, 14);
         let little = false;
         let alienSound = largeAlien;
 
@@ -186,10 +186,10 @@ export class World {
             little = true;
         } else {
             switch(lvl) {
-                case 1:
+                case 7:
                     little = this.levelTimer > 60 && random(1, 3) === 2;
                     break;
-                case 2:
+                case 8:
                     little = this.levelTimer > 30 && random(1, 10) % 2 === 0; 
                     break;
                 default:
@@ -253,7 +253,7 @@ export class World {
 
         if (this.extraLifeScore >= EXTRA_LIFE) {
             this.lives++;
-            this.extraLifeScore = 0;
+            this.extraLifeScore -= EXTRA_LIFE;
             extraLife.play();
         }
 
@@ -300,7 +300,7 @@ export class World {
             
             if (this.alienTimer <= 0) {
                 this.addAlien();
-                this.alienTimer = random(10 - level, 15);
+                this.alienTimer = random(10, 15);
             }
         }
     }

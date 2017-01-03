@@ -5,8 +5,9 @@ This is an attempt to recreate the classic arcade game, Asteroids.
 
 ## About
 
-This is my remake of the classic arcade game, Asteroids. I tried to stay true to the spirit of the original as much as possible, while adding a more modern "game feel" 
-(e.g. camera shake, bigger explosions, faster movement, etc).  
+This is my "re-imagining" of the classic arcade game, Asteroids. I tried to stay true to the spirit of the original as much as possible, while adding a more modern "game feel" 
+(e.g. camera shake, kick back, bigger explosions, faster movement, etc). While the original was designed to encourage you to part with your quarters, this version is designed for you to
+blow lots of stuff up. It's a little more forgiving, too. Your ship has a little shielding that can protect you from damage for a bit and you can fire an insane amount of bullets.
 
 Like the arcade upright, the game will cycle between the highscore screen and 'attraction mode' every 15 seconds. Attraction mode will continue to play itself out until a new game is started. 
 After a game is completed, attraction mode will continue, using the state of the last game. High scores are tracked and saved in local storage.

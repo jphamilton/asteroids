@@ -14,7 +14,8 @@ export class Draw {
 
     line(p1: Point, p2: Point, color: string = VectorLine, width: number = DEFAULT_LINE_WIDTH) {
         const { ctx } = this;
-        
+        const old = ctx.strokeStyle;
+
         ctx.beginPath();
         ctx.strokeStyle = color;
         ctx.lineWidth = width; 
@@ -22,6 +23,8 @@ export class Draw {
         ctx.lineTo(p2.x, p2.y);
         ctx.stroke();
         ctx.closePath();
+
+        ctx.strokeStyle = old;
     }
 
     shape(points: Point[], x: number, y: number, color: string = VectorLine, closed: boolean = true) {
@@ -29,6 +32,8 @@ export class Draw {
         let l = points.length - 1;
         let i = 0;
         
+        this.ctx.save();
+
         for(let i = 0; i < l; i++) {
             p1 = {x: x + points[i].x, y: y + points[i].y};
             p2 = {x: x + points[i + 1].x, y: y + points[i + 1].y};
@@ -38,6 +43,8 @@ export class Draw {
         if (closed) {
             this.line({x: x + points[l].x, y: y + points[l].y}, {x: x + points[0].x, y: y + points[0].y}, color);
         }
+
+        this.ctx.restore();
     }
 
     rect(p1: Point, p2: Point, color: string = VectorLine) {
