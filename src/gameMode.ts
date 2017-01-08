@@ -17,7 +17,8 @@ export class GameMode extends EventSource implements IGameState {
     thumper: Thumper;
     god: boolean = false;
     shakeTime: number = 0;
-    
+    flashPot: boolean;
+
     constructor(private world: World) {
         super();
     }
@@ -41,6 +42,7 @@ export class GameMode extends EventSource implements IGameState {
             this.world.paused = !this.world.paused; 
             if (this.world.paused) {
                 Sound.off();
+                console.log(this);
             } else {
                 Sound.on();
             }
@@ -50,10 +52,6 @@ export class GameMode extends EventSource implements IGameState {
             return;
         }
         
-        if (Key.isPressed(Key.HYPERSPACE)) {
-            this.world.hyperspace(); 
-        }
-
         this.world.levelTimer += dt;
         
         if (this.thumper && this.world.ship) {
@@ -131,7 +129,14 @@ export class GameMode extends EventSource implements IGameState {
     }
 
     private renderStatic() {
-        screen.draw.background();
+        if (this.flashPot) {
+            this.flashPot = false;
+            screen.draw.background('#ffffff');
+        } else {
+            screen.draw.background();
+        }
+        
+
         screen.draw.copyright();
         screen.draw.scorePlayer1(this.world.score);
         screen.draw.highscore(this.world.highscore);
@@ -139,10 +144,8 @@ export class GameMode extends EventSource implements IGameState {
 
         // remaining shields
         if (this.world.ship) {
-            //screen.ctx.save();
             screen.draw.line({x: 40, y: 80}, {x: 140, y: 80}, `rgba(255,255,255,.4)`);
             screen.draw.line({x: 40, y: 80}, {x: 40 + this.world.ship.shield * 50, y: 80}, `rgba(255,255,255,.6)`);
-            //screen.ctx.restore();
         }
 
         // player 1
@@ -229,21 +232,11 @@ export class GameMode extends EventSource implements IGameState {
             this.world.addScore(alien)
             this.world.alienDestroyed();
             bullet.destroy();
+            this.flashPot = true;
         }, (bullet, alien) => {
             if (this.debug) {
                 this.bounds.push(alien);
             }
-        });
-
-        collisions.check(shipBullets, [alien], (bullet, alien) => {
-            this.setShake();
-            this.world.addScore(alien)
-            this.world.alienDestroyed();
-            bullet.destroy();
-        }, (bullet, alien) => {
-            if (this.debug) {
-                this.bounds.push(alien);
-            } 
         });
 
         let cowboys = []; 
@@ -270,6 +263,7 @@ export class GameMode extends EventSource implements IGameState {
                 
                 if (ship.shield <= 0) {
                     this.world.shipDestroyed();
+                    this.flashPot = true;
                 }
                 
             }, (ship, rock) => {
@@ -282,10 +276,11 @@ export class GameMode extends EventSource implements IGameState {
                 this.shakeTime = SHAKE_TIME;
                 this.world.addScore(alien);
                 this.world.alienDestroyed();
-
+                
                 ship.shield -= .5;
 
                 if (ship.shield <= 0) {
+                    this.flashPot = true;
                     this.world.shipDestroyed();
                 }
 
@@ -301,10 +296,10 @@ export class GameMode extends EventSource implements IGameState {
 
                 if (ship.shield <= 0) {
                     this.world.shipDestroyed();
+                    this.flashPot = true;
                 }
 
                 bullet.destroy();
-
             }, (bullet, ship) => {
                 if (this.debug) {
                     this.bounds.push(ship);
@@ -316,6 +311,7 @@ export class GameMode extends EventSource implements IGameState {
             this.shakeTime = SHAKE_TIME;
             this.world.alienDestroyed();
             this.world.rockDestroyed(rock);
+            this.flashPot = true;
         }, (alien, rock) => {
             if (this.debug) {
                 this.bounds.push(rock);

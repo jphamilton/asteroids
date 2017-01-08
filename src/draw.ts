@@ -62,17 +62,9 @@ export class Draw {
         this.rect(p, { x: size, y: size }, fillStyle);
     }
 
-    background() {
+    background(color: string = '#000000') {
         const { ctx } = this;
-        // const grd = ctx.createLinearGradient(0, 0, 0, screen.height);
-        // // monitor burn
-        // grd.addColorStop(0, '#000000');
-        // grd.addColorStop(.3, '#030303');
-        // grd.addColorStop(.5, '#050505');
-        // grd.addColorStop(.7, '#090909');
-        // grd.addColorStop(1, '#111111');
-        // ctx.fillStyle=grd;
-        ctx.fillStyle = '#000000';
+        ctx.fillStyle = color;
         ctx.fillRect(0, 0, screen.width, screen.height);
     }
 

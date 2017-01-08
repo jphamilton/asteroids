@@ -227,22 +227,6 @@ export class World {
 
     }   
 
-    hyperspace() {
-        let x = random(40, screen.width - 40);
-        let y = random(40, screen.height - 40);
-        let angle = this.ship.angle; 
-        
-        this.addShip(x, y); 
-
-        if (this.ship.angle > angle) {
-            angle = -(this.ship.angle - angle);
-        } else if (this.ship.angle < angle) {
-            angle = angle - this.ship.angle;
-        }
-
-        this.ship.rotate(angle);
-    }
-
     addScore(obj: Object2D) {
         this.score += obj.score;
         this.extraLifeScore += obj.score;

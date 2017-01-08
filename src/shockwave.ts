@@ -28,11 +28,23 @@ export class Shockwave extends Object2D {
 
         if (this.life <= .1) {
             this.rocks = [];
+            //console.log('radius and frame', this.radius, this.frame);
             this.trigger('expired');
         }
     }
 
     render(dt?: number) {
+        if (this.frame === 1) {
+            const radius = (this.size * (random(25,55))) / 10;
+            const { ctx } = screen;
+            ctx.beginPath();
+            ctx.arc(this.origin.x, this.origin.y, radius, 0, 2 * Math.PI, false);
+            ctx.fillStyle = `rgba(255, 255, 255, ${random(.2, .5)})`;
+            ctx.fill();
+            ctx.stroke();
+            ctx.closePath();
+        }
+
         screen.draw.circle(this.origin.x, this.origin.y, this.radius, `rgba(128,128,128,${.5 - (this.frame / 100)})`);
     }
 

@@ -4,6 +4,7 @@ import { Object2D } from './object2d';
 import { Vector } from './vector';
 import { Bullet } from './bullet';
 import { fire, thrust } from './sounds';
+import { random } from './util';
 
 const ACCELERATION: number = 0.1;
 const BULLET_SPEED: number = 1000 * screen.objectScale;
@@ -99,6 +100,10 @@ export class Ship extends Object2D {
             this.fire();
         }
 
+        if (Key.isPressed(Key.HYPERSPACE)) {
+            this.hyperspace(); 
+        }
+
         if (this.bulletTimer > 0) {
             this.bulletTimer -= dt;
         }
@@ -177,6 +182,18 @@ export class Ship extends Object2D {
         }
     }
 
-    
+    hyperspace() {
+        let x = random(40, screen.width - 40);
+        let y = random(40, screen.height - 40);
+        
+        this.vx = 0;
+        this.vy = 0;
+
+        this.x = this.flame.x = x;
+        this.y = this.flame.y = y;
+
+        this.flame.vx = 0;
+        this.flame.vy = 0;
+    }
 
 }
