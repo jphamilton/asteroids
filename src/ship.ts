@@ -12,7 +12,7 @@ const BULLET_TIME: number = .02;
 const FRICTION: number = 0.005;
 const ROTATION: number = 5;
 const MAX_ACCELERATION: number = 1100 * screen.objectScale;
-const MAX_BULLETS: number = 20;
+const MAX_BULLETS: number = 10;
 const VELOCITY = 150 * screen.objectScale;
 
 class Flame extends Object2D {
@@ -137,7 +137,7 @@ export class Ship extends Object2D {
     }
 
     private fire() {
-        if (this.bulletTimer <= 0) { //&& this.bulletCount < MAX_BULLETS) {
+        if (this.bulletTimer <= 0 && this.bulletCount < MAX_BULLETS) {
             
             fire.play();
 
@@ -145,10 +145,8 @@ export class Ship extends Object2D {
             this.bulletCount++;
 
             const v = new Vector(this.angle);
-            const bullet = new Bullet(this.origin.x, this.origin.y, v);
+            const bullet = new Bullet(this.origin.x, this.origin.y, v, 1);
 
-            bullet.life = 1;
-            
             bullet.on('expired', () => {
                 this.bulletCount--;
             });

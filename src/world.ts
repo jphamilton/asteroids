@@ -26,7 +26,6 @@ export class World {
     alienBullets: Bullet[] = [];
     explosions: Explosion[] = [];
     shockwaves: Shockwave[] = [];
-    shockwaveRocks: Rock[] = [];
     rocks: Rock[] = [];
     markers: ScoreMarker[] = [];
 
@@ -71,7 +70,7 @@ export class World {
             this.alienTimer = random(10, 15);
         }
         
-        this.explosions = [];
+        this.explosions.length = 0;
         this.shipBullets.forEach(bullet => bullet.destroy());
 
         this.addRocks();
@@ -151,7 +150,7 @@ export class World {
         this.createExplosion(this.ship);
         this.lives--;
         this.ship = null;
-        this.shipBullets = [];
+        this.shipBullets.length = 0;
     }
 
     alienDestroyed() {
@@ -159,7 +158,7 @@ export class World {
             this.createExplosion(this.alien);
             this.alien.destroy();
         }
-        this.alienBullets = [];
+        this.alienBullets.length = 0;
         largeExplosion.play();
     }
 
@@ -212,7 +211,7 @@ export class World {
             alienSound.stop();
             this.alien = null;
             this.alienBullets.forEach(b => b.destroy());
-            this.alienBullets = [];
+            this.alienBullets.length = 0; 
         });
 
         this.alien.on('fire', (alien, bullet: Bullet) => {

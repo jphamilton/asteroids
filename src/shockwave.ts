@@ -27,8 +27,7 @@ export class Shockwave extends Object2D {
         this.origin.y += this.vy * dt;
 
         if (this.life <= .1) {
-            this.rocks = [];
-            //console.log('radius and frame', this.radius, this.frame);
+            this.rocks.length = 0;
             this.trigger('expired');
         }
     }

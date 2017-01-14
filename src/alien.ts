@@ -5,7 +5,8 @@ import { Ship } from './ship';
 import { Bullet } from './bullet';
 import { Vector } from './vector';
 
-const BULLET_SPEED: number = 600 * screen.objectScale;
+const BIG_ALIEN_BULLET_SPEED: number = 600 * screen.objectScale;
+const SMALL_ALIEN_BULLET_SPEED: number = 800 * screen.objectScale;
 const BIG_ALIEN_SPEED: number = 225 * screen.objectScale;
 const SMALL_ALIEN_SPEED: number = 250 * screen.objectScale;
 
@@ -107,7 +108,7 @@ export class BigAlien extends Alien {
     }
 
     fire() {
-        const v = new Vector(random(1, 360), BULLET_SPEED);
+        const v = new Vector(random(1, 360), BIG_ALIEN_BULLET_SPEED);
         const bullet = new Bullet(this.origin.x, this.origin.y, v);
         this.trigger('fire', bullet);
     }
@@ -133,12 +134,12 @@ export class SmallAlien extends Alien {
 
         if (this.ship) {
             // target ship
-            const v = Vector.fromXY(this.ship.origin, this.origin, BULLET_SPEED);
-            bullet = new Bullet(this.origin.x, this.origin.y, v);
+            const v = Vector.fromXY(this.ship.origin, this.origin, SMALL_ALIEN_BULLET_SPEED);
+            bullet = new Bullet(this.origin.x, this.origin.y, v, 2);
         } else {
             // random fire
-            const v = new Vector(random(1, 360), BULLET_SPEED);
-            bullet = new Bullet(this.origin.x, this.origin.y, v);
+            const v = new Vector(random(1, 360), SMALL_ALIEN_BULLET_SPEED);
+            bullet = new Bullet(this.origin.x, this.origin.y, v, 2);
         }
 
         this.trigger('fire', bullet);

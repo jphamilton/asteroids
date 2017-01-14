@@ -4,10 +4,9 @@ import { Object2D } from './object2d';
 
 export class Bullet extends Object2D { 
 
-    life: number = 1.25;   // in seconds
     frame: number = 0;
 
-    constructor(x: number, y: number, v: Vector) {
+    constructor(x: number, y: number, v: Vector, private life:number = 1.25) {
         super(x, y);
         this.vx = v.x;
         this.vy = v.y;

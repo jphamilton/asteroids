@@ -20,6 +20,8 @@ export class Collisions {
             return;
         }
 
+        let candidates = [];
+
         this.tree.clear();
         
         targets.forEach(target => {
@@ -27,7 +29,7 @@ export class Collisions {
         });
         
         sources.forEach(source => {
-            let candidates = [];
+            candidates.length = 0;
 
             candidates.push(...this.tree.retrieve(source) as any);
             

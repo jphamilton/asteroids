@@ -212,7 +212,7 @@ export class GameMode extends EventSource implements IGameState {
             return;
         }
 
-        this.bounds = [];
+        this.bounds.length = 0;
         
         const collisions = new Collisions();
 
