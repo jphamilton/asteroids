@@ -3,6 +3,7 @@ import { Bullet } from './bullet';
 import { Alien, SmallAlien, BigAlien } from './alien';
 import { Explosion } from './explosion';
 import { Shockwave } from './shockwave';
+import { Flash } from './flash';
 import { Rock, RockSize } from './rocks';
 import { ScoreMarker } from './scoreMarker';
 import { Object2D } from './object2d';
@@ -24,10 +25,11 @@ export class World {
     shipBullets: Bullet[] = [];
     alien: Alien;
     alienBullets: Bullet[] = [];
-    explosions: Explosion[] = [];
     shockwaves: Shockwave[] = [];
     rocks: Rock[] = [];
-    markers: ScoreMarker[] = [];
+
+    // markers, explosions, flash, etc.
+    scenery: IGameState[] = [];
 
     shipTimer: number = 0;
     alienTimer: number = 0;
@@ -43,7 +45,7 @@ export class World {
     }
 
     get objects(): any {
-        return [this.ship, this.alien, ...this.shipBullets, ...this.alienBullets, ...this.rocks, ...this.explosions, ...this.shockwaves, ...this.markers];
+        return [this.ship, this.alien, ...this.shipBullets, ...this.alienBullets, ...this.rocks, ...this.shockwaves, ...this.scenery];
     }
 
     update(dt: number) {
@@ -70,7 +72,7 @@ export class World {
             this.alienTimer = random(10, 15);
         }
         
-        this.explosions.length = 0;
+        this.scenery.length = 0;
         this.shipBullets.forEach(bullet => bullet.destroy());
 
         this.addRocks();
@@ -122,6 +124,12 @@ export class World {
 
             this.shipBullets.push(bullet);
         });
+
+        this.ship.on('expired', () => {
+            this.lives--;
+            this.ship = null;
+            this.shipBullets.length = 0;
+        });
     }
 
     createExplosion(obj: Object2D, size: number = 100, multiplier: number = 1): { explosion: Explosion, shockwave: Shockwave } {
@@ -130,17 +138,15 @@ export class World {
         }
         
         const explosion = new Explosion(obj.origin.x, obj.origin.y, size);
-        const shockwave = new Shockwave(obj.origin.x, obj.origin.y, obj.vx, obj.vy, size, multiplier);
 
-        explosion.on('expired', ()=> {
-            this.explosions = this.explosions.filter(x => x !== explosion);
-        });
+        this.addScenery(explosion);
+
+        const shockwave = new Shockwave(obj.origin.x, obj.origin.y, obj.vx, obj.vy, size, multiplier);
 
         shockwave.on('expired', () => {
             this.shockwaves = this.shockwaves.filter(x => x !== shockwave);
         });
 
-        this.explosions.push(explosion);
         this.shockwaves.push(shockwave);
 
         return {
@@ -152,18 +158,29 @@ export class World {
     shipDestroyed() {
         largeExplosion.play();
         this.createExplosion(this.ship);
-        this.lives--;
-        this.ship = null;
-        this.shipBullets.length = 0;
+        this.addFlash(5);
+        this.ship.destroy();
     }
 
     alienDestroyed() {
         if (this.alien) {
+            this.addFlash(5);
             this.createExplosion(this.alien);
             this.alien.destroy();
         }
-        this.alienBullets.length = 0;
-        largeExplosion.play();
+    }
+
+    addFlash(frames: number) {
+        const flash = new Flash(frames);
+        this.addScenery(flash);
+    }
+
+    addScenery(obj) {
+        obj.on('expired', () => {
+            this.scenery = this.scenery.filter(x => x !== obj);
+        });
+
+        this.scenery.push(obj);
     }
 
     rockDestroyed(rock: Rock, multiplier: number = 1) {
@@ -213,6 +230,7 @@ export class World {
         this.alien.on('expired', () => {
             alienFire.stop();
             alienSound.stop();
+            largeExplosion.play();
             this.alien = null;
             this.alienBullets.forEach(b => b.destroy());
             this.alienBullets.length = 0; 
@@ -244,13 +262,8 @@ export class World {
             extraLife.play();
         }
 
-        let marker = new ScoreMarker(obj, `+${obj.score}`);
-        
-        marker.on('expired', () => {
-            this.markers = this.markers.filter(x => x !== marker);
-        });
-
-        this.markers.push(marker);
+        const marker = new ScoreMarker(obj, `+${obj.score}`);
+        this.addScenery(marker);
     }
 
     tryPlaceShip(dt) {

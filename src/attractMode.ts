@@ -22,7 +22,7 @@ export class AttractMode implements IGameState {
 
         this.world.updateAlienTimer(dt);
 
-        if (!this.world.rocks.length && !this.world.explosions.length && !this.world.alien) {  
+        if (!this.world.rocks.length && !this.world.scenery.length && !this.world.alien) {  
             this.world.startLevel();
         }
 

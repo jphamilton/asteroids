@@ -3,7 +3,7 @@ import { EventSource } from './events';
 import { COS, SIN } from './lut';
 
 
-export abstract class Object2D extends EventSource implements Rect {
+export abstract class Object2D extends EventSource implements Rect, IGameState {
 
     color: string = 'rgba(255,255,255,.9)'; 
     angle: number = 360; 

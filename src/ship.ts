@@ -194,4 +194,7 @@ export class Ship extends Object2D {
         this.flame.vy = 0;
     }
 
+    destroy() {
+        this.trigger('expired');
+    }
 }

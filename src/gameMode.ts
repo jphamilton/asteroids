@@ -17,7 +17,6 @@ export class GameMode extends EventSource implements IGameState {
     thumper: Thumper;
     god: boolean = false;
     shakeTime: number = 0;
-    flashPot: number = 0;
 
     constructor(private world: World) {
         super();
@@ -129,14 +128,7 @@ export class GameMode extends EventSource implements IGameState {
     }
 
     private renderStatic() {
-        if (this.flashPot) {
-            this.flashPot--;
-            screen.draw.background('#ffffff');
-        } else {
-            screen.draw.background();
-        }
-        
-
+        screen.draw.background();
         screen.draw.copyright();
         screen.draw.scorePlayer1(this.world.score);
         screen.draw.highscore(this.world.highscore);
@@ -199,10 +191,6 @@ export class GameMode extends EventSource implements IGameState {
     
     }
 
-    private flashBomb() {
-        this.flashPot = 5;
-    }
-
     private setShake() {
         if (this.shakeTime <= 0.0) {
             this.shakeTime = SHAKE_TIME;
@@ -236,7 +224,6 @@ export class GameMode extends EventSource implements IGameState {
             this.world.addScore(alien)
             this.world.alienDestroyed();
             bullet.destroy();
-            this.flashBomb();
         }, (bullet, alien) => {
             if (this.debug) {
                 this.bounds.push(alien);
@@ -250,7 +237,6 @@ export class GameMode extends EventSource implements IGameState {
         let indians = this.world.rocks.filter(x => cowboys.indexOf(x) < 0);
 
         collisions.check(cowboys, indians, (cowboy, indian) => {
-            this.setShake();
             this.world.addScore(cowboy);
             this.world.addScore(indian);
             this.world.rockDestroyed(cowboy);
@@ -259,7 +245,7 @@ export class GameMode extends EventSource implements IGameState {
 
         if (!this.god) {
             collisions.check([ship], rocks, (ship, rock) => {
-                this.shakeTime = SHAKE_TIME;
+                this.setShake();
                 this.world.addScore(rock);
                 this.world.rockDestroyed(rock);
 
@@ -267,7 +253,6 @@ export class GameMode extends EventSource implements IGameState {
                 
                 if (ship.shield <= 0) {
                     this.world.shipDestroyed();
-                    this.flashBomb();
                 }
                 
             }, (ship, rock) => {
@@ -277,14 +262,13 @@ export class GameMode extends EventSource implements IGameState {
             });
 
             collisions.check([ship], [alien], (ship, alien) => {
-                this.shakeTime = SHAKE_TIME;
+                this.setShake();
                 this.world.addScore(alien);
                 this.world.alienDestroyed();
                 
                 ship.shield -= .5;
 
                 if (ship.shield <= 0) {
-                    this.flashBomb();
                     this.world.shipDestroyed();
                 }
 
@@ -295,12 +279,11 @@ export class GameMode extends EventSource implements IGameState {
             });
 
             collisions.check(alienBullets, [ship], (bullet, ship) => {
-                this.shakeTime = SHAKE_TIME;
+                this.setShake();
                 ship.shield -= 1;
 
                 if (ship.shield <= 0) {
                     this.world.shipDestroyed();
-                    this.flashBomb();
                 }
 
                 bullet.destroy();
@@ -312,10 +295,9 @@ export class GameMode extends EventSource implements IGameState {
         }
 
         collisions.check([alien], rocks, (alien, rock) => {
-            this.shakeTime = SHAKE_TIME;
+            this.setShake();
             this.world.alienDestroyed();
             this.world.rockDestroyed(rock);
-            this.flashBomb();
         }, (alien, rock) => {
             if (this.debug) {
                 this.bounds.push(rock);
@@ -323,7 +305,7 @@ export class GameMode extends EventSource implements IGameState {
         });
         
         collisions.check(alienBullets, rocks, (bullet, rock) => {
-            this.shakeTime = SHAKE_TIME;
+            this.setShake();
             this.world.rockDestroyed(rock);
         }, (bullet, rock) => {
             if (this.debug) {
