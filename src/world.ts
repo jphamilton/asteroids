@@ -125,6 +125,10 @@ export class World {
     }
 
     createExplosion(obj: Object2D, size: number = 100, multiplier: number = 1): { explosion: Explosion, shockwave: Shockwave } {
+        if (!obj) {
+            return;
+        }
+        
         const explosion = new Explosion(obj.origin.x, obj.origin.y, size);
         const shockwave = new Shockwave(obj.origin.x, obj.origin.y, obj.vx, obj.vy, size, multiplier);
 

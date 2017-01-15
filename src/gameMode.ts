@@ -17,7 +17,7 @@ export class GameMode extends EventSource implements IGameState {
     thumper: Thumper;
     god: boolean = false;
     shakeTime: number = 0;
-    flashPot: boolean;
+    flashPot: number = 0;
 
     constructor(private world: World) {
         super();
@@ -130,7 +130,7 @@ export class GameMode extends EventSource implements IGameState {
 
     private renderStatic() {
         if (this.flashPot) {
-            this.flashPot = false;
+            this.flashPot--;
             screen.draw.background('#ffffff');
         } else {
             screen.draw.background();
@@ -199,6 +199,10 @@ export class GameMode extends EventSource implements IGameState {
     
     }
 
+    private flashBomb() {
+        this.flashPot = 5;
+    }
+
     private setShake() {
         if (this.shakeTime <= 0.0) {
             this.shakeTime = SHAKE_TIME;
@@ -232,7 +236,7 @@ export class GameMode extends EventSource implements IGameState {
             this.world.addScore(alien)
             this.world.alienDestroyed();
             bullet.destroy();
-            this.flashPot = true;
+            this.flashBomb();
         }, (bullet, alien) => {
             if (this.debug) {
                 this.bounds.push(alien);
@@ -263,7 +267,7 @@ export class GameMode extends EventSource implements IGameState {
                 
                 if (ship.shield <= 0) {
                     this.world.shipDestroyed();
-                    this.flashPot = true;
+                    this.flashBomb();
                 }
                 
             }, (ship, rock) => {
@@ -280,7 +284,7 @@ export class GameMode extends EventSource implements IGameState {
                 ship.shield -= .5;
 
                 if (ship.shield <= 0) {
-                    this.flashPot = true;
+                    this.flashBomb();
                     this.world.shipDestroyed();
                 }
 
@@ -296,7 +300,7 @@ export class GameMode extends EventSource implements IGameState {
 
                 if (ship.shield <= 0) {
                     this.world.shipDestroyed();
-                    this.flashPot = true;
+                    this.flashBomb();
                 }
 
                 bullet.destroy();
@@ -311,7 +315,7 @@ export class GameMode extends EventSource implements IGameState {
             this.shakeTime = SHAKE_TIME;
             this.world.alienDestroyed();
             this.world.rockDestroyed(rock);
-            this.flashPot = true;
+            this.flashBomb();
         }, (alien, rock) => {
             if (this.debug) {
                 this.bounds.push(rock);

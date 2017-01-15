@@ -1,7 +1,7 @@
 import screen from './screen';
 import { Object2D } from './object2d';
 import { Vector } from './vector';
-import { random } from './util';
+import { random, randomFloat } from './util';
 import { largeExplosion, mediumExplosion, smallExplosion } from './sounds';
 
 export enum RockSize {
@@ -108,19 +108,25 @@ export class Rock extends Object2D {
     }
 
     split(): Rock[] {
+        let sound;
+
         switch(this.size) {
             case RockSize.Large:
-                largeExplosion.play();
+                sound = largeExplosion;
                 break;
 
             case RockSize.Medium:
-                mediumExplosion.play();
+                sound = mediumExplosion;
                 break;
 
             case RockSize.Small:
-                smallExplosion.play();
+                sound = smallExplosion;
                 break;
         }
+
+        const rate = randomFloat(.7, 1);
+        sound.rate(rate);
+        sound.play();
 
         if (this.size > RockSize.Small) {
 

@@ -60,19 +60,19 @@ export const alienFire = createSound({
 export const largeExplosion = createSound({
     src: ['./assets/explode1.wav'],
     volume: VOLUME,
-    max: 1
+    max: 2
 });
 
 export const mediumExplosion = createSound({
     src: ['./assets/explode2.wav'],
     volume: VOLUME,
-    max: 1
+    max: 2
 });
 
 export const smallExplosion = createSound({
     src: ['./assets/explode3.wav'],
     volume: VOLUME,
-    max: 1
+    max: 2
 });
 
 export const largeAlien = createSound({
