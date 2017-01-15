@@ -104,7 +104,7 @@ export class Ship extends Object2D {
             this.hyperspace(); 
         }
 
-        if (this.bulletTimer > 0) {
+        if (this.bulletTimer >= 0) {
             this.bulletTimer -= dt;
         }
 
