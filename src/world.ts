@@ -13,6 +13,7 @@ import screen from './screen';
 import { smallAlien, largeAlien, alienFire, largeExplosion, extraLife } from './sounds';
 
 const EXTRA_LIFE = 10000;
+const SHAKE_TIME = .5;
 
 export class World {
     level: number = 7;
@@ -35,7 +36,8 @@ export class World {
     alienTimer: number = 0;
     levelTimer: number = 0;
     gameOverTimer: number = 0;
-    
+    shakeTimer: number = 0;
+
     gameOver: boolean = false;
     started: boolean = false;
     paused: boolean = false;
@@ -49,6 +51,11 @@ export class World {
     }
 
     update(dt: number) {
+        // shaky "cam"
+        if (this.shakeTimer > 0) {
+            this.shakeTimer -= dt;
+        }
+
         this.objects.forEach(obj => {
             if (obj) {
                 obj.update(dt);
@@ -57,11 +64,19 @@ export class World {
     }
     
     render(delta?: number) {
+        if (this.shakeTimer > 0) {
+            screen.preShake();
+        }
+
         this.objects.forEach(obj => {
             if (obj) {
                 obj.render(delta);
             }
         });
+
+        if (this.shakeTimer > 0) {
+            screen.postShake();
+        }
     }
 
     startLevel() {
@@ -264,6 +279,12 @@ export class World {
 
         const marker = new ScoreMarker(obj, `+${obj.score}`);
         this.addScenery(marker);
+    }
+
+    shake() {
+        if (this.shakeTimer <= 0.0) {
+            this.shakeTimer = SHAKE_TIME;
+        }
     }
 
     tryPlaceShip(dt) {
