@@ -7,6 +7,7 @@ import { HighScoreMode } from './highScoreMode';
 import { InitialsMode } from './initialsMode';
 import { AttractMode } from './attractMode';
 import { GameMode } from './gameMode';
+import Global from './global';
 
 const ATTRACT_TIME = 15;
 
@@ -65,6 +66,32 @@ export class Asteroids {
     }
 
     update(dt) {
+
+        if (Key.isPressed(Key.GOD)) {
+            Global.god = !Global.god;
+        }
+
+        if (Key.isPressed(Key.DEBUG)) {
+            Global.debug = !Global.debug; 
+        }
+
+        if (Key.isPressed(Key.MONITOR_BURN)) {
+            Global.burn = !Global.burn; 
+        }
+
+        if (Key.isPressed(Key.PAUSE)) {
+            Global.paused = !Global.paused; 
+
+            if (Global.paused) {
+                Sound.off();
+            } else {
+                Sound.on();
+            }
+        }
+
+        if (Global.paused) {
+            return;
+        }
 
         switch(this.mode) {
             case Modes.Start:

@@ -1,6 +1,7 @@
 import screen from './screen';
 import { highscores } from './highscores';
 import { Ship } from './ship';
+import Global from './global';
 
 const VectorLine = 'rgba(255,255,255,.8)';
 const TextColor = 'rgba(255,255,255,.8)';
@@ -32,22 +33,24 @@ export class Draw {
         const { ctx } = this;
         const old = ctx.strokeStyle;
 
-        ctx.beginPath();
-        ctx.lineWidth = width; 
-        ctx.moveTo(x1 - 2, y1);
-        ctx.strokeStyle = magenta5;
-        ctx.lineTo(x2 - 2, y2);
-        ctx.stroke();
-        ctx.closePath();
+        if (Global.burn) {
+            ctx.beginPath();
+            ctx.lineWidth = width; 
+            ctx.moveTo(x1 - 2, y1);
+            ctx.strokeStyle = magenta5;
+            ctx.lineTo(x2 - 2, y2);
+            ctx.stroke();
+            ctx.closePath();
 
-        ctx.beginPath();
-        ctx.lineWidth = width; 
-        ctx.moveTo(x1 - 1, y1 - 1);
-        ctx.strokeStyle = cyan5;
-        ctx.lineTo(x2 - 1, y2 - 1);
-        ctx.stroke();
-        ctx.closePath();
-
+            ctx.beginPath();
+            ctx.lineWidth = width; 
+            ctx.moveTo(x1 - 1, y1 - 1);
+            ctx.strokeStyle = cyan5;
+            ctx.lineTo(x2 - 1, y2 - 1);
+            ctx.stroke();
+            ctx.closePath();
+        }
+        
         ctx.beginPath();
         ctx.lineWidth = width; 
         ctx.moveTo(x1, y1);
@@ -125,6 +128,14 @@ export class Draw {
         ctx.textBaseline = 'middle';
         ctx.lineWidth = 1;
         
+        if (Global.burn) {
+            ctx.strokeStyle = magenta5;
+            ctx.strokeText(text, x - 2, y - 2);
+
+            ctx.strokeStyle = cyan5;
+            ctx.strokeText(text, x - 1, y - 1);
+        }
+
         ctx.strokeStyle = color;
         ctx.strokeText(text, x, y);
         
@@ -142,12 +153,14 @@ export class Draw {
         const width = ctx.measureText(text).width;
         const point = cb(width);
 
-        ctx.strokeStyle = magenta(.5);
-        ctx.strokeText(text, point.x - 2, point.y - 2);
-        
-        ctx.strokeStyle = cyan(.5);
-        ctx.strokeText(text, point.x - 1, point.y - 1);
-        
+        if (Global.burn) {
+            ctx.strokeStyle = magenta(.5);
+            ctx.strokeText(text, point.x - 2, point.y - 2);
+            
+            ctx.strokeStyle = cyan(.5);
+            ctx.strokeText(text, point.x - 1, point.y - 1);
+        }
+
         ctx.strokeStyle = TextColor;
         ctx.strokeText(text, point.x, point.y);
         ctx.restore();
@@ -163,12 +176,14 @@ export class Draw {
         const width = ctx.measureText(text).width;
         const point = cb(width);
 
-        ctx.fillStyle = magenta(.5);
-        ctx.fillText(text, point.x - 2, point.y - 2);
-        
-        ctx.fillStyle = cyan(.5);
-        ctx.fillText(text, point.x - 1, point.y - 1);
-        
+        if (Global.burn) {
+            ctx.fillStyle = magenta(.5);
+            ctx.fillText(text, point.x - 2, point.y - 2);
+            
+            ctx.fillStyle = cyan(.5);
+            ctx.fillText(text, point.x - 1, point.y - 1);
+        }
+
         ctx.fillStyle = TextColor;
         ctx.fillText(text, point.x, point.y);
 
@@ -177,18 +192,20 @@ export class Draw {
 
     scorePlayer1(score) {
         const X_START = 100;
-        
         let text = score.toString();
-        while (text.length < 2) text = '0' + text;
-        
-        this.text(text, X_START - 2, Y_START - 2, screen.font.medium, magenta(.5));
-        this.text(text, X_START - 1, Y_START - 1, screen.font.medium, cyan(.5));
+        while (text.length < 2) { 
+            text = '0' + text 
+        };
         this.text(text, X_START, Y_START, screen.font.medium);
     }
 
     highscore(score: number) {
         let text = score.toString();
-        while (text.length < 2) text = '0' + text;
+        
+        while (text.length < 2) { 
+            text = '0' + text;
+        }
+
         this.text2(text, screen.font.small, (width) => {
             return {
                 x: screen.width2 - (width / 2),

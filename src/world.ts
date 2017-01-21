@@ -43,7 +43,6 @@ export class World {
 
     gameOver: boolean = false;
     started: boolean = false;
-    paused: boolean = false;
 
     constructor(highscore: number) {
         this.highscore = highscore;

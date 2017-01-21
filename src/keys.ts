@@ -18,6 +18,7 @@ export class _Key {
     DEBUG = 68;  
     PAUSE = 80;
     GOD = 71;
+    MONITOR_BURN = 66;
     
     constructor() {
         this.keys = new Array(LEN);

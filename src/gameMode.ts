@@ -7,13 +7,12 @@ import { random } from './util';
 import { World } from './world';
 import { Sound } from './sounds';
 import { Thumper } from './thump';
+import Global from './global';
 
 export class GameMode extends EventSource implements IGameState {
 
-    debug: boolean = false;
     bounds: Object2D[] = [];
     thumper: Thumper;
-    god: boolean = false;
 
     constructor(private world: World) {
         super();
@@ -26,27 +25,6 @@ export class GameMode extends EventSource implements IGameState {
     }
 
     update(dt: number) {
-        if (Key.isPressed(Key.GOD)) {
-            this.god = !this.god;
-        }
-
-        if (Key.isPressed(Key.DEBUG)) {
-            this.debug = !this.debug; 
-        }
-
-        if (Key.isPressed(Key.PAUSE)) {
-            this.world.paused = !this.world.paused; 
-            if (this.world.paused) {
-                Sound.off();
-                console.log(this);
-            } else {
-                Sound.on();
-            }
-        }
-        
-        if (this.world.paused) {
-            return;
-        }
         
         this.world.levelTimer += dt;
         
@@ -102,7 +80,7 @@ export class GameMode extends EventSource implements IGameState {
 
     render(delta: number) {
         
-        if (this.world.paused) {
+        if (Global.paused) {
             return;
         }
         
@@ -135,14 +113,14 @@ export class GameMode extends EventSource implements IGameState {
         }
 
         // debug stuff
-        if (this.debug) {
+        if (Global.debug) {
             this.renderDebug();
         }
     }
 
     private renderDebug() {
         
-        if (this.god) {
+        if (Global.god) {
             screen.draw.text2('god', screen.font.small, (width) => {
                 return { x: screen.width - width - 10, y: screen.height - 80 };
             });
@@ -193,7 +171,7 @@ export class GameMode extends EventSource implements IGameState {
             this.world.rockDestroyed(rock);
             bullet.destroy();
         }, (bullet, rock) => {
-            if (this.debug) {
+            if (Global.debug) {
                 this.bounds.push(rock);
             }
         });
@@ -204,7 +182,7 @@ export class GameMode extends EventSource implements IGameState {
             this.world.alienDestroyed();
             bullet.destroy();
         }, (bullet, alien) => {
-            if (this.debug) {
+            if (Global.debug) {
                 this.bounds.push(alien);
             }
         });
@@ -226,12 +204,12 @@ export class GameMode extends EventSource implements IGameState {
             this.world.addPowerup();
             powerup.destroy();
         }, (ship, powerup) => {
-            if (this.debug) {
+            if (Global.debug) {
                 this.bounds.push(powerup);
             }
         });
         
-        if (!this.god) {
+        if (!Global.god) {
             collisions.check([ship], rocks, (ship, rock) => {
                 this.world.shake();
                 this.world.addScore(rock);
@@ -244,7 +222,7 @@ export class GameMode extends EventSource implements IGameState {
                 }
                 
             }, (ship, rock) => {
-                if (this.debug) {
+                if (Global.debug) {
                     this.bounds.push(rock);
                 }
             });
@@ -261,7 +239,7 @@ export class GameMode extends EventSource implements IGameState {
                 }
 
             }, (ship, alien) => {
-                if (this.debug) {
+                if (Global.debug) {
                     this.bounds.push(alien);
                 }
             });
@@ -276,7 +254,7 @@ export class GameMode extends EventSource implements IGameState {
 
                 bullet.destroy();
             }, (bullet, ship) => {
-                if (this.debug) {
+                if (Global.debug) {
                     this.bounds.push(ship);
                 }
             });
@@ -287,7 +265,7 @@ export class GameMode extends EventSource implements IGameState {
             this.world.alienDestroyed();
             this.world.rockDestroyed(rock);
         }, (alien, rock) => {
-            if (this.debug) {
+            if (Global.debug) {
                 this.bounds.push(rock);
             }
         });
@@ -296,7 +274,7 @@ export class GameMode extends EventSource implements IGameState {
             this.world.shake();
             this.world.rockDestroyed(rock);
         }, (bullet, rock) => {
-            if (this.debug) {
+            if (Global.debug) {
                 this.bounds.push(rock);
             }
         });
