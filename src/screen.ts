@@ -18,6 +18,7 @@ export class Screen implements Rect {
     private _fontS: number;
     private _objectScale: number;
     private _shipRect: Rect;
+    private _pointSize: number;
 
     constructor() {
         this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -58,6 +59,7 @@ export class Screen implements Rect {
             this._objectScale = .5;
         }
 
+        this._pointSize = 4 * this._objectScale;
 
         const offRect = (120 * this._objectScale);
 
@@ -89,6 +91,10 @@ export class Screen implements Rect {
 
     get objectScale() {
         return this._objectScale;
+    }
+    
+    get pointSize() {
+        return this._pointSize;
     }
     
     get shipRect() {

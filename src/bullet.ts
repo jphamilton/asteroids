@@ -30,7 +30,9 @@ export class Bullet extends Object2D {
 
     draw() {
         let size = this.frame <= 1 ? 8 * screen.objectScale : 4 * screen.objectScale;
-        screen.draw.rect({x: this.origin.x - (size / 2), y: this.origin.y}, { x: size, y: size });
+        screen.draw.rect(this.origin.x - 2, this.origin.y - 2, size, size, `rgba(255,0,255,.5)`);
+        screen.draw.rect(this.origin.x - 1, this.origin.y - 1, size, size, `rgba(0,255,255,.5)`);
+        screen.draw.rect(this.origin.x, this.origin.y, size, size);
     }
 
     destroy() {

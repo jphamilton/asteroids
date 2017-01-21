@@ -5,7 +5,6 @@ import { COS, SIN } from './lut';
 
 export abstract class Object2D extends EventSource implements Rect, IGameState {
 
-    color: string = 'rgba(255,255,255,.9)'; 
     angle: number = 360; 
     vx: number = 0;
     vy: number = 0;
@@ -120,7 +119,7 @@ export abstract class Object2D extends EventSource implements Rect, IGameState {
     }
 
     draw(closed: boolean = true) {
-        screen.draw.shape(this.points, this.origin.x, this.origin.y, this.color, closed);
+        screen.draw.shape(this.points, this.origin.x, this.origin.y, 'rgba(255,255,255,.8)', closed);
     }
 
     get magnitude() {

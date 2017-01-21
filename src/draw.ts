@@ -2,9 +2,25 @@ import screen from './screen';
 import { highscores } from './highscores';
 import { Ship } from './ship';
 
-const VectorLine = 'rgba(255,255,255,1)';
+const VectorLine = 'rgba(255,255,255,.8)';
+const TextColor = 'rgba(255,255,255,.8)';
 const Y_START = 20;
 const DEFAULT_LINE_WIDTH = 2;
+
+export function magenta(opacity: number = 1) {
+    return `rgba(255,0,255, ${opacity})`;
+}
+
+export function cyan(opacity: number = 1) {
+    return `rgba(0,255,255, ${opacity})`;
+}
+
+export function white(opacity: number = 1) {
+    return `rgba(255,255,255, ${opacity})`;
+}
+
+const magenta5 = magenta(.5);
+const cyan5 = cyan(.5);
 
 export class Draw {
 
@@ -12,15 +28,31 @@ export class Draw {
 
     }
 
-    line(p1: Point, p2: Point, color: string = VectorLine, width: number = DEFAULT_LINE_WIDTH) {
+    line(x1: number, y1: number, x2: number, y2: number, color: string = VectorLine, width: number = DEFAULT_LINE_WIDTH) {
         const { ctx } = this;
         const old = ctx.strokeStyle;
 
         ctx.beginPath();
-        ctx.strokeStyle = color;
         ctx.lineWidth = width; 
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
+        ctx.moveTo(x1 - 2, y1);
+        ctx.strokeStyle = magenta5;
+        ctx.lineTo(x2 - 2, y2);
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.lineWidth = width; 
+        ctx.moveTo(x1 - 1, y1 - 1);
+        ctx.strokeStyle = cyan5;
+        ctx.lineTo(x2 - 1, y2 - 1);
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.lineWidth = width; 
+        ctx.moveTo(x1, y1);
+        ctx.strokeStyle = color;
+        ctx.lineTo(x2, y2);
         ctx.stroke();
         ctx.closePath();
 
@@ -35,31 +67,27 @@ export class Draw {
         this.ctx.save();
 
         for(let i = 0; i < l; i++) {
-            p1 = {x: x + points[i].x, y: y + points[i].y};
-            p2 = {x: x + points[i + 1].x, y: y + points[i + 1].y};
-            this.line(p1, p2, color);
+            this.line(x + points[i].x, y + points[i].y, x + points[i + 1].x, y + points[i + 1].y, color);
         }
         
         if (closed) {
-            this.line({x: x + points[l].x, y: y + points[l].y}, {x: x + points[0].x, y: y + points[0].y}, color);
+            this.line(x + points[l].x, y + points[l].y, x + points[0].x, y + points[0].y, color);
         }
 
         this.ctx.restore();
     }
 
-    rect(p1: Point, p2: Point, color: string = VectorLine) {
+    rect(x: number, y: number, width: number, height: number, color: string = VectorLine) {
         const { ctx } = this;
-
         ctx.beginPath();
         ctx.fillStyle = color; 
-        ctx.fillRect(p1.x, p1.y, p2.x, p2.y);
+        ctx.fillRect(x, y, width, height);
         ctx.stroke();
         ctx.closePath();
     }
 
     point(p: Point, fillStyle: string = VectorLine) {
-        let size = 4 * screen.objectScale;
-        this.rect(p, { x: size, y: size }, fillStyle);
+        this.rect(p.x, p.y, screen.pointSize, screen.pointSize, fillStyle);
     }
 
     background(color: string = '#000000') {
@@ -89,15 +117,17 @@ export class Draw {
         ctx.restore();
     }
 
-    text(text: string, x: number, y: number, size: number, color: string = VectorLine) {
+    text(text: string, x: number, y: number, size: number, color: string = TextColor) {
         const { ctx } = this;
         
         ctx.save();
         ctx.font = `${size}pt hyperspace`;
         ctx.textBaseline = 'middle';
         ctx.lineWidth = 1;
+        
         ctx.strokeStyle = color;
         ctx.strokeText(text, x, y);
+        
         ctx.restore();
     }
 
@@ -108,11 +138,17 @@ export class Draw {
         ctx.font = `${size}pt hyperspace`;
         ctx.textBaseline = 'middle';
         ctx.lineWidth = 1;
-        ctx.strokeStyle = VectorLine;
         
         const width = ctx.measureText(text).width;
         const point = cb(width);
 
+        ctx.strokeStyle = magenta(.5);
+        ctx.strokeText(text, point.x - 2, point.y - 2);
+        
+        ctx.strokeStyle = cyan(.5);
+        ctx.strokeText(text, point.x - 1, point.y - 1);
+        
+        ctx.strokeStyle = TextColor;
         ctx.strokeText(text, point.x, point.y);
         ctx.restore();
     }
@@ -123,20 +159,31 @@ export class Draw {
         ctx.save();
         ctx.font = `${size}pt hyperspace`;
         ctx.textBaseline = 'middle';
-        ctx.lineWidth = 2;
-        ctx.fillStyle = VectorLine;
         
         const width = ctx.measureText(text).width;
         const point = cb(width);
 
+        ctx.fillStyle = magenta(.5);
+        ctx.fillText(text, point.x - 2, point.y - 2);
+        
+        ctx.fillStyle = cyan(.5);
+        ctx.fillText(text, point.x - 1, point.y - 1);
+        
+        ctx.fillStyle = TextColor;
         ctx.fillText(text, point.x, point.y);
+
         ctx.restore();
     }
 
     scorePlayer1(score) {
+        const X_START = 100;
+        
         let text = score.toString();
         while (text.length < 2) text = '0' + text;
-        this.text(text, 100, Y_START, screen.font.medium);
+        
+        this.text(text, X_START - 2, Y_START - 2, screen.font.medium, magenta(.5));
+        this.text(text, X_START - 1, Y_START - 1, screen.font.medium, cyan(.5));
+        this.text(text, X_START, Y_START, screen.font.medium);
     }
 
     highscore(score: number) {
@@ -198,7 +245,7 @@ export class Draw {
     drawExtraLives(lives) {
         lives = Math.min(lives, 10);
         const life = new Ship(0, 0);
-        const loc = (life.x + life.width) * 2;
+        const loc = (life.x + life.width) * 2.3;
         
         const y = Y_START + screen.font.medium + 10;
 

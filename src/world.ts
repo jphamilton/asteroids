@@ -6,11 +6,12 @@ import { Shockwave } from './shockwave';
 import { Flash } from './flash';
 import { Rock, RockSize } from './rocks';
 import { ScoreMarker } from './scoreMarker';
+import { PowerUp } from './powerup';
 import { Object2D } from './object2d';
 import { Vector } from './vector';
 import { random } from './util';
 import screen from './screen';
-import { smallAlien, largeAlien, alienFire, largeExplosion, extraLife } from './sounds';
+import { smallAlien, largeAlien, alienFire, largeExplosion, extraLife, getPowerup } from './sounds';
 
 const EXTRA_LIFE = 10000;
 const SHAKE_TIME = .5;
@@ -28,6 +29,7 @@ export class World {
     alienBullets: Bullet[] = [];
     shockwaves: Shockwave[] = [];
     rocks: Rock[] = [];
+    powerup: PowerUp;
 
     // markers, explosions, flash, etc.
     scenery: IGameState[] = [];
@@ -37,6 +39,7 @@ export class World {
     levelTimer: number = 0;
     gameOverTimer: number = 0;
     shakeTimer: number = 0;
+    powerupTimer: number = 0;
 
     gameOver: boolean = false;
     started: boolean = false;
@@ -47,7 +50,7 @@ export class World {
     }
 
     get objects(): any {
-        return [this.ship, this.alien, ...this.shipBullets, ...this.alienBullets, ...this.rocks, ...this.shockwaves, ...this.scenery];
+        return [this.ship, this.alien, this.powerup, ...this.shipBullets, ...this.alienBullets, ...this.rocks, ...this.shockwaves, ...this.scenery];
     }
 
     update(dt: number) {
@@ -56,6 +59,11 @@ export class World {
             this.shakeTimer -= dt;
         }
 
+        // power ups!
+        if (!this.powerup) {
+            this.powerupTimer += dt;
+        }
+        
         this.objects.forEach(obj => {
             if (obj) {
                 obj.update(dt);
@@ -82,7 +90,8 @@ export class World {
     startLevel() {
         this.level++;
         this.levelTimer = 0;
-        
+        this.powerupTimer = 0;
+
         if (!this.alienTimer) {
             this.alienTimer = random(10, 15);
         }
@@ -201,14 +210,27 @@ export class World {
     rockDestroyed(rock: Rock, multiplier: number = 1) {
         let boom = this.createExplosion(rock, rock.size * 5, multiplier);
         let debris = rock.split();
-        this.rocks = this.rocks.filter(x => x !== rock);
         
+        this.rocks = this.rocks.filter(x => x !== rock);
+        this.rocks.push(...debris);
+
         this.shockwaves.forEach(shockwave => {
             shockwave.rocks = shockwave.rocks.filter(x => x !== rock);
         });
 
-        this.rocks.push(...debris);
         boom.shockwave.rocks = debris;
+        
+        //TODO: refactor later
+        // if (this.powerupTimer > 10 && !this.powerup) {
+        //     this.powerup = new PowerUp(rock.origin.x, rock.origin.y, rock.vx, rock.vy);
+
+        //     this.powerup.on('expired', () => {
+        //         this.powerup = null;
+        //     });
+
+        //     this.powerupTimer = 0;
+        // }
+
         rock = null;
     }
 
@@ -279,6 +301,10 @@ export class World {
 
         const marker = new ScoreMarker(obj, `+${obj.score}`);
         this.addScenery(marker);
+    }
+
+    addPowerup() {
+        getPowerup.play();
     }
 
     shake() {

@@ -102,6 +102,16 @@ export const extraLife = createSound({
     volume: .5
 });
 
+export const powerup = createSound({
+    src: ['./assets/powerup.wav'],
+    volume: .5
+});
+
+export const getPowerup = createSound({
+    src: ['./assets/getpowerup.wav'],
+    volume: .5
+});
+
 export const Sound = {
     on: () => {
         soundOn = true;

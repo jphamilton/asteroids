@@ -11,7 +11,7 @@ const VELOCITY = 300 * screen.objectScale;
 // general, garden variety explosion
 export class Explosion extends EventSource {
 
-    life: number = 3;   
+    life: number = 1;   
     points: {x: number, y: number, vx: number, vy: number, alpha: number }[] = [];
     
     constructor(private x: number, private y: number, private size: number = 100) {
@@ -38,9 +38,9 @@ export class Explosion extends EventSource {
     }
 
     render(dt?: number) {
-        this.points.forEach(point => {
+        this.points.forEach(p => {
             if (random(1,10) % 2 === 0) {
-                screen.draw.rect(point, { x: 2, y: 2 }, `rgba(255,255,255,${point.alpha})`);
+                screen.draw.rect(p.x, p.y, 2, 2, `rgba(255,255,255,${p.alpha})`);
             }
         });
     }

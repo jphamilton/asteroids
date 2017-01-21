@@ -121,8 +121,8 @@ export class GameMode extends EventSource implements IGameState {
 
         // remaining shields
         if (this.world.ship) {
-            screen.draw.line({x: 40, y: 80}, {x: 140, y: 80}, `rgba(255,255,255,.4)`);
-            screen.draw.line({x: 40, y: 80}, {x: 40 + this.world.ship.shield * 50, y: 80}, `rgba(255,255,255,.6)`);
+            screen.draw.line(40, 80, 140, 80, `rgba(255,255,255,.4)`);
+            screen.draw.line(40, 80, 40 + this.world.ship.shield * 50, 80, `rgba(255,255,255,.6)`);
         }
 
         // player 1
@@ -177,7 +177,7 @@ export class GameMode extends EventSource implements IGameState {
     }
 
     private checkCollisions(dt: number) {
-        const { ship, rocks, shipBullets, alien, alienBullets, shockwaves } = this.world;
+        const { ship, rocks, shipBullets, alien, alienBullets, shockwaves, powerup } = this.world;
         
         if (!this.world.shouldCheckCollisions()) {
             return;
@@ -222,6 +222,15 @@ export class GameMode extends EventSource implements IGameState {
             this.world.rockDestroyed(indian);
         });
 
+        collisions.check([ship], [powerup], (ship, powerup) => {
+            this.world.addPowerup();
+            powerup.destroy();
+        }, (ship, powerup) => {
+            if (this.debug) {
+                this.bounds.push(powerup);
+            }
+        });
+        
         if (!this.god) {
             collisions.check([ship], rocks, (ship, rock) => {
                 this.world.shake();
