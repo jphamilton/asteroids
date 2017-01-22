@@ -4,6 +4,7 @@ import { Object2D } from './object2d';
 import { lineclip } from './lineclip';
 
 export type CollisionCallback<TSource, TTarget> = (a: TSource, b: TTarget) => void;
+export type BulletCollisionCallback<TSource, TTarget> = (a: TSource, b: TSource, c: TTarget) => void;
 
 export class Collisions {
 
@@ -19,7 +20,7 @@ export class Collisions {
     }
 
     // special case for ship bullets
-    bulletCheck<TSource extends Object2D, TTarget extends Object2D>(bullets: TSource[], targets: TTarget[], cb: CollisionCallback<TSource, TTarget>, dcb?: CollisionCallback<TSource, TTarget>) {
+    bulletCheck<TSource extends Object2D, TTarget extends Object2D>(bullets: TSource[], targets: TTarget[], cb: CollisionCallback<TSource, TTarget>, dcb?: BulletCollisionCallback<TSource, TTarget>) {
         if (!bullets || !bullets.length || !targets || !targets.length) {
             return;
         }
@@ -37,8 +38,6 @@ export class Collisions {
         for(let i = 0; i < bullets.length; i++) {
 
             const bullet1 = bullets[i];
-
-            console.log('bullet1', bullet1);
             
             candidates.length = 0;
             candidates.push(...this.tree.retrieve(bullet1) as any);
@@ -49,7 +48,7 @@ export class Collisions {
                     cb(bullet1, candidate);
                     return; // bail
                 } else if (dcb) {
-                    dcb(bullet1, candidate);
+                    dcb(bullet1, bullet1, candidate);
                 }
                 
                 // line clip
@@ -62,16 +61,18 @@ export class Collisions {
                     lineclip([[bullet1.origin.x, bullet1.origin.y], [bullet2.origin.x, bullet2.origin.y]], bbox, results);
 
                     if (results.length) {
+                        if (dcb) {
+                            dcb(bullet1, bullet2, candidate);
+                        }
+                        
                         cb(bullet1, candidate);
-                    }
+                    } 
                 }
                 
 
             });
         }
 
-        // if not, old check
-        //this.check(bullets, targets, false, cb, dcb);
     } 
 
 

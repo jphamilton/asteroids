@@ -19,7 +19,7 @@ export class _Key {
     PAUSE = 80;
     GOD = 71;
     MONITOR_BURN = 66;
-    
+   
     constructor() {
         this.keys = new Array(LEN);
         this.prev = new Array(LEN);
@@ -28,12 +28,12 @@ export class _Key {
             this.keys[i] = this.prev[i] = false;
         }
 
-        window.onkeydown = (event) => {
-            this.keys[event.keyCode] = true;
+        window.onkeydown = (e) => {
+            this.keys[e.keyCode] = true;
         }
 
-        window.onkeyup = (event) => {
-            this.keys[event.keyCode] = false;
+        window.onkeyup = (e) => {
+            this.keys[e.keyCode] = false;
         }
 
         const stage = document.getElementById('game');

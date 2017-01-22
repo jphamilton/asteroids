@@ -12,6 +12,8 @@ import Global from './global';
 export class GameMode extends EventSource implements IGameState {
 
     bounds: Object2D[] = [];
+    lines: any[] = [];
+
     thumper: Thumper;
 
     constructor(private world: World) {
@@ -134,6 +136,10 @@ export class GameMode extends EventSource implements IGameState {
             });
         }
 
+        this.lines.forEach(l => {
+            screen.draw.line(l[0].origin.x, l[0].origin.y, l[1].origin.x, l[1].origin.y, '#fd1f00');
+        });
+
         if (!this.world.ship && this.world.lives) {
             let rect: Rect = screen.shipRect;
             screen.draw.bounds(rect, '#00ff00');
@@ -160,7 +166,8 @@ export class GameMode extends EventSource implements IGameState {
         }
 
         this.bounds.length = 0;
-        
+        this.lines.length = 0;
+
         const collisions = new Collisions();
 
         collisions.bulletCheck(shipBullets, rocks, (bullet, rock) => {
@@ -168,9 +175,11 @@ export class GameMode extends EventSource implements IGameState {
             this.world.addScore(rock);
             this.world.rockDestroyed(rock);
             bullet.destroy();
-        }, (bullet, rock) => {
+        }, (bullet1, bullet2, rock) => {
             if (Global.debug) {
                 this.bounds.push(rock);
+                //screen.draw.line(bullet1.origin.x, bullet1.origin.y, bullet2.origin.x, bullet2.origin.y, '#fd1f00');
+                this.lines.push([bullet1, bullet2]);        
             }
         });
 
@@ -179,9 +188,11 @@ export class GameMode extends EventSource implements IGameState {
             this.world.addScore(alien)
             this.world.alienDestroyed();
             bullet.destroy();
-        }, (bullet, alien) => {
+        }, (bullet1, bullet2, alien) => {
             if (Global.debug) {
                 this.bounds.push(alien);
+                this.lines.push([bullet1, bullet2]);        
+                //screen.draw.line(bullet1.origin.x, bullet1.origin.y, bullet2.origin.x, bullet2.origin.y, '#fd1f00');
             }
         });
 

@@ -30,7 +30,7 @@ function bitCode(p, bbox) {
     return code;
 }
 
-// Cohen-Sutherland line clippign algorithm, adapted to efficiently
+// Cohen-Sutherland line clipping algorithm, adapted to efficiently
 // handle polylines rather than just segments
 
 export function lineclip(points, bbox, result) {
