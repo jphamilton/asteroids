@@ -79,7 +79,6 @@ export class GameMode extends EventSource implements IGameState {
     }
 
     render(delta: number) {
-        
         if (Global.paused) {
             return;
         }
@@ -87,7 +86,6 @@ export class GameMode extends EventSource implements IGameState {
         this.renderStatic();
 
         this.world.render(delta);
-
     }
 
     private renderStatic() {
@@ -100,7 +98,7 @@ export class GameMode extends EventSource implements IGameState {
         // remaining shields
         if (this.world.ship) {
             screen.draw.line(40, 80, 140, 80, `rgba(255,255,255,.4)`);
-            screen.draw.line(40, 80, 40 + this.world.ship.shield * 50, 80, `rgba(255,255,255,.6)`);
+            screen.draw.line(40, 80, 40 + this.world.ship.shield * 100, 80, `rgba(255,255,255,.6)`);
         }
 
         // player 1
@@ -116,15 +114,15 @@ export class GameMode extends EventSource implements IGameState {
         if (Global.debug) {
             this.renderDebug();
         }
-    }
 
-    private renderDebug() {
-        
         if (Global.god) {
             screen.draw.text2('god', screen.font.small, (width) => {
                 return { x: screen.width - width - 10, y: screen.height - 80 };
             });
         }
+    }
+
+    private renderDebug() {
         
         screen.draw.text2('debug mode', screen.font.small, (width) => {
             return { x: screen.width - width - 10, y: screen.height - 40 };
@@ -165,7 +163,7 @@ export class GameMode extends EventSource implements IGameState {
         
         const collisions = new Collisions();
 
-        collisions.check(shipBullets, rocks, (bullet, rock) => {
+        collisions.bulletCheck(shipBullets, rocks, (bullet, rock) => {
             this.world.shake();
             this.world.addScore(rock);
             this.world.rockDestroyed(rock);
@@ -176,7 +174,7 @@ export class GameMode extends EventSource implements IGameState {
             }
         });
 
-        collisions.check(shipBullets, [alien], (bullet, alien) => {
+        collisions.bulletCheck(shipBullets, [alien], (bullet, alien) => {
             this.world.shake();
             this.world.addScore(alien)
             this.world.alienDestroyed();
@@ -193,14 +191,14 @@ export class GameMode extends EventSource implements IGameState {
         
         let indians = this.world.rocks.filter(x => cowboys.indexOf(x) < 0);
 
-        collisions.check(cowboys, indians, (cowboy, indian) => {
+        collisions.check(cowboys, indians, false, (cowboy, indian) => {
             this.world.addScore(cowboy);
             this.world.addScore(indian);
             this.world.rockDestroyed(cowboy);
             this.world.rockDestroyed(indian);
         });
 
-        collisions.check([ship], [powerup], (ship, powerup) => {
+        collisions.check([ship], [powerup], true, (ship, powerup) => {
             this.world.addPowerup();
             powerup.destroy();
         }, (ship, powerup) => {
@@ -210,12 +208,12 @@ export class GameMode extends EventSource implements IGameState {
         });
         
         if (!Global.god) {
-            collisions.check([ship], rocks, (ship, rock) => {
+            collisions.check([ship], rocks, true, (ship, rock) => {
                 this.world.shake();
                 this.world.addScore(rock);
                 this.world.rockDestroyed(rock);
 
-                ship.shield -= .5;
+                ship.shield -= .25;
                 
                 if (ship.shield <= 0) {
                     this.world.shipDestroyed();
@@ -227,7 +225,7 @@ export class GameMode extends EventSource implements IGameState {
                 }
             });
 
-            collisions.check([ship], [alien], (ship, alien) => {
+            collisions.check([ship], [alien], true, (ship, alien) => {
                 this.world.shake();
                 this.world.addScore(alien);
                 this.world.alienDestroyed();
@@ -244,7 +242,7 @@ export class GameMode extends EventSource implements IGameState {
                 }
             });
 
-            collisions.check(alienBullets, [ship], (bullet, ship) => {
+            collisions.check(alienBullets, [ship], true, (bullet, ship) => {
                 this.world.shake();
                 ship.shield -= 1;
 
@@ -260,7 +258,7 @@ export class GameMode extends EventSource implements IGameState {
             });
         }
 
-        collisions.check([alien], rocks, (alien, rock) => {
+        collisions.check([alien], rocks, false, (alien, rock) => {
             this.world.shake();
             this.world.alienDestroyed();
             this.world.rockDestroyed(rock);
@@ -270,7 +268,7 @@ export class GameMode extends EventSource implements IGameState {
             }
         });
         
-        collisions.check(alienBullets, rocks, (bullet, rock) => {
+        collisions.check(alienBullets, rocks, false, (bullet, rock) => {
             this.world.shake();
             this.world.rockDestroyed(rock);
         }, (bullet, rock) => {

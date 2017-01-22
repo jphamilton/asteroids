@@ -8,7 +8,7 @@ import { random } from './util';
 
 const ACCELERATION: number = 0.1;
 const BULLET_SPEED: number = 1000 * screen.objectScale;
-const BULLET_TIME: number = .02;
+const BULLET_TIME: number = .1;
 const FRICTION: number = 0.005;
 const ROTATION: number = 5;
 const MAX_ACCELERATION: number = 1100 * screen.objectScale;
@@ -42,7 +42,7 @@ export class Ship extends Object2D {
     private bulletCount: number = 0;
     private bulletTimer: number = 0;
     private flame: Flame;
-    public shield: number = 2;
+    public shield: number = 1;
 
     constructor(x: number, y: number) {
         super(x, y);
@@ -58,10 +58,6 @@ export class Ship extends Object2D {
         this.angle = 270;
     }
 
-    get pointInPolyCheck() {
-        return true;
-    }
-    
     render() {
         this.draw();
         if (this.moving && (Math.floor(Math.random() * 10) + 1) % 2 === 0) {
@@ -170,7 +166,7 @@ export class Ship extends Object2D {
 
             // kick back
             let kba = (this.angle + 180) % 360;
-            let kbv = new Vector(kba, 3);
+            let kbv = new Vector(kba, 5);
             this.origin.x += kbv.x;
             this.origin.y += kbv.y;
             this.flame.origin.x += kbv.x;

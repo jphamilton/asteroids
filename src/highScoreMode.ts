@@ -41,7 +41,7 @@ export class HighScoreMode implements IGameState {
         const startY = Math.ceil(screen.height / 4.5) + (screen.font.xlarge + screen.font.small);
         const spacing = screen.font.medium + screen.font.small;
         
-        screen.draw.text2('high scores', screen.font.medium, (width) => {
+        screen.draw.text2('high scores', screen.font.large, (width) => {
             return {
                 x: screenX - (width / 2),
                 y: screen.height / 4.5
@@ -52,7 +52,7 @@ export class HighScoreMode implements IGameState {
             const y = startY + (i * spacing);
             const text = `${this.pad(i + 1, ' ', 2)}.${this.pad(highscores.scores[i].score, ' ', 6)} ${highscores.scores[i].initials}`;
 
-            screen.draw.text2(text, screen.font.medium, (width) => {
+            screen.draw.text2(text, screen.font.large, (width) => {
                 return {
                     x: screenX - (width / 2),
                     y: y

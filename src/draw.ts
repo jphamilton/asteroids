@@ -224,7 +224,7 @@ export class Draw {
     }
 
     pushStart() {
-        screen.draw.text2('push start', screen.font.medium, (width) => {
+        screen.draw.text3('push start', screen.font.xlarge, (width) => {
             return {
                 x: screen.width2 - (width / 2),
                 y: screen.height / 8
@@ -233,7 +233,7 @@ export class Draw {
     }
 
     player1() {
-        screen.draw.text2('player 1', screen.font.medium, (width) => {
+        screen.draw.text3('player 1', screen.font.xlarge, (width) => {
             return {
                 x: screen.width2 - (width / 2),
                 y: screen.height / 4.5
@@ -242,7 +242,7 @@ export class Draw {
     }
 
     gameOver() {
-        screen.draw.text2('game over', screen.font.medium, (width) => {
+        screen.draw.text3('game over', screen.font.xlarge, (width) => {
             return {
                 x: screen.width2 - (width / 2),
                 y: screen.height / 4.5
@@ -275,10 +275,26 @@ export class Draw {
 
     circle(x: number, y: number, radius: number, color: string = VectorLine) {
         const { ctx } = this;
+        
+        if (Global.burn) {
+            ctx.beginPath();
+            ctx.arc(x - 2, y - 2, radius, 0, 2 * Math.PI, false);
+            ctx.strokeStyle = magenta(.2);
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.arc(x - 1, y - 1, radius, 0, 2 * Math.PI, false);
+            ctx.strokeStyle = cyan(.2);
+            ctx.stroke();
+            ctx.closePath();
+        }
+
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
         ctx.strokeStyle = color;
         ctx.stroke();
         ctx.closePath();
     }
+
 }

@@ -179,10 +179,12 @@ export class World {
     }
 
     shipDestroyed() {
-        largeExplosion.play();
-        this.createExplosion(this.ship);
-        this.addFlash(5);
-        this.ship.destroy();
+        if (this.ship) {
+            largeExplosion.play();
+            this.createExplosion(this.ship);
+            this.addFlash(5);
+            this.ship.destroy();
+        }
     }
 
     alienDestroyed() {

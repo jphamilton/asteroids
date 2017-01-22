@@ -1,6 +1,9 @@
 import screen from './screen';
 import { Quadtree } from './quadtree';
 import { Object2D } from './object2d';
+import { lineclip } from './lineclip';
+
+export type CollisionCallback<TSource, TTarget> = (a: TSource, b: TTarget) => void;
 
 export class Collisions {
 
@@ -14,8 +17,65 @@ export class Collisions {
             height: screen.height
         }, 1);
     }
-     
-    check<TSource extends Object2D, TTarget extends Object2D>(sources: TSource[], targets: TTarget[], cb: (a: TSource, b: TTarget) => void, dcb?: (a: TSource, b: TTarget) => void) {
+
+    // special case for ship bullets
+    bulletCheck<TSource extends Object2D, TTarget extends Object2D>(bullets: TSource[], targets: TTarget[], cb: CollisionCallback<TSource, TTarget>, dcb?: CollisionCallback<TSource, TTarget>) {
+        if (!bullets || !bullets.length || !targets || !targets.length) {
+            return;
+        }
+
+        let candidates: TTarget[] = [];
+        let results = [];
+
+        this.tree.clear();
+        
+        targets.forEach(target => {
+            this.tree.insert(target);
+        });
+
+        // check bullet here
+        for(let i = 0; i < bullets.length; i++) {
+
+            const bullet1 = bullets[i];
+
+            console.log('bullet1', bullet1);
+            
+            candidates.length = 0;
+            candidates.push(...this.tree.retrieve(bullet1) as any);
+            
+            candidates.forEach(candidate => {
+                
+                if (candidate.collided(bullet1)) {
+                    cb(bullet1, candidate);
+                    return; // bail
+                } else if (dcb) {
+                    dcb(bullet1, candidate);
+                }
+                
+                // line clip
+                if (i < bullets.length - 1) {
+                    const bullet2 = bullets[i + 1];
+                    const bbox = [candidate.x, candidate.y, candidate.x + candidate.width, candidate.y + candidate.height ];
+
+                    results.length = 0;
+                    
+                    lineclip([[bullet1.origin.x, bullet1.origin.y], [bullet2.origin.x, bullet2.origin.y]], bbox, results);
+
+                    if (results.length) {
+                        cb(bullet1, candidate);
+                    }
+                }
+                
+
+            });
+        }
+
+        // if not, old check
+        //this.check(bullets, targets, false, cb, dcb);
+    } 
+
+
+    check<TSource extends Object2D, TTarget extends Object2D>(sources: TSource[], targets: TTarget[], deep: boolean, cb: CollisionCallback<TSource, TTarget>, dcb?: CollisionCallback<TSource, TTarget>) {
         if (!sources || !sources.length || !targets || !targets.length) {
             return;
         }
@@ -37,8 +97,8 @@ export class Collisions {
                 
                 // AABB first
                if (candidate.collided(source)) {
-                    if (source.pointInPolyCheck || candidate.pointInPolyCheck) {
-                        if (this.pointsInPolygon(source, candidate)) {
+                    if (deep) {
+                        if (this.pointsInPolygon(source, candidate || this.pointsInPolygon(candidate, source))) {
                             cb(source, candidate);
                         }
                     } else {

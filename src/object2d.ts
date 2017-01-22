@@ -48,10 +48,6 @@ export abstract class Object2D extends EventSource implements Rect, IGameState {
         return this._points;
     }
 
-    get pointInPolyCheck() {
-        return false;
-    }
-    
     private calcBounds() {
         this._points.forEach(p => {
             if (p.x < this._xmin) this._xmin = p.x;

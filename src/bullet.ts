@@ -18,9 +18,7 @@ export class Bullet extends Object2D {
 
     update(dt: number) {
         this.frame++;
-
         this.move(dt);
-
         this.life -= dt;
 
         if (this.life <= 0) {

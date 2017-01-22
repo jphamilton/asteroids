@@ -51,13 +51,13 @@ export class AttractMode implements IGameState {
 
         const collisions = new Collisions();
 
-        collisions.check([alien], rocks, (alien, rock) => {
+        collisions.check([alien], rocks, false, (alien, rock) => {
             this.world.shake();
             this.world.alienDestroyed();
             this.world.rockDestroyed(rock);
         });
 
-        collisions.check(alienBullets, rocks, (bullet, rock) => {
+        collisions.check(alienBullets, rocks, false, (bullet, rock) => {
             this.world.shake();
             this.world.rockDestroyed(rock);
         });
