@@ -31,6 +31,6 @@ starting this project.
 
 ## Screenshots
 
-![Sceenshot 2](https://jphamilton.github.com/asteroids/assets/2.png)
 ![Sceenshot 1](https://jphamilton.github.com/asteroids/assets/1.png)
+![Sceenshot 2](https://jphamilton.github.com/asteroids/assets/2.png)
 ![Sceenshot 3](https://jphamilton.github.com/asteroids/assets/3.png)
