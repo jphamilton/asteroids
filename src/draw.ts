@@ -1,6 +1,7 @@
 import screen from './screen';
 import { highscores } from './highscores';
 import { Ship } from './ship';
+import { random } from './util';
 import Global from './global';
 
 const VectorLine = 'rgba(255,255,255,.8)';
@@ -97,6 +98,24 @@ export class Draw {
         const { ctx } = this;
         ctx.fillStyle = color;
         ctx.fillRect(0, 0, screen.width, screen.height);
+
+        this.scanlines();
+    }
+
+    scanlines() {
+        const { ctx } = this;
+        ctx.lineWidth = 1;
+
+        const step = random(2,5);
+
+        for(let i = 0; i < screen.height - step; i+=step) {
+            ctx.beginPath();
+            ctx.moveTo(0, i);
+            ctx.strokeStyle = '#001111';
+            ctx.lineTo(screen.width, i);
+            ctx.stroke();
+            ctx.closePath();
+        }
     }
 
     bounds(rect: Rect, color: string = VectorLine) {

@@ -20,6 +20,7 @@ export class Flash extends EventSource implements IGameState {
 
     draw() {
         screen.draw.background('#ffffff');
+        screen.draw.scanlines();
     }
     
 }
