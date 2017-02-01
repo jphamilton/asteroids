@@ -99,17 +99,16 @@ export class Draw {
         ctx.fillStyle = color;
         ctx.fillRect(0, 0, screen.width, screen.height);
 
-        this.scanlines();
+        //this.scanlines();
     }
 
     scanlines() {
         const { ctx } = this;
-        ctx.lineWidth = 1;
-
         const step = random(2,5);
 
         for(let i = 0; i < screen.height - step; i+=step) {
             ctx.beginPath();
+            ctx.lineWidth = 1;
             ctx.moveTo(0, i);
             ctx.strokeStyle = '#001111';
             ctx.lineTo(screen.width, i);
