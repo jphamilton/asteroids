@@ -15,6 +15,7 @@ import { smallAlien, largeAlien, alienFire, largeExplosion, extraLife, getPoweru
 
 const EXTRA_LIFE = 10000;
 const SHAKE_TIME = .5;
+const DRAMATIC_PAUSE_TIME = 5;
 
 export class World {
     level: number = 7;
@@ -40,6 +41,7 @@ export class World {
     gameOverTimer: number = 0;
     shakeTimer: number = 0;
     powerupTimer: number = 0;
+    dramticPauseTimer: number = 0;
 
     gameOver: boolean = false;
     started: boolean = false;
@@ -53,6 +55,11 @@ export class World {
     }
 
     update(dt: number) {
+        if (this.dramticPauseTimer > 0) {
+            this.dramticPauseTimer--;
+            return;
+        }
+
         // shaky "cam"
         if (this.shakeTimer > 0) {
             this.shakeTimer -= dt;
@@ -311,6 +318,13 @@ export class World {
     shake() {
         if (this.shakeTimer <= 0.0) {
             this.shakeTimer = SHAKE_TIME;
+        }
+    }
+
+    dramaticPause() {
+        if (this.dramticPauseTimer <= 0.0) {
+            this.dramticPauseTimer = DRAMATIC_PAUSE_TIME;
+            this.addFlash(1);
         }
     }
 

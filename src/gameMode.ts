@@ -178,7 +178,6 @@ export class GameMode extends EventSource implements IGameState {
         }, (bullet1, bullet2, rock) => {
             if (Global.debug) {
                 this.bounds.push(rock);
-                //screen.draw.line(bullet1.origin.x, bullet1.origin.y, bullet2.origin.x, bullet2.origin.y, '#fd1f00');
                 this.lines.push([bullet1, bullet2]);        
             }
         });
@@ -192,7 +191,6 @@ export class GameMode extends EventSource implements IGameState {
             if (Global.debug) {
                 this.bounds.push(alien);
                 this.lines.push([bullet1, bullet2]);        
-                //screen.draw.line(bullet1.origin.x, bullet1.origin.y, bullet2.origin.x, bullet2.origin.y, '#fd1f00');
             }
         });
 
@@ -203,6 +201,7 @@ export class GameMode extends EventSource implements IGameState {
         let indians = this.world.rocks.filter(x => cowboys.indexOf(x) < 0);
 
         collisions.check(cowboys, indians, false, (cowboy, indian) => {
+            this.world.dramaticPause();
             this.world.addScore(cowboy);
             this.world.addScore(indian);
             this.world.rockDestroyed(cowboy);
