@@ -114,8 +114,8 @@ export abstract class Object2D extends EventSource implements Rect, IGameState {
         this.calcBounds();
     }
 
-    draw(closed: boolean = true) {
-        screen.draw.shape(this.points, this.origin.x, this.origin.y, 'rgba(255,255,255,.8)', closed);
+    draw(closed: boolean = true, color = 'rgba(255,255,255,.8)') {
+        screen.draw.vectorShape(this.points, this.origin.x, this.origin.y, color, closed);
     }
 
     get magnitude() {

@@ -92,8 +92,8 @@ export abstract class Alien extends Object2D {
     
     draw() {
         super.draw();
-        screen.draw.shape([this.points[1], this.points[6]], this.origin.x, this.origin.y);
-        screen.draw.shape([this.points[2], this.points[5]], this.origin.x, this.origin.y);
+        screen.draw.vectorShape([this.points[1], this.points[6]], this.origin.x, this.origin.y);
+        screen.draw.vectorShape([this.points[2], this.points[5]], this.origin.x, this.origin.y);
     }
 }
 

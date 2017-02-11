@@ -99,8 +99,8 @@ export class GameMode extends EventSource implements IGameState {
 
         // remaining shields
         if (this.world.ship) {
-            screen.draw.line(40, 80, 140, 80, `rgba(255,255,255,.4)`);
-            screen.draw.line(40, 80, 40 + this.world.ship.shield * 100, 80, `rgba(255,255,255,.6)`);
+            screen.draw.vectorline(40, 80, 140, 80, `rgba(255,255,255,.4)`);
+            screen.draw.vectorline(40, 80, 40 + this.world.ship.shield * 100, 80, `rgba(255,255,255,.6)`);
         }
 
         // player 1
@@ -137,7 +137,7 @@ export class GameMode extends EventSource implements IGameState {
         }
 
         this.lines.forEach(l => {
-            screen.draw.line(l[0].origin.x, l[0].origin.y, l[1].origin.x, l[1].origin.y, '#fd1f00');
+            screen.draw.vectorline(l[0].origin.x, l[0].origin.y, l[1].origin.x, l[1].origin.y, '#fd1f00');
         });
 
         if (!this.world.ship && this.world.lives) {
@@ -147,6 +147,8 @@ export class GameMode extends EventSource implements IGameState {
 
         if (this.world.ship) {
             screen.draw.text(this.world.ship.angle.toString(), this.world.ship.origin.x + 20, this.world.ship.origin.y + 20, 10);
+            screen.draw.text(this.world.ship.vx.toString(), this.world.ship.origin.x + 20, this.world.ship.origin.y + 40, 10);
+            screen.draw.text(this.world.ship.vy.toString(), this.world.ship.origin.x + 20, this.world.ship.origin.y + 60, 10);
         }
 
         const date = new Date(null);

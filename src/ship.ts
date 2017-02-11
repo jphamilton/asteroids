@@ -6,6 +6,9 @@ import { Bullet } from './bullet';
 import { fire, thrust } from './sounds';
 import { random } from './util';
 
+// hack
+import Global from './global';
+
 const ACCELERATION: number = 0.1;
 const BULLET_SPEED: number = 1000 * screen.objectScale;
 const BULLET_TIME: number = .1;
@@ -39,10 +42,12 @@ class Flame extends Object2D {
 export class Ship extends Object2D {
 
     private moving: boolean = false;
+    private rotating: boolean = false;
     private bulletCount: number = 0;
     private bulletTimer: number = 0;
     private flame: Flame;
     public shield: number = 1;
+    public trails = [];
 
     constructor(x: number, y: number) {
         super(x, y);
@@ -60,8 +65,19 @@ export class Ship extends Object2D {
 
     render() {
         this.draw();
-        if (this.moving && (Math.floor(Math.random() * 10) + 1) % 2 === 0) {
+        
+        if (this.moving && random(1,10) % 2 === 0) {
             this.flame.draw(false);
+        }
+
+        if (this.trails.length) {
+            this.trails.forEach(trail => {
+                if (trail.alpha > 0) {
+                    screen.draw.shape(trail.points, trail.x, trail.y, `rgba(255,0,255,${trail.alpha})`, true);
+                    screen.draw.shape(trail.points, trail.x - 1, trail.y - 1, `rgba(0,255,255,${trail.alpha})`, true);
+                    trail.alpha -= .1;
+                }
+            });
         }
     }
 
@@ -78,11 +94,11 @@ export class Ship extends Object2D {
 
         if (Key.isPressed(Key.ROTATE_LEFT)) {
             this.rotate(-1);
-        }
+        } 
 
         if (Key.isDown(Key.ROTATE_LEFT)) {
             this.rotate(-ROTATION);
-        }
+        } 
 
         if (Key.isPressed(Key.ROTATE_RIGHT)) {
             this.rotate(1);
@@ -90,7 +106,9 @@ export class Ship extends Object2D {
 
         if (Key.isDown(Key.ROTATE_RIGHT)) {
             this.rotate(ROTATION);
-        }
+        } 
+
+        this.rotating = Key.isDown(Key.ROTATE_LEFT) || Key.isDown(Key.ROTATE_RIGHT);
 
         if (Key.isDown(Key.FIRE)) {
             this.fire();
@@ -102,6 +120,23 @@ export class Ship extends Object2D {
 
         if (this.bulletTimer >= 0) {
             this.bulletTimer -= dt;
+        }
+
+        if (this.moving && (Math.abs(this.vx) > 200 || Math.abs(this.vy) > 200)) {
+            // const points = [];
+
+            // this.points.forEach(point => {
+            //     points.push({x: point.x, y: point.y});
+            // });
+
+            this.trails.push({
+                points: [...this.points],
+                x: this.origin.x,
+                y: this.origin.y,
+                alpha: .5
+            });
+        } else {
+            this.trails.length = 0;
         }
 
         // slow down ship over time

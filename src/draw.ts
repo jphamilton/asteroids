@@ -32,26 +32,6 @@ export class Draw {
 
     line(x1: number, y1: number, x2: number, y2: number, color: string = VectorLine, width: number = DEFAULT_LINE_WIDTH) {
         const { ctx } = this;
-        const old = ctx.strokeStyle;
-
-        if (Global.burn) {
-            ctx.beginPath();
-            ctx.lineWidth = width; 
-            ctx.moveTo(x1 - 2, y1);
-            ctx.strokeStyle = magenta5;
-            ctx.lineTo(x2 - 2, y2);
-            ctx.stroke();
-            ctx.closePath();
-
-            ctx.beginPath();
-            ctx.lineWidth = width; 
-            ctx.moveTo(x1 - 1, y1 - 1);
-            ctx.strokeStyle = cyan5;
-            ctx.lineTo(x2 - 1, y2 - 1);
-            ctx.stroke();
-            ctx.closePath();
-        }
-        
         ctx.beginPath();
         ctx.lineWidth = width; 
         ctx.moveTo(x1, y1);
@@ -59,7 +39,19 @@ export class Draw {
         ctx.lineTo(x2, y2);
         ctx.stroke();
         ctx.closePath();
+    }
 
+    vectorline(x1: number, y1: number, x2: number, y2: number, color: string = VectorLine, width: number = DEFAULT_LINE_WIDTH) {
+        const { ctx } = this;
+        const old = ctx.strokeStyle;
+
+        if (Global.burn) {
+            this.line(x1 - 2, y1, x2 - 2, y2, magenta5);
+            this.line(x1 - 1, y1 - 2, x2 - 1, y2 - 1, cyan5);
+        }
+        
+        this.line(x1, y1, x2, y2, color);
+        
         ctx.strokeStyle = old;
     }
 
@@ -76,6 +68,24 @@ export class Draw {
         
         if (closed) {
             this.line(x + points[l].x, y + points[l].y, x + points[0].x, y + points[0].y, color);
+        }
+
+        this.ctx.restore();
+    }
+
+    vectorShape(points: Point[], x: number, y: number, color: string = VectorLine, closed: boolean = true) {
+        let p1, p2;
+        let l = points.length - 1;
+        let i = 0;
+        
+        this.ctx.save();
+
+        for(let i = 0; i < l; i++) {
+            this.vectorline(x + points[i].x, y + points[i].y, x + points[i + 1].x, y + points[i + 1].y, color);
+        }
+        
+        if (closed) {
+            this.vectorline(x + points[l].x, y + points[l].y, x + points[0].x, y + points[0].y, color);
         }
 
         this.ctx.restore();
@@ -108,11 +118,23 @@ export class Draw {
 
         for(let i = 0; i < screen.height - step; i+=step) {
             ctx.beginPath();
+            
             ctx.lineWidth = 1;
             ctx.moveTo(0, i);
             ctx.strokeStyle = '#001111';
             ctx.lineTo(screen.width, i);
             ctx.stroke();
+
+            ctx.moveTo(0, i + 1);
+            ctx.strokeStyle = 'rgba(255,0,255,.5)';
+            ctx.lineTo(screen.width, i + 1);
+            ctx.stroke();
+
+            ctx.moveTo(0, i + 2);
+            ctx.strokeStyle = 'rgba(0,255,255,.3)';
+            ctx.lineTo(screen.width, i + 2);
+            ctx.stroke();
+
             ctx.closePath();
         }
     }
