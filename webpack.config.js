@@ -35,13 +35,13 @@ module.exports = {
     publicPath: "/build/"
   },
   resolve: {
-    extensions: ['', '.webpack.js', '.web.js', '.ts', '.js']
+    extensions: ['.webpack.js', '.web.js', '.ts', '.js']
   },
   plugins: getPlugins(),
   module: {
     loaders: [
-      { test: /\.ts$/, loader: 'ts' },
-      { test: /\.wav/, loader: 'file' }
+      { test: /\.ts$/, loader: 'ts-loader' },
+      { test: /\.wav/, loader: 'file-loader' }
     ]
   }
 }

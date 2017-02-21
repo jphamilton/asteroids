@@ -203,7 +203,7 @@ export class GameMode extends EventSource implements IGameState {
         let indians = this.world.rocks.filter(x => cowboys.indexOf(x) < 0);
 
         collisions.check(cowboys, indians, false, (cowboy, indian) => {
-            this.world.dramaticPause();
+            //this.world.dramaticPause();
             this.world.addScore(cowboy);
             this.world.addScore(indian);
             this.world.rockDestroyed(cowboy);
