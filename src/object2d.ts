@@ -6,10 +6,8 @@ import { Vector } from './vector';
 export abstract class Object2D extends EventSource implements Rect, IGameState {
 
     angle: number = 360; 
-    // vx: number = 0;
-    // vy: number = 0;
     velocity: Vector = new Vector(0, 0);
-    origin: Point;
+    origin: Vector;
     
     private _xmin: number = 0;
     private _xmax: number = 0;
@@ -33,7 +31,7 @@ export abstract class Object2D extends EventSource implements Rect, IGameState {
 
     constructor(x: number, y: number) {
         super();
-        this.origin = { x: x, y: y};
+        this.origin = new Vector(x, y);
     }
 
     set points(points: Point[]) {

@@ -135,10 +135,7 @@ export class Ship extends Object2D {
 
         // slow down ship over time
         if (!this.moving) {
-            this.velocity.x -= this.velocity.x * FRICTION;
-            this.velocity.y -= this.velocity.y * FRICTION;
-            // this.flame.velocity.x = this.velocity.x;
-            // this.flame.velocity.y = this.velocity.y;
+            this.velocity.friction(FRICTION);
             this.flame.velocity = this.velocity;
         }
     }
@@ -150,13 +147,9 @@ export class Ship extends Object2D {
 
     private thrust() {
         const v = Vector.fromAngle(this.angle, VELOCITY * ACCELERATION);
-        //const velocity = this.magnitude;
 
         if (this.velocity.magnitude < MAX_ACCELERATION) {
-            this.velocity.x += v.x;
-            this.velocity.y += v.y;
-            // this.flame.vx = this.vx;
-            // this.flame.vy = this.vy;
+            this.velocity.add(v);
             this.flame.velocity = this.velocity;
         }
 
@@ -171,16 +164,17 @@ export class Ship extends Object2D {
             this.bulletTimer = BULLET_TIME;
             this.bulletCount++;
 
-            const v = Vector.fromAngle(this.angle);
-            const bullet = new Bullet(this.origin.x, this.origin.y, v, 1);
+            const direction = Vector.fromAngle(this.angle);
+            const bullet = new Bullet(this.origin, direction, 1);
 
             bullet.on('expired', () => {
                 this.bulletCount--;
             });
 
             // move bullet to nose of ship
-            bullet.origin.x += bullet.velocity.x * 20;
-            bullet.origin.y += bullet.velocity.y * 20;
+            const bv = bullet.velocity.copy();
+            bv.scale(20, 20);
+            bullet.origin.add(bv);
             
             // adjust for speed of ship if bullets and ship are moving in same general direction
             let speed = 0; 
@@ -197,11 +191,10 @@ export class Ship extends Object2D {
             // kick back
             let kba = (this.angle + 180) % 360;
             let kbv = Vector.fromAngle(kba, 5);
-            this.origin.x += kbv.x;
-            this.origin.y += kbv.y;
-            this.flame.origin.x += kbv.x;
-            this.flame.origin.y += kbv.y;
             
+            this.origin.add(kbv);
+            this.flame.origin.add(kbv);
+
             this.trigger('fire', bullet);
         }
     }

@@ -109,7 +109,7 @@ export class BigAlien extends Alien {
 
     fire() {
         const v = Vector.fromAngle(random(1, 360), BIG_ALIEN_BULLET_SPEED);
-        const bullet = new Bullet(this.origin.x, this.origin.y, v);
+        const bullet = new Bullet(this.origin, v);
         this.trigger('fire', bullet);
     }
 
@@ -135,11 +135,11 @@ export class SmallAlien extends Alien {
         if (this.ship) {
             // target ship
             const v = Vector.fromXY(this.ship.origin, this.origin, SMALL_ALIEN_BULLET_SPEED);
-            bullet = new Bullet(this.origin.x, this.origin.y, v, 2);
+            bullet = new Bullet(this.origin, v, 2);
         } else {
             // random fire
             const v = Vector.fromAngle(random(1, 360), SMALL_ALIEN_BULLET_SPEED);
-            bullet = new Bullet(this.origin.x, this.origin.y, v, 2);
+            bullet = new Bullet(this.origin, v, 2);
         }
 
         this.trigger('fire', bullet);

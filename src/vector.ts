@@ -35,17 +35,31 @@ export class Vector {
         return new Vector(x * velocity, y * velocity);
     }
 
-    get magnitude() {
-        return Math.sqrt((this.x * this.x) + (this.y * this.y));
+    add(v: Vector) {
+        this.x += v.x;
+        this.y += v.y;
+    }
+
+    copy() {
+        return new Vector(this.x, this.y);
     }
 
     dot(v: Vector) {
         return (this.x * v.x) + (this.y * v.y);
     }
 
+    friction(amount: number) {
+        this.x -= this.x * amount;
+        this.y -= this.y * amount;
+    }
+
     scale(xscale: number, yscale: number) {
         this.x *= xscale;
         this.y *= yscale;
+    }
+
+    get magnitude() {
+        return Math.sqrt((this.x * this.x) + (this.y * this.y));
     }
     
 }

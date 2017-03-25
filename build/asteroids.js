@@ -216,9 +216,9 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var screen_1 = __webpack_require__(0);
-var events_1 = __webpack_require__(4);
+var events_1 = __webpack_require__(5);
 var lut_1 = __webpack_require__(25);
-var vector_1 = __webpack_require__(5);
+var vector_1 = __webpack_require__(3);
 var Object2D = (function (_super) {
     __extends(Object2D, _super);
     function Object2D(x, y) {
@@ -232,7 +232,7 @@ var Object2D = (function (_super) {
         _this._width = 0;
         _this._height = 0;
         _this._score = 0;
-        _this.origin = { x: x, y: y };
+        _this.origin = new vector_1.Vector(x, y);
         return _this;
     }
     Object.defineProperty(Object2D.prototype, "score", {
@@ -396,6 +396,72 @@ exports.Object2D = Object2D;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var VECTOR = {};
+var PI2 = 2 * Math.PI;
+for (var i = 0; i <= 360; i++) {
+    var t = PI2 * (i / 360);
+    VECTOR[i] = {
+        x: Math.cos(t),
+        y: Math.sin(t)
+    };
+}
+var Vector = (function () {
+    function Vector(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    Vector.fromAngle = function (angleInDegrees, velocity) {
+        if (velocity === void 0) { velocity = 1; }
+        var x = VECTOR[angleInDegrees].x * velocity;
+        var y = VECTOR[angleInDegrees].y * velocity;
+        return new Vector(x, y);
+    };
+    Vector.fromXY = function (p1, p2, velocity) {
+        if (velocity === void 0) { velocity = 1; }
+        var x = p1.x - p2.x;
+        var y = p1.y - p2.y;
+        var hyp = Math.sqrt(x * x + y * y);
+        x /= hyp;
+        y /= hyp;
+        return new Vector(x * velocity, y * velocity);
+    };
+    Vector.prototype.add = function (v) {
+        this.x += v.x;
+        this.y += v.y;
+    };
+    Vector.prototype.copy = function () {
+        return new Vector(this.x, this.y);
+    };
+    Vector.prototype.dot = function (v) {
+        return (this.x * v.x) + (this.y * v.y);
+    };
+    Vector.prototype.friction = function (amount) {
+        this.x -= this.x * amount;
+        this.y -= this.y * amount;
+    };
+    Vector.prototype.scale = function (xscale, yscale) {
+        this.x *= xscale;
+        this.y *= yscale;
+    };
+    Object.defineProperty(Vector.prototype, "magnitude", {
+        get: function () {
+            return Math.sqrt((this.x * this.x) + (this.y * this.y));
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return Vector;
+}());
+exports.Vector = Vector;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 var howler_1 = __webpack_require__(20);
 var VOLUME = .5;
 var soundOn = true;
@@ -500,7 +566,7 @@ exports.Sound = {
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -531,61 +597,6 @@ var EventSource = (function () {
     return EventSource;
 }());
 exports.EventSource = EventSource;
-
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var VECTOR = {};
-var PI2 = 2 * Math.PI;
-for (var i = 0; i <= 360; i++) {
-    var t = PI2 * (i / 360);
-    VECTOR[i] = {
-        x: Math.cos(t),
-        y: Math.sin(t)
-    };
-}
-var Vector = (function () {
-    function Vector(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-    Vector.fromAngle = function (angleInDegrees, velocity) {
-        if (velocity === void 0) { velocity = 1; }
-        var x = VECTOR[angleInDegrees].x * velocity;
-        var y = VECTOR[angleInDegrees].y * velocity;
-        return new Vector(x, y);
-    };
-    Vector.fromXY = function (p1, p2, velocity) {
-        if (velocity === void 0) { velocity = 1; }
-        var x = p1.x - p2.x;
-        var y = p1.y - p2.y;
-        var hyp = Math.sqrt(x * x + y * y);
-        x /= hyp;
-        y /= hyp;
-        return new Vector(x * velocity, y * velocity);
-    };
-    Object.defineProperty(Vector.prototype, "magnitude", {
-        get: function () {
-            return Math.sqrt((this.x * this.x) + (this.y * this.y));
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Vector.prototype.dot = function (v) {
-        return (this.x * v.x) + (this.y * v.y);
-    };
-    Vector.prototype.scale = function (xscale, yscale) {
-        this.x *= xscale;
-        this.y *= yscale;
-    };
-    return Vector;
-}());
-exports.Vector = Vector;
 
 
 /***/ }),
@@ -774,9 +785,9 @@ var screen_1 = __webpack_require__(0);
 var object2d_1 = __webpack_require__(2);
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
-    function Bullet(x, y, v, life) {
+    function Bullet(origin, v, life) {
         if (life === void 0) { life = 1.25; }
-        var _this = _super.call(this, x, y) || this;
+        var _this = _super.call(this, origin.x, origin.y) || this;
         _this.life = life;
         _this.frame = 0;
         _this.velocity = v;
@@ -1260,9 +1271,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var screen_1 = __webpack_require__(0);
 var keys_1 = __webpack_require__(8);
 var object2d_1 = __webpack_require__(2);
-var vector_1 = __webpack_require__(5);
+var vector_1 = __webpack_require__(3);
 var bullet_1 = __webpack_require__(9);
-var sounds_1 = __webpack_require__(3);
+var sounds_1 = __webpack_require__(4);
 var util_1 = __webpack_require__(1);
 var ACCELERATION = 0.1;
 var BULLET_SPEED = 1000 * screen_1.default.objectScale;
@@ -1370,8 +1381,7 @@ var Ship = (function (_super) {
             this.trails.length = 0;
         }
         if (!this.moving) {
-            this.velocity.x -= this.velocity.x * FRICTION;
-            this.velocity.y -= this.velocity.y * FRICTION;
+            this.velocity.friction(FRICTION);
             this.flame.velocity = this.velocity;
         }
     };
@@ -1382,8 +1392,7 @@ var Ship = (function (_super) {
     Ship.prototype.thrust = function () {
         var v = vector_1.Vector.fromAngle(this.angle, VELOCITY * ACCELERATION);
         if (this.velocity.magnitude < MAX_ACCELERATION) {
-            this.velocity.x += v.x;
-            this.velocity.y += v.y;
+            this.velocity.add(v);
             this.flame.velocity = this.velocity;
         }
         sounds_1.thrust.play();
@@ -1394,13 +1403,14 @@ var Ship = (function (_super) {
             sounds_1.fire.play();
             this.bulletTimer = BULLET_TIME;
             this.bulletCount++;
-            var v = vector_1.Vector.fromAngle(this.angle);
-            var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v, 1);
+            var direction = vector_1.Vector.fromAngle(this.angle);
+            var bullet = new bullet_1.Bullet(this.origin, direction, 1);
             bullet.on('expired', function () {
                 _this.bulletCount--;
             });
-            bullet.origin.x += bullet.velocity.x * 20;
-            bullet.origin.y += bullet.velocity.y * 20;
+            var bv = bullet.velocity.copy();
+            bv.scale(20, 20);
+            bullet.origin.add(bv);
             var speed = 0;
             var dot = this.velocity.dot(bullet.velocity);
             if (dot > 0) {
@@ -1410,10 +1420,8 @@ var Ship = (function (_super) {
             bullet.velocity.scale(speed, speed);
             var kba = (this.angle + 180) % 360;
             var kbv = vector_1.Vector.fromAngle(kba, 5);
-            this.origin.x += kbv.x;
-            this.origin.y += kbv.y;
-            this.flame.origin.x += kbv.x;
-            this.flame.origin.y += kbv.y;
+            this.origin.add(kbv);
+            this.flame.origin.add(kbv);
             this.trigger('fire', bullet);
         }
     };
@@ -1527,7 +1535,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var events_1 = __webpack_require__(4);
+var events_1 = __webpack_require__(5);
 var collisions_1 = __webpack_require__(10);
 var screen_1 = __webpack_require__(0);
 var thump_1 = __webpack_require__(30);
@@ -1847,7 +1855,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var screen_1 = __webpack_require__(0);
 var keys_1 = __webpack_require__(8);
 var highscores_1 = __webpack_require__(7);
-var events_1 = __webpack_require__(4);
+var events_1 = __webpack_require__(5);
 var letters = '_abcdefghijklmnopqrstuvwxyz';
 var InitialsMode = (function (_super) {
     __extends(InitialsMode, _super);
@@ -1957,10 +1965,10 @@ var shockwave_1 = __webpack_require__(29);
 var flash_1 = __webpack_require__(23);
 var rocks_1 = __webpack_require__(27);
 var scoreMarker_1 = __webpack_require__(28);
-var vector_1 = __webpack_require__(5);
+var vector_1 = __webpack_require__(3);
 var util_1 = __webpack_require__(1);
 var screen_1 = __webpack_require__(0);
-var sounds_1 = __webpack_require__(3);
+var sounds_1 = __webpack_require__(4);
 var EXTRA_LIFE = 10000;
 var SHAKE_TIME = .5;
 var DRAMATIC_PAUSE_TIME = 5;
@@ -7696,7 +7704,7 @@ var screen_1 = __webpack_require__(0);
 var util_1 = __webpack_require__(1);
 var object2d_1 = __webpack_require__(2);
 var bullet_1 = __webpack_require__(9);
-var vector_1 = __webpack_require__(5);
+var vector_1 = __webpack_require__(3);
 var BIG_ALIEN_BULLET_SPEED = 600 * screen_1.default.objectScale;
 var SMALL_ALIEN_BULLET_SPEED = 800 * screen_1.default.objectScale;
 var BIG_ALIEN_SPEED = 225 * screen_1.default.objectScale;
@@ -7776,7 +7784,7 @@ var BigAlien = (function (_super) {
     }
     BigAlien.prototype.fire = function () {
         var v = vector_1.Vector.fromAngle(util_1.random(1, 360), BIG_ALIEN_BULLET_SPEED);
-        var bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v);
+        var bullet = new bullet_1.Bullet(this.origin, v);
         this.trigger('fire', bullet);
     };
     BigAlien.prototype.destroy = function () {
@@ -7799,11 +7807,11 @@ var SmallAlien = (function (_super) {
         var bullet;
         if (this.ship) {
             var v = vector_1.Vector.fromXY(this.ship.origin, this.origin, SMALL_ALIEN_BULLET_SPEED);
-            bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v, 2);
+            bullet = new bullet_1.Bullet(this.origin, v, 2);
         }
         else {
             var v = vector_1.Vector.fromAngle(util_1.random(1, 360), SMALL_ALIEN_BULLET_SPEED);
-            bullet = new bullet_1.Bullet(this.origin.x, this.origin.y, v, 2);
+            bullet = new bullet_1.Bullet(this.origin, v, 2);
         }
         this.trigger('fire', bullet);
     };
@@ -7833,9 +7841,9 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var events_1 = __webpack_require__(4);
+var events_1 = __webpack_require__(5);
 var screen_1 = __webpack_require__(0);
-var vector_1 = __webpack_require__(5);
+var vector_1 = __webpack_require__(3);
 var util_1 = __webpack_require__(1);
 var VELOCITY = 300 * screen_1.default.objectScale;
 var Explosion = (function (_super) {
@@ -7895,7 +7903,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var screen_1 = __webpack_require__(0);
-var events_1 = __webpack_require__(4);
+var events_1 = __webpack_require__(5);
 var Flash = (function (_super) {
     __extends(Flash, _super);
     function Flash(frames) {
@@ -8218,9 +8226,9 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var screen_1 = __webpack_require__(0);
 var object2d_1 = __webpack_require__(2);
-var vector_1 = __webpack_require__(5);
+var vector_1 = __webpack_require__(3);
 var util_1 = __webpack_require__(1);
-var sounds_1 = __webpack_require__(3);
+var sounds_1 = __webpack_require__(4);
 var RockSize;
 (function (RockSize) {
     RockSize[RockSize["Small"] = 5] = "Small";
@@ -8516,7 +8524,7 @@ exports.Shockwave = Shockwave;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var sounds_1 = __webpack_require__(3);
+var sounds_1 = __webpack_require__(4);
 var MIN = .15;
 var MAX_VOL = 1;
 var Thumper = (function () {
@@ -8591,7 +8599,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var loop_1 = __webpack_require__(17);
 var keys_1 = __webpack_require__(8);
 var world_1 = __webpack_require__(18);
-var sounds_1 = __webpack_require__(3);
+var sounds_1 = __webpack_require__(4);
 var highscores_1 = __webpack_require__(7);
 var highScoreMode_1 = __webpack_require__(15);
 var initialsMode_1 = __webpack_require__(16);

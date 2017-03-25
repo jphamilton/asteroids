@@ -6,8 +6,8 @@ export class Bullet extends Object2D {
 
     frame: number = 0;
 
-    constructor(x: number, y: number, v: Vector, private life:number = 1.25) {
-        super(x, y);
+    constructor(origin: Vector, v: Vector, private life:number = 1.25) {
+        super(origin.x, origin.y);
         this.velocity = v;
     }
 
