@@ -19,9 +19,9 @@
   "devDependencies": {
     "@types/hammerjs": "^2.0.33",
     "file-loader": "^0.10.0",
-    "ts-loader": "2.0.1",
+    "ts-loader": "2.0.3",
     "typescript": "2.2.1",
-    "webpack": "2.2.1"
+    "webpack": "2.3.2"
   },
   "dependencies": {
     "hammerjs": "^2.0.8",

@@ -321,13 +321,6 @@ export class World {
         }
     }
 
-    // dramaticPause() {
-    //     if (this.dramticPauseTimer <= 0.0) {
-    //         this.dramticPauseTimer = DRAMATIC_PAUSE_TIME;
-    //         this.addFlash(1);
-    //     }
-    // }
-
     tryPlaceShip(dt) {
         this.shipTimer += dt;
 

@@ -164,8 +164,8 @@ export class Ship extends Object2D {
             this.bulletTimer = BULLET_TIME;
             this.bulletCount++;
 
-            const direction = Vector.fromAngle(this.angle);
-            const bullet = new Bullet(this.origin, direction, 1);
+            const velocity = Vector.fromAngle(this.angle);
+            const bullet = new Bullet(this.origin, velocity, 1);
 
             bullet.on('expired', () => {
                 this.bulletCount--;
