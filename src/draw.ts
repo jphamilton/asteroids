@@ -7,7 +7,7 @@ import Global from './global';
 const VectorLine = 'rgba(255,255,255,.8)';
 const TextColor = 'rgba(255,255,255,.8)';
 const Y_START = 20;
-const DEFAULT_LINE_WIDTH = 2;
+const DefaultLineWidth = 2;
 
 export function magenta(opacity: number = 1) {
     return `rgba(255,0,255, ${opacity})`;
@@ -30,7 +30,7 @@ export class Draw {
 
     }
 
-    line(x1: number, y1: number, x2: number, y2: number, color: string = VectorLine, width: number = DEFAULT_LINE_WIDTH) {
+    line(x1: number, y1: number, x2: number, y2: number, color: string = VectorLine, width: number = DefaultLineWidth) {
         const { ctx } = this;
         ctx.beginPath();
         ctx.lineWidth = width; 
@@ -41,7 +41,7 @@ export class Draw {
         ctx.closePath();
     }
 
-    vectorline(x1: number, y1: number, x2: number, y2: number, color: string = VectorLine, width: number = DEFAULT_LINE_WIDTH) {
+    vectorline(x1: number, y1: number, x2: number, y2: number, color: string = VectorLine, width: number = DefaultLineWidth) {
         const { ctx } = this;
         const old = ctx.strokeStyle;
 
@@ -108,11 +108,13 @@ export class Draw {
         const { ctx } = this;
         ctx.fillStyle = color;
         ctx.fillRect(0, 0, screen.width, screen.height);
-
-        //this.scanlines();
     }
 
     scanlines() {
+        if (!Global.burn) {
+            return;
+        }
+        
         const { ctx } = this;
         const step = random(2,5);
 

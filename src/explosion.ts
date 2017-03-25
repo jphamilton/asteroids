@@ -18,7 +18,7 @@ export class Explosion extends EventSource {
         super();
 
         for(let i = 0; i < 15; i++) {
-            const v = new Vector(random(1,360), Math.random() * VELOCITY);
+            const v = Vector.fromAngle(random(1,360), Math.random() * VELOCITY);
             this.points.push({x: x, y: y, vx: v.x, vy: v.y, alpha: Math.random() });
         }
     }

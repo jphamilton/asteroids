@@ -8,8 +8,7 @@ export class Bullet extends Object2D {
 
     constructor(x: number, y: number, v: Vector, private life:number = 1.25) {
         super(x, y);
-        this.vx = v.x;
-        this.vy = v.y;
+        this.velocity = v;
     }
 
     render() {

@@ -1,13 +1,14 @@
 import screen from './screen';
 import { EventSource } from './events';
 import { COS, SIN } from './lut';
-
+import { Vector } from './vector';
 
 export abstract class Object2D extends EventSource implements Rect, IGameState {
 
     angle: number = 360; 
-    vx: number = 0;
-    vy: number = 0;
+    // vx: number = 0;
+    // vy: number = 0;
+    velocity: Vector = new Vector(0, 0);
     origin: Point;
     
     private _xmin: number = 0;
@@ -86,8 +87,8 @@ export abstract class Object2D extends EventSource implements Rect, IGameState {
     move(dt?: number) {
         dt = dt ? dt : 1;
 
-        this.origin.x += this.vx * dt;
-        this.origin.y += this.vy * dt;
+        this.origin.x += this.velocity.x * dt;
+        this.origin.y += this.velocity.y * dt;
         
         if (this.origin.x > screen.width) {
             this.origin.x -= screen.width;
@@ -116,10 +117,6 @@ export abstract class Object2D extends EventSource implements Rect, IGameState {
 
     draw(closed: boolean = true, color = 'rgba(255,255,255,.8)') {
         screen.draw.vectorShape(this.points, this.origin.x, this.origin.y, color, closed);
-    }
-
-    get magnitude() {
-        return Math.sqrt((this.vx * this.vx) + (this.vy * this.vy));
     }
 
     get x(): number {

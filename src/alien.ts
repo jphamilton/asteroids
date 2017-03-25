@@ -26,16 +26,16 @@ export abstract class Alien extends Object2D {
     constructor(speed) {
         super(0, 0);
 
-        this.vy = 0;
+        this.velocity.y = 0;
 
         this.origin.y = random(100, screen.height - 100);
         
         if (this.origin.y % 2 === 0) {
             this.origin.x = 40;
-            this.vx = speed;
+            this.velocity.x = speed;
         } else {
             this.origin.x = screen.width - 40;
-            this.vx = -speed;
+            this.velocity.x = -speed;
         }
 
         this.points = [
@@ -61,8 +61,8 @@ export abstract class Alien extends Object2D {
         // direction changes
         this.moveTimer += dt;
         
-        if (this.moveTimer >= 1 && this.vy !== 0) {
-            this.vy = 0;
+        if (this.moveTimer >= 1 && this.velocity.y !== 0) {
+            this.velocity.y = 0;
             this.moveTimer = 0;
         }
 
@@ -70,7 +70,7 @@ export abstract class Alien extends Object2D {
             let move = random(1, 20) % 2 === 0;
             
             if (move) {
-                this.vy = this.origin.x % 2 === 0 ? this.vx : -this.vx;   
+                this.velocity.y = this.origin.x % 2 === 0 ? this.velocity.x : -this.velocity.x;   
             }
             
             this.moveTimer = 0;
@@ -108,7 +108,7 @@ export class BigAlien extends Alien {
     }
 
     fire() {
-        const v = new Vector(random(1, 360), BIG_ALIEN_BULLET_SPEED);
+        const v = Vector.fromAngle(random(1, 360), BIG_ALIEN_BULLET_SPEED);
         const bullet = new Bullet(this.origin.x, this.origin.y, v);
         this.trigger('fire', bullet);
     }
@@ -138,7 +138,7 @@ export class SmallAlien extends Alien {
             bullet = new Bullet(this.origin.x, this.origin.y, v, 2);
         } else {
             // random fire
-            const v = new Vector(random(1, 360), SMALL_ALIEN_BULLET_SPEED);
+            const v = Vector.fromAngle(random(1, 360), SMALL_ALIEN_BULLET_SPEED);
             bullet = new Bullet(this.origin.x, this.origin.y, v, 2);
         }
 

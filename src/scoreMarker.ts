@@ -8,8 +8,7 @@ export class ScoreMarker extends Object2D {
     
     constructor(obj: Object2D, private text: string) {
         super(obj.origin.x, obj.origin.y);
-        this.vx = obj.vx;
-        this.vy = obj.vy;
+        this.velocity = obj.velocity;
     }
 
     render() {

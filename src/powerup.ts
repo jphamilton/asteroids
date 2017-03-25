@@ -9,12 +9,11 @@ export class PowerUp extends Object2D {
 
     life: number = 100;
 
-    constructor(x: number, y: number, vx: number, vy: number) {
+    constructor(x: number, y: number, velocity: Vector) {
         super(x, y);
         
-        this.vx = vx;
-        this.vy = vy;
-
+        this.velocity = velocity;
+        
         this.points = [
             { x: 0, y: -20 },
             { x: 20, y: 0},

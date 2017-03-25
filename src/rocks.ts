@@ -67,9 +67,9 @@ export class Rock extends Object2D {
         
         const velocity = speed * screen.objectScale;
 
-        this.vx = v.x * velocity;
-        this.vy = v.y * velocity;
-
+        this.velocity.x = v.x * velocity;
+        this.velocity.y = v.y * velocity;
+        
         const type = random(0, 2);
         const def = this.rocks[type];
         
@@ -101,7 +101,7 @@ export class Rock extends Object2D {
     }
 
     get direction() {
-        const radians = Math.atan2(this.vy, this.vx);
+        const radians = Math.atan2(this.velocity.y, this.velocity.x);
         let degrees = radians * (180 / Math.PI);
         degrees = degrees > 0.0 ? degrees : 360 + degrees;
         return Math.floor(degrees);
@@ -150,8 +150,8 @@ export class Rock extends Object2D {
             }
 
             const size = this.size === RockSize.Large ? RockSize.Medium : RockSize.Small;
-            const v1 = new Vector(angle1);
-            const v2 = new Vector(angle2);
+            const v1 = Vector.fromAngle(angle1);
+            const v2 = Vector.fromAngle(angle2);
             const speed1 = size === RockSize.Medium ? random(150, 250) : random(250, 350);
             const speed2 = size === RockSize.Medium ? random(150, 250) : random(250, 350);
             const rock1 = new Rock(this.origin.x, this.origin.y, v1, size, speed1);

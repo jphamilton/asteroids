@@ -147,8 +147,8 @@ export class GameMode extends EventSource implements IGameState {
 
         if (this.world.ship) {
             screen.draw.text(this.world.ship.angle.toString(), this.world.ship.origin.x + 20, this.world.ship.origin.y + 20, 10);
-            screen.draw.text(this.world.ship.vx.toString(), this.world.ship.origin.x + 20, this.world.ship.origin.y + 40, 10);
-            screen.draw.text(this.world.ship.vy.toString(), this.world.ship.origin.x + 20, this.world.ship.origin.y + 60, 10);
+            screen.draw.text(this.world.ship.velocity.x.toString(), this.world.ship.origin.x + 20, this.world.ship.origin.y + 40, 10);
+            screen.draw.text(this.world.ship.velocity.y.toString(), this.world.ship.origin.x + 20, this.world.ship.origin.y + 60, 10);
         }
 
         const date = new Date(null);

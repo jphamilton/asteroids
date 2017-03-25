@@ -115,7 +115,7 @@ export class World {
 
         for(let i = 0; i < count; i++) {
             const zone = random(1,4);
-            const v = new Vector(random(1, 360));
+            const v = Vector.fromAngle(random(1, 360));
             let x;
             let y;
 
@@ -171,7 +171,7 @@ export class World {
 
         this.addScenery(explosion);
 
-        const shockwave = new Shockwave(obj.origin.x, obj.origin.y, obj.vx, obj.vy, size, multiplier);
+        const shockwave = new Shockwave(obj.origin.x, obj.origin.y, obj.velocity, size, multiplier);
 
         shockwave.on('expired', () => {
             this.shockwaves = this.shockwaves.filter(x => x !== shockwave);

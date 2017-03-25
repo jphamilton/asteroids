@@ -122,13 +122,7 @@ export class Ship extends Object2D {
             this.bulletTimer -= dt;
         }
 
-        if (this.moving && (Math.abs(this.vx) > 200 || Math.abs(this.vy) > 200)) {
-            // const points = [];
-
-            // this.points.forEach(point => {
-            //     points.push({x: point.x, y: point.y});
-            // });
-
+        if (this.moving && (Math.abs(this.velocity.x) > 200 || Math.abs(this.velocity.y) > 200)) {
             this.trails.push({
                 points: [...this.points],
                 x: this.origin.x,
@@ -141,10 +135,11 @@ export class Ship extends Object2D {
 
         // slow down ship over time
         if (!this.moving) {
-            this.vx -= this.vx * FRICTION;
-            this.vy -= this.vy * FRICTION;
-            this.flame.vx = this.vx;
-            this.flame.vy = this.vy;
+            this.velocity.x -= this.velocity.x * FRICTION;
+            this.velocity.y -= this.velocity.y * FRICTION;
+            // this.flame.velocity.x = this.velocity.x;
+            // this.flame.velocity.y = this.velocity.y;
+            this.flame.velocity = this.velocity;
         }
     }
 
@@ -154,14 +149,15 @@ export class Ship extends Object2D {
     }
 
     private thrust() {
-        const v = new Vector(this.angle, VELOCITY * ACCELERATION);
-        const velocity = this.magnitude;
+        const v = Vector.fromAngle(this.angle, VELOCITY * ACCELERATION);
+        //const velocity = this.magnitude;
 
-        if (velocity < MAX_ACCELERATION) {
-            this.vx += v.x;
-            this.flame.vx = this.vx;
-            this.vy += v.y;
-            this.flame.vy = this.vy;
+        if (this.velocity.magnitude < MAX_ACCELERATION) {
+            this.velocity.x += v.x;
+            this.velocity.y += v.y;
+            // this.flame.vx = this.vx;
+            // this.flame.vy = this.vy;
+            this.flame.velocity = this.velocity;
         }
 
         thrust.play();
@@ -175,7 +171,7 @@ export class Ship extends Object2D {
             this.bulletTimer = BULLET_TIME;
             this.bulletCount++;
 
-            const v = new Vector(this.angle);
+            const v = Vector.fromAngle(this.angle);
             const bullet = new Bullet(this.origin.x, this.origin.y, v, 1);
 
             bullet.on('expired', () => {
@@ -183,25 +179,24 @@ export class Ship extends Object2D {
             });
 
             // move bullet to nose of ship
-            bullet.origin.x += bullet.vx * 20;
-            bullet.origin.y += bullet.vy * 20;
+            bullet.origin.x += bullet.velocity.x * 20;
+            bullet.origin.y += bullet.velocity.y * 20;
             
             // adjust for speed of ship if bullets and ship are moving in same general direction
             let speed = 0; 
-            const dot = (this.vx * bullet.vx) + (this.vy * bullet.vy);
+            const dot = this.velocity.dot(bullet.velocity);
             
             if (dot > 0) {
-                speed = this.magnitude;
+                speed = this.velocity.magnitude;
             }
 
             speed = Math.max(BULLET_SPEED, speed + BULLET_SPEED);
 
-            bullet.vx *= speed;
-            bullet.vy *= speed;
-
+            bullet.velocity.scale(speed, speed);
+            
             // kick back
             let kba = (this.angle + 180) % 360;
-            let kbv = new Vector(kba, 5);
+            let kbv = Vector.fromAngle(kba, 5);
             this.origin.x += kbv.x;
             this.origin.y += kbv.y;
             this.flame.origin.x += kbv.x;
@@ -215,14 +210,11 @@ export class Ship extends Object2D {
         let x = random(40, screen.width - 40);
         let y = random(40, screen.height - 40);
         
-        this.vx = 0;
-        this.vy = 0;
+        this.velocity = new Vector(0, 0);
+        this.flame.velocity = this.velocity;
 
         this.x = this.flame.x = x;
         this.y = this.flame.y = y;
-
-        this.flame.vx = 0;
-        this.flame.vy = 0;
     }
 
     destroy() {

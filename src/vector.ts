@@ -15,23 +15,37 @@ export class Vector {
     x: number;
     y: number;
 
-    constructor(angleInDegrees: number, velocity: number = 1) {
-        this.x = VECTOR[angleInDegrees].x * velocity;
-        this.y = VECTOR[angleInDegrees].y * velocity;
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
     }
 
-    // kludge, bc I got all the way to the last
-    // feature of the game and I needed something
-    // not in terms of an angle
-    static fromXY(p1: Point, p2: Point, velocity: number = 1) {
+    static fromAngle(angleInDegrees: number, velocity: number = 1): Vector {
+        const x = VECTOR[angleInDegrees].x * velocity;
+        const y = VECTOR[angleInDegrees].y * velocity;
+        return new Vector(x, y);
+    }
+
+    static fromXY(p1: Point, p2: Point, velocity: number = 1): Vector {
         let x = p1.x - p2.x;
         let y = p1.y - p2.y;
         const hyp = Math.sqrt(x * x + y * y);
         x /= hyp;
         y /= hyp;
-        const v = new Vector(0);
-        v.x = x * velocity;
-        v.y = y * velocity;
-        return v;
+        return new Vector(x * velocity, y * velocity);
     }
+
+    get magnitude() {
+        return Math.sqrt((this.x * this.x) + (this.y * this.y));
+    }
+
+    dot(v: Vector) {
+        return (this.x * v.x) + (this.y * v.y);
+    }
+
+    scale(xscale: number, yscale: number) {
+        this.x *= xscale;
+        this.y *= yscale;
+    }
+    
 }

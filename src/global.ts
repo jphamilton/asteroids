@@ -1,7 +1,6 @@
 // yeah, yeah
 
 class Global {
-
     debug: boolean = false;
     paused: boolean = false;
     god: boolean = false;
