@@ -21,7 +21,7 @@
     "file-loader": "^0.11.2",
     "ts-loader": "2.1.0",
     "typescript": "2.3.4",
-    "webpack": "2.6.1"
+    "webpack": "3.0.0"
   },
   "dependencies": {
     "hammerjs": "^2.0.8",
