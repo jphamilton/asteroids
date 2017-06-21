@@ -3,13 +3,14 @@ var webpack = require('webpack');
 var isProd = (process.env.NODE_ENV !== 'dev');
 
 function getPlugins() {
-    var plugins = [];
-
-    plugins.push(new webpack.DefinePlugin({
-        'process.env': {
-            'NODE_ENV': process.env.NODE_ENV
-        }
-    }));
+    var plugins = [
+        new webpack.optimize.ModuleConcatenationPlugin(),
+        new webpack.DefinePlugin({
+            'process.env': {
+                'NODE_ENV': process.env.NODE_ENV
+            }
+        })
+    ];
 
     if (isProd) {
         plugins.push(new webpack.optimize.UglifyJsPlugin({
