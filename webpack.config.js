@@ -12,24 +12,15 @@ function getPlugins() {
         })
     ];
 
-    if (isProd) {
-        plugins.push(new webpack.optimize.UglifyJsPlugin({
-            minimize: true,
-            sourceMap: false,
-            output: {
-                comments: false
-            },
-            compressor: {
-                warnings: false
-            }
-        }));
-    }
-
     return plugins;
 }
 
-module.exports = {  
+const config = {
+  mode: process.env.NODE_ENV !== 'dev' ? 'production' : 'development',
   entry: './src/asteroids.ts',
+  optimization: {
+      minimize: false
+  },
   output: {
     path: path.resolve(__dirname, 'build'),
     filename: 'asteroids.js',
@@ -40,9 +31,15 @@ module.exports = {
   },
   plugins: getPlugins(),
   module: {
-    loaders: [
+    rules: [
       { test: /\.ts$/, loader: 'ts-loader' },
       { test: /\.wav/, loader: 'file-loader' }
     ]
   }
+};
+
+if (isProd) {
+    config.optimization.minimize = true;
 }
+
+module.exports = config;
