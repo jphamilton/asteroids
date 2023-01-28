@@ -11,6 +11,8 @@ This is an attempt to recreate the classic arcade game, Asteroids.
 * Fire: CTRL, tap 
 * Hyperspace: Space bar, pinch out for hyperspace
 * Debug Mode: Z (during game only). Primarily shows collision related information.
+* Monitor Burn Effect: toggle on/off with B
+* God Mode: G
 
 ## Screenshots
 

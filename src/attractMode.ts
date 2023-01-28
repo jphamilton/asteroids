@@ -1,87 +1,55 @@
-import screen from './screen';
-import { Collisions } from './collisions';
 import { World } from './world';
+import { EventSource } from './events';
+import { HighScoreMode } from './highScoreMode';
+import { DemoMode } from './demoMode';
+import { Highscores } from './highscores';
+import { Sound } from './sounds';
+import { Key } from './keys';
 
-export class AttractMode implements IGameState {
+const ATTRACT_TIME = 15;
 
-    showPushStart: boolean = true;
-    pushStartTimer: number = 0;
+// combines DemoMode and HighscoreMode to attract people to part with their quarters
+export class AttractMode extends EventSource implements IGameState {
     
-    constructor(private world: World) {
-        this.init();
+    private demoTimer = 0;
+    private highScoreMode: HighScoreMode;
+    private demoMode: DemoMode;
+    private currentMode: IGameState;
+    private modes: IGameState[];
+    private index: number = 0;
+
+    constructor(world: World, lastScore: number) {
+        super();
+
+        this.highScoreMode = new HighScoreMode(lastScore);
+        this.demoMode = new DemoMode(world || new World(Highscores.top.score));
+        this.modes = [this.highScoreMode, this.demoMode];
+        this.currentMode = this.highScoreMode;
+
+        Sound.stop();
+        Sound.off();
     }
 
-    init() {
-        if (!this.world.started) {
-            this.world.startLevel();
+    update(step: number) {
+        this.currentMode.update(step);
+        if (Key.isAnyPressed()) {
+            this.trigger('done');
+        } else {
+            this.updateAttractTimer(step);
         }
     }
-
-    update(dt) {
-        this.checkCollisions();
-
-        this.world.updateAlienTimer(dt);
-
-        if (!this.world.rocks.length && !this.world.scenery.length && !this.world.alien) {  
-            this.world.startLevel();
-        }
-
-        this.updatePushStartTimer(dt);
-        
-        this.world.update(dt);
-    }
-
-    updatePushStartTimer(dt: number) {
-        this.pushStartTimer += dt;
-
-        if (this.pushStartTimer >= .4) {
-            this.pushStartTimer = 0;
-            this.showPushStart = !this.showPushStart;
-        }
-    }
-
     
-    checkCollisions() {
-        const { alien, rocks, alienBullets } = this.world;
-        const check = !!alien || !!alienBullets.length;
-
-        if (!check) {
-            return;
-        }
-
-        const collisions = new Collisions();
-
-        collisions.check([alien], rocks, false, (alien, rock) => {
-            this.world.shake();
-            this.world.alienDestroyed();
-            this.world.rockDestroyed(rock);
-        });
-
-        collisions.check(alienBullets, rocks, false, (bullet, rock) => {
-            this.world.shake();
-            this.world.rockDestroyed(rock);
-        });
+    render(dt?: number) {
+        this.currentMode.render(dt);
     }
 
-    render(delta?: number) {
-        this.drawBackground();
-        this.drawPushStart();
-        this.world.render(delta);
-    }
-
-    private drawBackground() {
-        screen.draw.background();
-        screen.draw.scorePlayer1(this.world.score);
-        screen.draw.oneCoinOnePlay();
-        screen.draw.highscore(this.world.highscore);
-        screen.draw.copyright();
-    }
-
-    private drawPushStart() {
-        if (this.showPushStart) {
-            screen.draw.pushStart();
+    updateAttractTimer(step: number) {
+        this.demoTimer += step;
+            
+        if (this.demoTimer >= ATTRACT_TIME) {
+            this.demoTimer = 0;
+            this.index = 1 - this.index;
+            this.currentMode = this.modes[this.index];
         }
     }
-
-   
 }

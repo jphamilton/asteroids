@@ -20,7 +20,7 @@ export class HighScoreMode implements IGameState {
         }
     }
 
-    render() {
+    render(delta: number) {
         this.drawBackground();
         this.drawPushStart();
         this.drawHighScores();

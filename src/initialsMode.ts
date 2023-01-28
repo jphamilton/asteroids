@@ -1,4 +1,5 @@
 import screen from './screen';
+import { Sound } from './sounds';
 import { Key } from './keys';
 import { Highscores } from './highscores';
 import { EventSource } from './events';
@@ -21,6 +22,9 @@ export class InitialsMode extends EventSource implements IGameState {
         this.position = 0;
         this.index = 1;
         this.initials = ['a', '_', '_'];
+
+        Sound.stop();
+        Sound.off();
     }
 
     update(dt) {
@@ -54,7 +58,7 @@ export class InitialsMode extends EventSource implements IGameState {
         }
     }
 
-    render() {
+    render(delta: number) {
         let offset: number = screen.height / 4.5;
         const text = (t => screen.draw.text(t, 50, offset += screen.font.large + 5, screen.font.large));
         

@@ -1,11 +1,9 @@
-import { Key } from './keys';
+import { Sound } from './sounds';
 import { EventSource } from './events';
 import { Object2D } from './object2D';
 import { Collisions } from './collisions';
 import screen from './screen';
-import { random } from './util';
 import { World } from './world';
-import { Sound } from './sounds';
 import { Thumper } from './thump';
 import Global from './global';
 
@@ -21,6 +19,7 @@ export class GameMode extends EventSource implements IGameState {
     }
 
     init() {
+        Sound.on();
         this.world.addShip(screen.width2, screen.height2);
         this.world.startLevel();
         this.thumper = new Thumper();
