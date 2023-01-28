@@ -19,7 +19,7 @@ export abstract class Alien extends Object2D {
     bulletTime: number = .7;
     
     
-    abstract score: number;
+    //abstract score: number;
     abstract fire(): void;
     abstract destroy(): void;
     
@@ -100,10 +100,11 @@ export abstract class Alien extends Object2D {
 // Mr. Bill
 export class BigAlien extends Alien {
 
-    score: number = 200;
+    //score: number = 200;
 
     constructor() {
         super(BIG_ALIEN_SPEED);
+        this.score = 200;
         this.scale(7);
     }
 
@@ -121,11 +122,12 @@ export class BigAlien extends Alien {
 // Sluggo
 export class SmallAlien extends Alien {
 
-    score: number = 1000;
+    //score: number = 1000;
     bulletTime: number = 1;
 
     constructor(private ship: Ship) {
         super(SMALL_ALIEN_SPEED);
+        this.score = 1000;
         this.scale(4);
     }
 

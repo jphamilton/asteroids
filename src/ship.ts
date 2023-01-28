@@ -6,9 +6,6 @@ import { Bullet } from './bullet';
 import { fire, thrust } from './sounds';
 import { random } from './util';
 
-// hack
-import Global from './global';
-
 const ACCELERATION: number = 0.1;
 const BULLET_SPEED: number = 1000 * screen.objectScale;
 const BULLET_TIME: number = .1;
@@ -85,36 +82,36 @@ export class Ship extends Object2D {
         this.move(dt);
         this.flame.move(dt);
 
-        if (Key.isDown(Key.THRUST)) {
+        if (Key.isThrust()) {
             this.moving = true;
             this.thrust();
         } else {
             this.moving = false;
         }
 
-        if (Key.isPressed(Key.ROTATE_LEFT)) {
+        if (Key.wasRotateLeft) {
             this.rotate(-1);
         } 
 
-        if (Key.isDown(Key.ROTATE_LEFT)) {
+        if (Key.isRotateLeft()) {
             this.rotate(-ROTATION);
         } 
 
-        if (Key.isPressed(Key.ROTATE_RIGHT)) {
+        if (Key.wasRotateRight) {
             this.rotate(1);
         }
 
-        if (Key.isDown(Key.ROTATE_RIGHT)) {
+        if (Key.isRotateRight()) {
             this.rotate(ROTATION);
         } 
 
-        this.rotating = Key.isDown(Key.ROTATE_LEFT) || Key.isDown(Key.ROTATE_RIGHT);
+        this.rotating = Key.isRotateLeft() || Key.isRotateRight();
 
-        if (Key.isDown(Key.FIRE)) {
+        if (Key.isFire()) {
             this.fire();
         }
 
-        if (Key.isPressed(Key.HYPERSPACE)) {
+        if (Key.wasHyperspace()) {
             this.hyperspace(); 
         }
 

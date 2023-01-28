@@ -25,7 +25,7 @@ export class InitialsMode extends EventSource implements IGameState {
     }
 
     update(dt) {
-        if (Key.isPressed(Key.ROTATE_LEFT)) {
+        if (Key.wasRotateLeft()) {
             this.index--;
             if (this.index < 0) {
                 this.index = letters.length - 1;
@@ -33,7 +33,7 @@ export class InitialsMode extends EventSource implements IGameState {
             this.initials[this.position] = letters[this.index];
         }
 
-        if (Key.isPressed(Key.ROTATE_RIGHT)) {
+        if (Key.wasRotateRight()) {
             this.index++;
             if (this.index > letters.length - 1) {
                 this.index = 0;
@@ -41,7 +41,7 @@ export class InitialsMode extends EventSource implements IGameState {
             this.initials[this.position] = letters[this.index];
         }
 
-        if (Key.isPressed(Key.HYPERSPACE)) {
+        if (Key.wasHyperspace()) {
             this.position++;
             
             if (this.position >= 3) {

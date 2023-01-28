@@ -1,5 +1,5 @@
 import { loop } from './loop';
-import { Key } from './keys';
+import { Key, Keys } from './keys';
 import { World } from './world';
 import { Sound } from './sounds';
 import { highscores } from './highscores';
@@ -67,19 +67,19 @@ export class Asteroids {
 
     update(dt) {
 
-        if (Key.isPressed(Key.GOD)) {
+        if (Key.isPressed(Keys.GOD)) {
             Global.god = !Global.god;
         }
 
-        if (Key.isPressed(Key.DEBUG)) {
+        if (Key.isPressed(Keys.DEBUG)) {
             Global.debug = !Global.debug; 
         }
 
-        if (Key.isPressed(Key.MONITOR_BURN)) {
+        if (Key.isPressed(Keys.MONITOR_BURN)) {
             Global.burn = !Global.burn; 
         }
 
-        if (Key.isPressed(Key.PAUSE)) {
+        if (Key.isPressed(Keys.PAUSE)) {
             Global.paused = !Global.paused; 
 
             if (Global.paused) {
@@ -103,7 +103,7 @@ export class Asteroids {
                     this.attractMode.update(dt);
                 }
 
-                if (Key.isPressed(Key.PLAYER_ONE_START)) {
+                if (Key.isAnyPressed()) {
                     Sound.on();
                     this.mode = Modes.Game;
                 } else {
@@ -114,7 +114,7 @@ export class Asteroids {
             case Modes.Attract:
                 this.attractMode.update(dt);
 
-                if (Key.isPressed(Key.PLAYER_ONE_START)) {
+                if (Key.isAnyPressed()) {
                     Sound.on();
                     this.mode = Modes.Game;
                 } else {
