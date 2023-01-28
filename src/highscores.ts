@@ -15,7 +15,7 @@ const defaults = [
 
 const SCORE_KEY = 'jph_asteroids_hs';
 
-class _Highscores {
+class Highscores {
 
     scores: { score: number, initials: string}[] = [];
 
@@ -43,4 +43,6 @@ class _Highscores {
 
 }
 
-export const highscores = new _Highscores();
+const highscores = new Highscores()
+
+export { highscores as Highscores }

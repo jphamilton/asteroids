@@ -1,7 +1,5 @@
 import screen from './screen';
-import { Key } from './keys';
-import { highscores } from './highscores';
-import { Object2D } from './object2d';
+import { Highscores } from './highscores';
 
 export class HighScoreMode implements IGameState {
 
@@ -10,7 +8,7 @@ export class HighScoreMode implements IGameState {
     highscore: number;
 
     constructor(private score) {
-        this.highscore = highscores.top.score;
+        this.highscore = Highscores.top.score;
     }
 
     update(dt) {
@@ -48,9 +46,9 @@ export class HighScoreMode implements IGameState {
             }
         });
 
-        for (let i = 0; i < highscores.scores.length; i++) {
+        for (let i = 0; i < Highscores.scores.length; i++) {
             const y = startY + (i * spacing);
-            const text = `${this.pad(i + 1, ' ', 2)}.${this.pad(highscores.scores[i].score, ' ', 6)} ${highscores.scores[i].initials}`;
+            const text = `${this.pad(i + 1, ' ', 2)}.${this.pad(Highscores.scores[i].score, ' ', 6)} ${Highscores.scores[i].initials}`;
 
             screen.draw.text2(text, screen.font.large, (width) => {
                 return {
@@ -61,13 +59,13 @@ export class HighScoreMode implements IGameState {
         }
     }
 
-    drawPushStart() {
+    private drawPushStart() {
         if (this.showPushStart) {
             screen.draw.pushStart();
         }
     }
     
-    private pad(text: any, char, count) {
+    private pad(text: any, char: string, count: number) {
         text = text.toString();
         while (text.length < count) {
             text = char + text;

@@ -2,7 +2,7 @@ import { loop } from './loop';
 import { Key, Keys } from './keys';
 import { World } from './world';
 import { Sound } from './sounds';
-import { highscores } from './highscores';
+import { Highscores } from './highscores';
 import { HighScoreMode } from './highScoreMode';
 import { InitialsMode } from './initialsMode';
 import { AttractMode } from './attractMode';
@@ -40,14 +40,14 @@ export class Asteroids {
         
         this.mode = Modes.Start;
         this.highScoreMode = new HighScoreMode(this.lastScore);
-        this.attractMode = new AttractMode(world || new World(highscores.top.score));
-        this.gameMode = new GameMode(new World(highscores.top.score));
+        this.attractMode = new AttractMode(world || new World(Highscores.top.score));
+        this.gameMode = new GameMode(new World(Highscores.top.score));
         this.attractTimer = 0;
                 
         this.gameMode.on('done', (source, world) => {
             this.lastScore = world.score;
 
-            if (highscores.qualifies(world.score)) {
+            if (Highscores.qualifies(world.score)) {
                 this.initialsMode = new InitialsMode(world.score);
                 
                 this.initialsMode.on('done', () => {

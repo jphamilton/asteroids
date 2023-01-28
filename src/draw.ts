@@ -1,5 +1,4 @@
 import screen from './screen';
-import { highscores } from './highscores';
 import { Ship } from './ship';
 import { random } from './util';
 import Global from './global';

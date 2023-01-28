@@ -1,7 +1,6 @@
 import screen from './screen';
 import { Key } from './keys';
-import { highscores } from './highscores';
-import { Object2D } from './object2d';
+import { Highscores } from './highscores';
 import { EventSource } from './events';
 
 const letters = '_abcdefghijklmnopqrstuvwxyz';
@@ -45,7 +44,7 @@ export class InitialsMode extends EventSource implements IGameState {
             this.position++;
             
             if (this.position >= 3) {
-                highscores.save(this.score, this.initials.join('').replace('_',' '));
+                Highscores.save(this.score, this.initials.join('').replace('_',' '));
                 this.init();
                 this.trigger('done');
             }
@@ -60,7 +59,7 @@ export class InitialsMode extends EventSource implements IGameState {
         const text = (t => screen.draw.text(t, 50, offset += screen.font.large + 5, screen.font.large));
         
         screen.draw.background();
-        screen.draw.highscore(highscores.top.score);
+        screen.draw.highscore(Highscores.top.score);
         screen.draw.scorePlayer1(this.score);
         screen.draw.copyright();
 
