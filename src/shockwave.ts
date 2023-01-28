@@ -45,7 +45,7 @@ export class Shockwave extends Object2D {
             screen.draw.scanlines();
         }
 
-        screen.draw.circle(this.origin.x, this.origin.y, this.radius, `rgba(128,128,128,${.5 - (this.frame / 100)})`);
+        screen.draw.circle(this.origin.x, this.origin.y, this.radius, `rgba(128,128,128,${.3 - (this.frame / 100)})`);
     }
 
     get x(): number {

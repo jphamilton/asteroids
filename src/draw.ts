@@ -318,6 +318,8 @@ export class Draw {
     circle(x: number, y: number, radius: number, color: string = VectorLine) {
         const { ctx } = this;
         
+        ctx.setLineDash([2, random(5,10)]);
+
         if (Global.burn) {
             ctx.beginPath();
             ctx.arc(x - 2, y - 2, radius, 0, 2 * Math.PI, false);
@@ -337,6 +339,8 @@ export class Draw {
         ctx.strokeStyle = color;
         ctx.stroke();
         ctx.closePath();
+
+        ctx.setLineDash([]);
     }
 
 }
