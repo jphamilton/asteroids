@@ -12,8 +12,6 @@ const ATTRACT_TIME = 15;
 export class AttractMode extends EventSource implements IGameState {
     
     private demoTimer = 0;
-    private highScoreMode: HighScoreMode;
-    private demoMode: DemoMode;
     private currentMode: IGameState;
     private modes: IGameState[];
     private index: number = 0;
@@ -21,10 +19,12 @@ export class AttractMode extends EventSource implements IGameState {
     constructor(world: World, lastScore: number) {
         super();
 
-        this.highScoreMode = new HighScoreMode(lastScore);
-        this.demoMode = new DemoMode(world || new World(Highscores.top.score));
-        this.modes = [this.highScoreMode, this.demoMode];
-        this.currentMode = this.highScoreMode;
+        this.modes = [
+            new HighScoreMode(lastScore),
+            new DemoMode(world || new World(Highscores.top.score))
+        ];
+
+        this.currentMode = this.modes[0];
 
         Sound.stop();
         Sound.off();

@@ -20,12 +20,11 @@ export class Asteroids {
         this.init();
     }
 
-    init(world?: World) {
+    init() {
         this.attractMode = new AttractMode(new World(Highscores.top.score), this.lastScore);
         this.currentMode = this.attractMode;
         
-        this.attractMode.on('done', () => {
-
+        const setGameMode = () => {
             this.gameMode = new GameMode(new World(Highscores.top.score));
             this.currentMode = this.gameMode;
                     
@@ -38,15 +37,18 @@ export class Asteroids {
                     this.currentMode = this.initialsMode;
 
                     this.initialsMode.on('done', () => {
-                        this.init(world);
+                        this.init();
                     });
 
-                    
                 } else {
-                    this.init(world);
+                    // restart in attract mode
+                    this.init();
                 }
             });
+        };
 
+        this.attractMode.on('done', () => {
+            setGameMode();
         });
 
     }
