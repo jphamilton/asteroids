@@ -55,19 +55,19 @@ export class Asteroids {
 
     update(dt) {
 
-        if (Key.isPressed(Keys.GOD)) {
+        if (Key.wasPressed(Keys.GOD)) {
             Global.god = !Global.god;
         }
 
-        if (Key.isPressed(Keys.DEBUG)) {
+        if (Key.wasPressed(Keys.DEBUG)) {
             Global.debug = !Global.debug; 
         }
 
-        if (Key.isPressed(Keys.MONITOR_BURN)) {
+        if (Key.wasPressed(Keys.MONITOR_BURN)) {
             Global.burn = !Global.burn; 
         }
 
-        if (Key.isPressed(Keys.PAUSE)) {
+        if (Key.wasPressed(Keys.PAUSE)) {
             Global.paused = !Global.paused; 
 
             if (Global.paused) {

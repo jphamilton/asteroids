@@ -16,7 +16,7 @@ export class Collisions {
             y: 0, 
             width: screen.width, 
             height: screen.height
-        }, 1);
+        });
     }
 
     // special case for ship bullets
@@ -81,8 +81,6 @@ export class Collisions {
             return;
         }
 
-        let candidates = [];
-
         this.tree.clear();
         
         targets.forEach(target => {
@@ -90,9 +88,8 @@ export class Collisions {
         });
         
         sources.forEach(source => {
-            candidates.length = 0;
 
-            candidates.push(...this.tree.retrieve(source) as any);
+            const candidates: any[] = this.tree.retrieve(source);
             
             candidates.forEach(candidate => {
                 

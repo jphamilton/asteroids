@@ -26,7 +26,6 @@ export class _Key {
 
     constructor() {
         window.onkeydown = (e) => {
-            console.log(e.keyCode);
             this.keys[e.keyCode] = true;
         }
 

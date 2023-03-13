@@ -39,7 +39,6 @@ class Flame extends Object2D {
 export class Ship extends Object2D {
 
     private moving: boolean = false;
-    private rotating: boolean = false;
     private bulletCount: number = 0;
     private bulletTimer: number = 0;
     private flame: Flame;
@@ -104,8 +103,6 @@ export class Ship extends Object2D {
         if (Key.isRotateRight()) {
             this.rotate(ROTATION);
         } 
-
-        this.rotating = Key.isRotateLeft() || Key.isRotateRight();
 
         if (Key.isFire()) {
             this.fire();

@@ -2,7 +2,7 @@ const timestamp = () => {
     return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
 }
 
-let now;
+let now: number;
 let delta = 0;
 let last = timestamp();
 

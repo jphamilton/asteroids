@@ -166,7 +166,42 @@ export class Rock extends Object2D {
     get score(): number {
         return this.size === RockSize.Large ? 20 : this.size === RockSize.Medium ? 50 : 100;
     }
-
-    
 }
 
+export function createRocks(level: number): Rock[] {
+    const rocks = [];
+    const count = Math.min(level + 3, 10);
+    const speed = 150;
+    const offset = 20;
+
+    for(let i = 0; i < count; i++) {
+        const zone = random(1,4);
+        const v = Vector.fromAngle(random(1, 360));
+        let x: number;
+        let y: number;
+
+        switch (zone) {
+            case 1:
+                x = random(offset, screen.width - offset); 
+                y = random(offset, offset * 2); 
+                break;
+            case 2:
+                x = random(screen.width - (offset * 2), screen.width - offset);
+                y = random(screen.height - offset, screen.height - offset);
+                break;
+            case 3:
+                x = random(offset, screen.width - offset);
+                y = random(screen.height - offset, screen.height - offset); 
+                break;
+            default:
+                x = random(offset, offset * 2);
+                y = random(screen.height - offset, screen.height - offset);
+                break;
+        }
+
+        const rock = new Rock(x, y, v, RockSize.Large, speed);
+        rocks.push(rock);
+    } 
+
+    return rocks;
+}

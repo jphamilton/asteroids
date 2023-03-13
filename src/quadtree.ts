@@ -1,4 +1,4 @@
-export class Quadtree {
+export class Quadtree implements IQuadtree {
 
     nodes: Quadtree[];
     objects: Rect[];
@@ -7,7 +7,7 @@ export class Quadtree {
     xmid: number;
     ymid: number;
 
-    constructor(public bounds: Rect, private maxObjects: number = 10, private maxLevels: number = 4, private level = 0) {
+    constructor(public bounds: Rect, private maxObjects: number = 1, private maxLevels: number = 4, private level = 0) {
         this.objects = [];
         this.nodes = [];
         this.width2 = this.bounds.width / 2;

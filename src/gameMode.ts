@@ -10,9 +10,9 @@ import Global from './global';
 export class GameMode extends EventSource implements IGameState {
 
     bounds: Object2D[] = [];
-    lines: any[] = [];
-
     thumper: Thumper;
+
+    private lastCollisions: Collisions;
 
     constructor(private world: World) {
         super();
@@ -50,7 +50,7 @@ export class GameMode extends EventSource implements IGameState {
         }
 
         // collisions
-        this.checkCollisions(dt);
+        this.lastCollisions = this.checkCollisions(dt);
 
         // alien?
         this.world.updateAlienTimer(dt);
@@ -135,10 +135,6 @@ export class GameMode extends EventSource implements IGameState {
             });
         }
 
-        this.lines.forEach(l => {
-            screen.draw.vectorline(l[0].origin.x, l[0].origin.y, l[1].origin.x, l[1].origin.y, '#fd1f00');
-        });
-
         if (!this.world.ship && this.world.lives) {
             let rect: Rect = screen.shipRect;
             screen.draw.bounds(rect, '#00ff00');
@@ -156,18 +152,21 @@ export class GameMode extends EventSource implements IGameState {
         screen.draw.text2(date.toISOString().substr(11, 8), screen.font.small, (width) => {
             return { x: 10, y: screen.height - 40 };
         });
+
+        if (this.lastCollisions) {
+            screen.draw.quadtree(this.lastCollisions.tree);
+        }
     
     }
 
     private checkCollisions(dt: number) {
-        const { ship, rocks, shipBullets, alien, alienBullets, shockwaves, powerup } = this.world;
+        const { ship, rocks, shipBullets, alien, alienBullets, shockwaves } = this.world;
         
         if (!this.world.shouldCheckCollisions()) {
             return;
         }
 
         this.bounds.length = 0;
-        this.lines.length = 0;
 
         const collisions = new Collisions();
 
@@ -179,7 +178,6 @@ export class GameMode extends EventSource implements IGameState {
         }, (bullet1, bullet2, rock) => {
             if (Global.debug) {
                 this.bounds.push(rock);
-                this.lines.push([bullet1, bullet2]);        
             }
         });
 
@@ -191,33 +189,23 @@ export class GameMode extends EventSource implements IGameState {
         }, (bullet1, bullet2, alien) => {
             if (Global.debug) {
                 this.bounds.push(alien);
-                this.lines.push([bullet1, bullet2]);        
             }
         });
 
+        // shockwaves can break rocks
         let cowboys = []; 
-        
         shockwaves.filter(x => x.rocks.length).forEach(y => cowboys.push(...y.rocks));
         
-        let indians = this.world.rocks.filter(x => cowboys.indexOf(x) < 0);
+        if (cowboys.length) {
+            let indians = this.world.rocks.filter(x => cowboys.indexOf(x) < 0);
+            collisions.check(cowboys, indians, false, (cowboy, indian) => {
+                this.world.addScore(cowboy);
+                this.world.addScore(indian);
+                this.world.rockDestroyed(cowboy);
+                this.world.rockDestroyed(indian);
+            });
+        }
 
-        collisions.check(cowboys, indians, false, (cowboy, indian) => {
-            //this.world.dramaticPause();
-            this.world.addScore(cowboy);
-            this.world.addScore(indian);
-            this.world.rockDestroyed(cowboy);
-            this.world.rockDestroyed(indian);
-        });
-
-        collisions.check([ship], [powerup], true, (ship, powerup) => {
-            this.world.addPowerup();
-            powerup.destroy();
-        }, (ship, powerup) => {
-            if (Global.debug) {
-                this.bounds.push(powerup);
-            }
-        });
-        
         if (!Global.god) {
             collisions.check([ship], rocks, true, (ship, rock) => {
                 this.world.shake();
@@ -287,6 +275,8 @@ export class GameMode extends EventSource implements IGameState {
                 this.bounds.push(rock);
             }
         });
+
+        return collisions;
     }
 
 

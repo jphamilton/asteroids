@@ -4,11 +4,11 @@ import { Alien, SmallAlien, BigAlien } from './alien';
 import { Explosion } from './explosion';
 import { Shockwave } from './shockwave';
 import { Flash } from './flash';
-import { Rock, RockSize } from './rocks';
+import { Achievement } from './achievement';
+import { Rock, createRocks } from './rocks';
 import { ScoreMarker } from './scoreMarker';
-import { PowerUp } from './powerup';
+import { SlowMoTimer } from './slowMoTimer';
 import { Object2D } from './object2d';
-import { Vector } from './vector';
 import { random } from './util';
 import screen from './screen';
 import { smallAlien, largeAlien, alienFire, largeExplosion, extraLife, getPowerup } from './sounds';
@@ -17,8 +17,17 @@ const EXTRA_LIFE = 10000;
 const SHAKE_TIME = .5;
 const DRAMATIC_PAUSE_TIME = 5;
 
+var explosionCount = 0;
+var maxExplosionCount = 0;
+var maxExplosionThreshold = 10;
+var explosionScores: number[] = [];
+
+class ExplostionTracker {
+
+}
+
 export class World {
-    level: number = 7;
+    level: number = 1;
     extraLifeScore: number = 0;
     highscore: number; 
     score: number = 0;
@@ -30,9 +39,8 @@ export class World {
     alienBullets: Bullet[] = [];
     shockwaves: Shockwave[] = [];
     rocks: Rock[] = [];
-    powerup: PowerUp;
 
-    // markers, explosions, flash, etc.
+    // things with no collision detection - markers, explosions, flash, etc.
     scenery: IGameState[] = [];
 
     shipTimer: number = 0;
@@ -42,6 +50,7 @@ export class World {
     shakeTimer: number = 0;
     powerupTimer: number = 0;
     dramticPauseTimer: number = 0;
+    slowMoTimer: SlowMoTimer = null;
 
     gameOver: boolean = false;
     started: boolean = false;
@@ -51,25 +60,25 @@ export class World {
     }
 
     get objects(): any {
-        return [this.ship, this.alien, this.powerup, ...this.shipBullets, ...this.alienBullets, ...this.rocks, ...this.shockwaves, ...this.scenery];
+        return [this.ship, this.alien, ...this.shipBullets, ...this.alienBullets, ...this.rocks, ...this.shockwaves, ...this.scenery];
     }
 
     update(dt: number) {
+        
+        if (this.slowMoTimer) {
+            dt = this.slowMoTimer.adjust(dt);
+        }
+
         if (this.dramticPauseTimer > 0) {
             this.dramticPauseTimer--;
             return;
         }
 
-        // shaky "cam"
+        // shaky cam
         if (this.shakeTimer > 0) {
             this.shakeTimer -= dt;
         }
 
-        // power ups!
-        if (!this.powerup) {
-            this.powerupTimer += dt;
-        }
-        
         this.objects.forEach(obj => {
             if (obj) {
                 obj.update(dt);
@@ -77,14 +86,18 @@ export class World {
         });
     }
     
-    render(delta?: number) {
+    render(dt?: number) {
+        if (this.slowMoTimer) {
+            dt = this.slowMoTimer.adjust(dt);
+        }
+        
         if (this.shakeTimer > 0) {
             screen.preShake();
         }
 
         this.objects.forEach(obj => {
             if (obj) {
-                obj.render(delta);
+                obj.render(dt);
             }
         });
 
@@ -109,38 +122,7 @@ export class World {
     }
 
     private addRocks() {
-        const count = Math.min(this.level + 3, 10);
-        const speed = 150;
-        const offset = 20;
-
-        for(let i = 0; i < count; i++) {
-            const zone = random(1,4);
-            const v = Vector.fromAngle(random(1, 360));
-            let x;
-            let y;
-
-            switch (zone) {
-                case 1:
-                    x = random(offset, screen.width - offset); 
-                    y = random(offset, offset * 2); 
-                    break;
-                case 2:
-                    x = random(screen.width - (offset * 2), screen.width - offset);
-                    y = random(screen.height - offset, screen.height - offset);
-                    break;
-                case 3:
-                    x = random(offset, screen.width - offset);
-                    y = random(screen.height - offset, screen.height - offset); 
-                    break;
-                default:
-                    x = random(offset, offset * 2);
-                    y = random(screen.height - offset, screen.height - offset);
-                    break;
-            }
-
-            const rock = new Rock(x, y, v, RockSize.Large, speed);
-            this.rocks.push(rock);
-        } 
+        this.rocks = createRocks(this.level);
     }
 
     addShip(x: number, y: number) {
@@ -168,6 +150,43 @@ export class World {
         }
         
         const explosion = new Explosion(obj.origin.x, obj.origin.y, size);
+        explosionCount++;
+
+        explosionScores.push(obj.score);
+        
+        if (explosionScores.length > maxExplosionThreshold) {
+            explosionScores.pop();
+        }
+
+        if (explosionCount > maxExplosionCount) {
+            maxExplosionCount = explosionCount;
+
+            if (maxExplosionCount > maxExplosionThreshold) {
+                explosionCount = 0;
+                console.log('MAX DAMAGE ACHEIVEMENT');
+                
+                this.setSlowMo(.25, 4);
+                
+                let bonus = 0;
+                explosionScores.forEach(v => bonus += v);
+                bonus *=5;
+
+                const achievement = new Achievement(`MASSIVE DAMAGE`, bonus);
+                this.addScenery(achievement);
+                this.addScore(achievement);
+
+                //const marker = new ScoreMarker(obj, `+${bonus}`);
+                //this.addScenery(marker);
+
+                // Track score of each explosion and display total points with achievement
+
+                maxExplosionThreshold += 10;
+            }
+        }
+
+        explosion.on('expired', () => {
+            explosionCount--;
+        });
 
         this.addScenery(explosion);
 
@@ -185,12 +204,21 @@ export class World {
         }
     }
 
+    setSlowMo(time: number, factor: number) {
+        if (!this.slowMoTimer) {
+            this.slowMoTimer = new SlowMoTimer(time, factor);
+            this.slowMoTimer.on('expired', () => this.slowMoTimer = null);
+        }
+    }
+
     shipDestroyed() {
         if (this.ship) {
             largeExplosion.play();
             this.createExplosion(this.ship);
             this.addFlash(5);
             this.ship.destroy();
+            this.setSlowMo(.25, 8);
+
         }
     }
 
@@ -207,7 +235,7 @@ export class World {
         this.addScenery(flash);
     }
 
-    addScenery(obj) {
+    addScenery(obj: any) {
         obj.on('expired', () => {
             this.scenery = this.scenery.filter(x => x !== obj);
         });
@@ -227,17 +255,6 @@ export class World {
         });
 
         boom.shockwave.rocks = debris;
-        
-        //TODO: refactor later
-        // if (this.powerupTimer > 10 && !this.powerup) {
-        //     this.powerup = new PowerUp(rock.origin.x, rock.origin.y, rock.vx, rock.vy);
-
-        //     this.powerup.on('expired', () => {
-        //         this.powerup = null;
-        //     });
-
-        //     this.powerupTimer = 0;
-        // }
 
         rock = null;
     }
@@ -307,8 +324,7 @@ export class World {
             extraLife.play();
         }
 
-        const marker = new ScoreMarker(obj, `+${obj.score}`);
-        this.addScenery(marker);
+        this.addScenery(new ScoreMarker(obj, `${obj.score}`));
     }
 
     addPowerup() {
@@ -348,8 +364,6 @@ export class World {
     }
 
     updateAlienTimer(dt: number) {
-        let level = Math.min(this.level, 7);
-        
         if (!this.alien) {
             this.alienTimer -= dt;
             

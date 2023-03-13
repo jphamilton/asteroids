@@ -1,5 +1,5 @@
 import screen from './screen';
-import { magenta, cyan, white } from './draw';
+import { white } from './draw';
 import { Object2D } from './object2d';
 
 export class ScoreMarker extends Object2D { 
@@ -12,7 +12,7 @@ export class ScoreMarker extends Object2D {
     }
 
     render() {
-        this.draw();   
+        screen.draw.text(this.text, this.origin.x, this.origin.y, this.life * 50, white(this.life));   
     }
 
     update(dt: number) {
@@ -25,14 +25,8 @@ export class ScoreMarker extends Object2D {
         }
     }
 
-    draw() {
-        screen.draw.text(this.text, this.origin.x, this.origin.y, this.life * 50, white(this.life));
-    }
-
     destroy() {
         this.life = 0;
         this.trigger('expired');
     }
-
-    
 }

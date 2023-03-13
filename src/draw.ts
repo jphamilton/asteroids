@@ -7,6 +7,7 @@ const VectorLine = 'rgba(255,255,255,.8)';
 const TextColor = 'rgba(255,255,255,.8)';
 const Y_START = 20;
 const DefaultLineWidth = 2;
+const CR = String.fromCharCode(169);
 
 export function magenta(opacity: number = 1) {
     return `rgba(255,0,255, ${opacity})`;
@@ -20,10 +21,13 @@ export function white(opacity: number = 1) {
     return `rgba(255,255,255, ${opacity})`;
 }
 
+export const BACKGROUND_COLOR = '#000000';
+
 const magenta5 = magenta(.5);
 const cyan5 = cyan(.5);
 
 export class Draw {
+
 
     constructor(private ctx: CanvasRenderingContext2D) {
 
@@ -103,7 +107,7 @@ export class Draw {
         this.rect(p.x, p.y, screen.pointSize, screen.pointSize, fillStyle);
     }
 
-    background(color: string = '#000000') {
+    background(color: string = BACKGROUND_COLOR) {
         const { ctx } = this;
         ctx.fillStyle = color;
         ctx.fillRect(0, 0, screen.width, screen.height);
@@ -292,7 +296,7 @@ export class Draw {
     }
 
     copyright() {
-        this.text2(String.fromCharCode(169) + ' 1979 atari inc', screen.font.small, (width) => {
+        this.text2(CR + ' 1979 atari inc', screen.font.small, (width) => {
             return {
                 x: screen.width2 - (width / 2),
                 y: screen.height - screen.font.small
@@ -300,7 +304,7 @@ export class Draw {
         });
     }
 
-    drawExtraLives(lives) {
+    drawExtraLives(lives: number) {
         lives = Math.min(lives, 10);
         const life = new Ship(0, 0);
         const loc = (life.x + life.width) * 2.3;
@@ -317,7 +321,7 @@ export class Draw {
     circle(x: number, y: number, radius: number, color: string = VectorLine) {
         const { ctx } = this;
         
-        ctx.setLineDash([2, random(5,10)]);
+        ctx.setLineDash([1, 10]);
 
         if (Global.burn) {
             ctx.beginPath();
@@ -342,4 +346,34 @@ export class Draw {
         ctx.setLineDash([]);
     }
 
+    quadtree(tree: IQuadtree) {
+        const { ctx } = this;
+        
+        ctx.save();
+
+        const drawNode = (node: IQuadtree) => {
+            const x = node.xmid - node.width2;
+            const y = node.ymid - node.height2;
+            
+            this.bounds({
+                x,
+                y,
+                width: node.width2 * 2,
+                height: node.height2 * 2
+            }, '#00FF00');
+        }
+
+        const drawTree = (child: IQuadtree) => {
+
+            child.nodes.forEach(node => {
+                drawTree(node);
+            });
+
+            drawNode(child);
+        }
+
+        drawTree(tree);
+
+        ctx.restore();
+    }
 }
