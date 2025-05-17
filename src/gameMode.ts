@@ -1,6 +1,6 @@
 import { Sound } from './sounds';
 import { EventSource } from './events';
-import { Object2D } from './object2D';
+import { Object2D } from './object2d';
 import { Collisions } from './collisions';
 import screen from './screen';
 import { World } from './world';

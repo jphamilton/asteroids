@@ -1,45 +1,64 @@
-var path = require('path');
-var webpack = require('webpack');
-var isProd = (process.env.NODE_ENV !== 'dev');
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-function getPlugins() {
-    var plugins = [
-        new webpack.optimize.ModuleConcatenationPlugin(),
-        new webpack.DefinePlugin({
-            'process.env': {
-                'NODE_ENV': process.env.NODE_ENV
-            }
-        })
-    ];
+module.exports = (env, argv) => {
+  const isDev = argv.mode === 'development';
 
-    return plugins;
-}
-
-const config = {
-  mode: process.env.NODE_ENV !== 'dev' ? 'production' : 'development',
-  entry: './src/asteroids.ts',
-  optimization: {
-      minimize: false
-  },
-  output: {
-    path: path.resolve(__dirname, 'build'),
-    filename: 'asteroids.js',
-    publicPath: "/build/"
-  },
-  resolve: {
-    extensions: ['.webpack.js', '.web.js', '.ts', '.js']
-  },
-  plugins: getPlugins(),
-  module: {
-    rules: [
-      { test: /\.ts$/, loader: 'ts-loader' },
-      { test: /\.wav/, loader: 'file-loader' }
-    ]
-  }
+  return {
+    entry: './src/asteroids.ts',
+    output: {
+      filename: 'bundle.js',
+      path: path.resolve(__dirname, 'build'),
+      clean: true,
+    },
+    devtool: isDev ? 'inline-source-map' : 'source-map',
+    resolve: {
+      extensions: ['.ts', '.js'],
+    },
+    module: {
+      rules: [
+        {
+          test: /\.ts$/,
+          use: 'ts-loader',
+          exclude: /node_modules/,
+        },
+        {
+            test: /\.css$/,
+            use: [
+            isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
+            'css-loader',
+            ],
+        },
+        {
+          test: /\.wav$/,
+          type: 'asset/resource',
+          generator: {
+            filename: 'assets/[name][ext]',
+          },
+        },
+        {
+          enforce: 'pre',
+          test: /\.js$/,
+          loader: 'source-map-loader',
+        },
+      ],
+    },
+    plugins: [
+        new HtmlWebpackPlugin({ template: './src/index.html' }),
+        !isDev && new MiniCssExtractPlugin({
+        filename: 'style.css',
+        }),
+    ].filter(Boolean),
+    devServer: {
+      static: {
+        directory: path.join(__dirname, 'build'),
+      },
+      compress: true,
+      port: 9000,
+      open: true,
+      hot: true,
+    },
+    mode: isDev ? 'development' : 'production',
+  };
 };
-
-if (isProd) {
-    config.optimization.minimize = true;
-}
-
-module.exports = config;

@@ -1,3 +1,8 @@
+declare module '*.wav' {
+  const src: string;
+  export default src;
+}
+
 interface IGameState {
     update: (step: number) => void;
     render: (dt?: number) => void;

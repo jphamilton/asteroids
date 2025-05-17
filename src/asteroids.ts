@@ -1,3 +1,5 @@
+import './style.css';
+
 import { loop } from './loop';
 import { Key, Keys } from './keys';
 import { World } from './world';

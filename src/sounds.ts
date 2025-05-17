@@ -1,4 +1,31 @@
-declare var require;
+import w01 from './assets/getpowerup.wav';
+import w02 from './assets/powerup.wav';
+import w03 from './assets/life.wav';
+import w04 from './assets/thumphi.wav';
+import w05 from './assets/thumplo.wav';
+import w06 from './assets/ssaucer.wav';
+import w07 from './assets/lsaucer.wav';
+import w08 from './assets/explode3.wav';
+import w09 from './assets/explode2.wav';
+import w10 from './assets/explode1.wav';
+import w11 from './assets/sfire.wav';
+import w12 from './assets/thrust.wav';
+import w13 from './assets/fire.wav';
+
+// hack for webpack to include sound files
+console.log(w01 || 'loading sound');
+console.log(w02 || 'loading sound');
+console.log(w03 || 'loading sound');
+console.log(w04 || 'loading sound');
+console.log(w05 || 'loading sound');
+console.log(w06 || 'loading sound');
+console.log(w07 || 'loading sound');
+console.log(w08 || 'loading sound');
+console.log(w09 || 'loading sound');
+console.log(w10 || 'loading sound');
+console.log(w11 || 'loading sound');
+console.log(w12 || 'loading sound');
+console.log(w13 || 'loading sound');
 
 import { Howl } from 'howler';
 
