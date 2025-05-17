@@ -1,7 +1,7 @@
 
 This is an attempt to recreate the classic arcade game, Asteroids.
 
-[You can give it a try here](https://jphamilton.github.io/asteroids/)
+[You can give it a try here](https://jphamilton.github.io/asteroids/build)
 
 ## Controls
 
