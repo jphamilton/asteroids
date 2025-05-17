@@ -1,0 +1,17 @@
+@font-face {
+  font-family: "hyperspace";
+  src: url('./assets/Hyperspace.otf');
+}
+
+body {
+    font-family: hyperspace;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    background-color: #000000;
+}
+
+canvas {
+    vertical-align: middle;
+}
+
