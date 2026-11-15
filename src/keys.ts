@@ -106,7 +106,7 @@ export class _Key {
     }
 
     isAnyPressed() {
-        return !!Object.values(this.keys).filter(pressed => pressed).length;
+        return Object.keys(this.keys).some(key => this.keys[Number(key)]);
     }
 
     isRotateLeft() {

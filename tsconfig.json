@@ -3,6 +3,9 @@
         "target": "es5",
         "module": "commonjs",
         "removeComments": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "strict": false,
+        "noUncheckedSideEffectImports": false,
+        "ignoreDeprecations": "6.0"
     }
 }

@@ -10,9 +10,11 @@ module.exports = (env, argv) => {
     output: {
       filename: 'bundle.js',
       path: path.resolve(__dirname, 'build'),
-      clean: true,
+      clean: {
+        keep: /assets\/[123]\.png$/,
+      },
     },
-    devtool: isDev ? 'inline-source-map' : 'source-map',
+    devtool: isDev ? 'eval-source-map' : 'source-map',
     resolve: {
       extensions: ['.ts', '.js'],
     },
@@ -38,9 +40,11 @@ module.exports = (env, argv) => {
           },
         },
         {
-          enforce: 'pre',
-          test: /\.js$/,
-          loader: 'source-map-loader',
+          test: /\.otf$/,
+          type: 'asset/resource',
+          generator: {
+            filename: 'assets/[name][ext]',
+          },
         },
       ],
     },
