@@ -48,9 +48,16 @@ export class InitialsMode extends EventSource implements IGameState {
             this.position++;
             
             if (this.position >= 3) {
-                Highscores.save(this.score, this.initials.join('').replace('_',' '));
+                const initials = this.initials.join('').replace(/_/g, ' ');
+                if (initials.trim().length === 0) {
+                    this.position = 2;
+                    return;
+                }
+
+                Highscores.save(this.score, initials);
                 this.init();
                 this.trigger('done');
+                return;
             }
 
             this.index = 1;

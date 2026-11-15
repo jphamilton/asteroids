@@ -43,7 +43,10 @@ export class Collisions {
             candidates.push(...this.tree.retrieve(bullet1) as any);
             
             candidates.forEach(candidate => {
-                
+                if (!candidate || candidate.destroyed) {
+                    return;
+                }
+
                 if (candidate.collided(bullet1)) {
                     cb(bullet1, candidate);
                     return; // bail
@@ -92,11 +95,14 @@ export class Collisions {
             const candidates: any[] = this.tree.retrieve(source);
             
             candidates.forEach(candidate => {
-                
+                if (!candidate || candidate.destroyed) {
+                    return;
+                }
+
                 // AABB first
                if (candidate.collided(source)) {
                     if (deep) {
-                        if (this.pointsInPolygon(source, candidate || this.pointsInPolygon(candidate, source))) {
+                        if (this.pointsInPolygon(source, candidate) || this.pointsInPolygon(candidate, source)) {
                             cb(source, candidate);
                         }
                     } else {
@@ -126,7 +132,7 @@ export class Collisions {
 
     // credit: Lascha Lagidse http://alienryderflex.com/polygon/
     private pointInPoly(v: Point[], t: Point) {
-        let polyCorners = v.length - 1;
+        let polyCorners = v.length;
         let i, j = polyCorners - 1;
         let polyX = v.map(p => p.x);
         let polyY = v.map(p => p.y);

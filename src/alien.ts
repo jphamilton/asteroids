@@ -121,7 +121,7 @@ export class SmallAlien extends Alien {
     //score: number = 1000;
     bulletTime: number = 1;
 
-    constructor(private ship: Ship) {
+    constructor(private currentShip: () => Ship | null) {
         super(SMALL_ALIEN_SPEED);
         this.score = 1000;
         this.scale(4);
@@ -129,10 +129,11 @@ export class SmallAlien extends Alien {
 
     fire() {
         let bullet;
+        const ship = this.currentShip();
 
-        if (this.ship) {
+        if (ship) {
             // target ship
-            const v = Vector.fromXY(this.ship.origin, this.origin, SMALL_ALIEN_BULLET_SPEED);
+            const v = Vector.fromXY(ship.origin, this.origin, SMALL_ALIEN_BULLET_SPEED);
             bullet = new Bullet(this.origin, v, 2);
         } else {
             // random fire
@@ -144,7 +145,6 @@ export class SmallAlien extends Alien {
     }
 
     destroy() {
-        this.ship = null;
         this.trigger('expired');
     }
 

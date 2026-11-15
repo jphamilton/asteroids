@@ -187,15 +187,15 @@ export function createRocks(level: number): Rock[] {
                 break;
             case 2:
                 x = random(screen.width - (offset * 2), screen.width - offset);
-                y = random(screen.height - offset, screen.height - offset);
+                y = random(offset, screen.height - offset);
                 break;
             case 3:
                 x = random(offset, screen.width - offset);
-                y = random(screen.height - offset, screen.height - offset); 
+                y = random(screen.height - (offset * 2), screen.height - offset);
                 break;
             default:
                 x = random(offset, offset * 2);
-                y = random(screen.height - offset, screen.height - offset);
+                y = random(offset, screen.height - offset);
                 break;
         }
 

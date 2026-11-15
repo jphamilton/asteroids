@@ -5,6 +5,7 @@ import { Collisions } from './collisions';
 import screen from './screen';
 import { World } from './world';
 import { Thumper } from './thump';
+import { Rock } from './rocks';
 import Global from './global';
 
 export class GameMode extends EventSource implements IGameState {
@@ -192,17 +193,17 @@ export class GameMode extends EventSource implements IGameState {
             }
         });
 
-        // shockwaves can break rocks
-        let cowboys = []; 
-        shockwaves.filter(x => x.rocks.length).forEach(y => cowboys.push(...y.rocks));
-        
-        if (cowboys.length) {
-            let indians = this.world.rocks.filter(x => cowboys.indexOf(x) < 0);
-            collisions.check(cowboys, indians, false, (cowboy, indian) => {
-                this.world.addScore(cowboy);
-                this.world.addScore(indian);
-                this.world.rockDestroyed(cowboy);
-                this.world.rockDestroyed(indian);
+        // debris from a recent explosion breaks rocks it overlaps
+        const debris: Rock[] = [];
+        shockwaves.filter(wave => wave.rocks.length).forEach(wave => debris.push(...wave.rocks));
+
+        if (debris.length) {
+            const otherRocks = this.world.rocks.filter(rock => debris.indexOf(rock) < 0);
+            collisions.check(debris, otherRocks, false, (chunk, other) => {
+                this.world.addScore(chunk);
+                this.world.addScore(other);
+                this.world.rockDestroyed(chunk);
+                this.world.rockDestroyed(other);
             });
         }
 

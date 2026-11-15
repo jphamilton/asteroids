@@ -11,23 +11,13 @@ import { SlowMoTimer } from './slowMoTimer';
 import { Object2D } from './object2d';
 import { random } from './util';
 import screen from './screen';
-import { smallAlien, largeAlien, alienFire, largeExplosion, extraLife, getPowerup } from './sounds';
+import { smallAlien, largeAlien, alienFire, largeExplosion, extraLife } from './sounds';
 
 const EXTRA_LIFE = 10000;
 const SHAKE_TIME = .5;
-const DRAMATIC_PAUSE_TIME = 5;
-
-var explosionCount = 0;
-var maxExplosionCount = 0;
-var maxExplosionThreshold = 10;
-var explosionScores: number[] = [];
-
-class ExplostionTracker {
-
-}
 
 export class World {
-    level: number = 1;
+    level: number = 0;
     extraLifeScore: number = 0;
     highscore: number; 
     score: number = 0;
@@ -48,9 +38,11 @@ export class World {
     levelTimer: number = 0;
     gameOverTimer: number = 0;
     shakeTimer: number = 0;
-    powerupTimer: number = 0;
-    dramticPauseTimer: number = 0;
     slowMoTimer: SlowMoTimer = null;
+    private activeExplosions = 0;
+    private peakExplosions = 0;
+    private explosionThreshold = 10;
+    private explosionScores: { score: number }[] = [];
 
     gameOver: boolean = false;
     started: boolean = false;
@@ -69,11 +61,6 @@ export class World {
             dt = this.slowMoTimer.adjust(dt);
         }
 
-        if (this.dramticPauseTimer > 0) {
-            this.dramticPauseTimer--;
-            return;
-        }
-
         // shaky cam
         if (this.shakeTimer > 0) {
             this.shakeTimer -= dt;
@@ -87,10 +74,6 @@ export class World {
     }
     
     render(dt?: number) {
-        if (this.slowMoTimer) {
-            dt = this.slowMoTimer.adjust(dt);
-        }
-        
         if (this.shakeTimer > 0) {
             screen.preShake();
         }
@@ -109,7 +92,6 @@ export class World {
     startLevel() {
         this.level++;
         this.levelTimer = 0;
-        this.powerupTimer = 0;
 
         if (!this.alienTimer) {
             this.alienTimer = random(10, 15);
@@ -150,42 +132,28 @@ export class World {
         }
         
         const explosion = new Explosion(obj.origin.x, obj.origin.y, size);
-        explosionCount++;
+        const entry = { score: obj.score };
+        this.explosionScores.push(entry);
+        this.activeExplosions++;
 
-        explosionScores.push(obj.score);
-        
-        if (explosionScores.length > maxExplosionThreshold) {
-            explosionScores.pop();
-        }
+        if (this.activeExplosions > this.peakExplosions) {
+            this.peakExplosions = this.activeExplosions;
 
-        if (explosionCount > maxExplosionCount) {
-            maxExplosionCount = explosionCount;
-
-            if (maxExplosionCount > maxExplosionThreshold) {
-                explosionCount = 0;
-                console.log('MAX DAMAGE ACHEIVEMENT');
-                
+            if (this.peakExplosions > this.explosionThreshold) {
+                const bonus = this.explosionScores.reduce((sum, item) => sum + item.score, 0) * 5;
                 this.setSlowMo(.25, 4);
-                
-                let bonus = 0;
-                explosionScores.forEach(v => bonus += v);
-                bonus *=5;
 
-                const achievement = new Achievement(`MASSIVE DAMAGE`, bonus);
+                const achievement = new Achievement('MASSIVE DAMAGE', bonus);
                 this.addScenery(achievement);
                 this.addScore(achievement);
 
-                //const marker = new ScoreMarker(obj, `+${bonus}`);
-                //this.addScenery(marker);
-
-                // Track score of each explosion and display total points with achievement
-
-                maxExplosionThreshold += 10;
+                this.explosionThreshold += 10;
             }
         }
 
         explosion.on('expired', () => {
-            explosionCount--;
+            this.activeExplosions = Math.max(0, this.activeExplosions - 1);
+            this.explosionScores = this.explosionScores.filter(item => item !== entry);
         });
 
         this.addScenery(explosion);
@@ -244,6 +212,12 @@ export class World {
     }
 
     rockDestroyed(rock: Rock, multiplier: number = 1) {
+        if (!rock || rock.destroyed) {
+            return;
+        }
+
+        rock.destroyed = true;
+
         let boom = this.createExplosion(rock, rock.size * 5, multiplier);
         let debris = rock.split();
         
@@ -255,8 +229,6 @@ export class World {
         });
 
         boom.shockwave.rocks = debris;
-
-        rock = null;
     }
 
     addAlien() {
@@ -282,7 +254,7 @@ export class World {
 
         if (little) {
             alienSound = smallAlien;
-            this.alien = new SmallAlien(this.ship);
+            this.alien = new SmallAlien(() => this.ship);
         } else {
             this.alien = new BigAlien();
         }
@@ -318,17 +290,13 @@ export class World {
             this.highscore = this.score;
         }
 
-        if (this.extraLifeScore >= EXTRA_LIFE) {
+        while (this.extraLifeScore >= EXTRA_LIFE) {
             this.lives++;
             this.extraLifeScore -= EXTRA_LIFE;
             extraLife.play();
         }
 
         this.addScenery(new ScoreMarker(obj, `${obj.score}`));
-    }
-
-    addPowerup() {
-        getPowerup.play();
     }
 
     shake() {

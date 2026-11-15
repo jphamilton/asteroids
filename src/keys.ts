@@ -21,8 +21,9 @@ export class _Key {
 
     keys: KeyPressMap = {}; 
     prev: KeyPressMap = {};
-    touched: boolean = false;
     mc: any;
+    private tapQueued = false;
+    private tapEdge = false;
 
     constructor() {
         window.onkeydown = (e) => {
@@ -66,9 +67,8 @@ export class _Key {
             this.rotateRight(false);
         });
 
-        this.mc.on('tap', (e) => {
-            this.fire(true);
-            this.touched = true;
+        this.mc.on('tap', () => {
+            this.tapQueued = true;
         });
 
         this.mc.on('pinchout', (e) => {
@@ -81,16 +81,15 @@ export class _Key {
 
     }
 
+    beginFrame() {
+        this.tapEdge = this.tapQueued;
+        this.tapQueued = false;
+    }
+
     update() {
         Object.keys(this.keys).forEach(key => {
             this.prev[key] = this.keys[key];
         });
-
-        if (this.touched) {
-            this.fire(false);
-        }
-
-        this.touched = !this.touched;
     }
 
     isPressed(key: number) {
@@ -106,7 +105,11 @@ export class _Key {
     }
 
     isAnyPressed() {
-        return Object.keys(this.keys).some(key => this.keys[Number(key)]);
+        return this.tapEdge || this.tapQueued || Object.keys(this.keys).some(key => this.keys[Number(key)]);
+    }
+
+    wasAnyPressed() {
+        return this.tapEdge || this.tapQueued || Object.keys(this.keys).some(key => this.isPressed(Number(key)));
     }
 
     isRotateLeft() {
@@ -121,8 +124,8 @@ export class _Key {
         return this.keys[Keys.THRUST] || this.keys[Keys.THRUST_W];
     }
 
-    isFire() {
-        return this.keys[Keys.FIRE];
+    wasFire() {
+        return this.isPressed(Keys.FIRE) || this.tapEdge;
     }
 
     isHyperspace() {
@@ -153,10 +156,6 @@ export class _Key {
 
     private thrust = (active: boolean) => {
         this.keys[Keys.THRUST] = active;
-    }
-
-    private fire = (active: boolean) => {
-        this.keys[Keys.FIRE] = active;
     }
 
     private hyperspace = (active: boolean) => {

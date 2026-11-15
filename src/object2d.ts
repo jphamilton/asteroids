@@ -8,6 +8,7 @@ export abstract class Object2D extends EventSource implements Rect, IGameState {
     angle: number = 360; 
     velocity: Vector = new Vector(0, 0);
     origin: Vector;
+    destroyed = false;
     
     private _xmin: number = 0;
     private _xmax: number = 0;
@@ -48,14 +49,20 @@ export abstract class Object2D extends EventSource implements Rect, IGameState {
     }
 
     private calcBounds() {
+        const first = this._points[0];
+        this._xmin = first.x;
+        this._xmax = first.x;
+        this._ymin = first.y;
+        this._ymax = first.y;
+
         this._points.forEach(p => {
             if (p.x < this._xmin) this._xmin = p.x;
             if (p.x > this._xmax) this._xmax = p.x;
             if (p.y < this._ymin) this._ymin = p.y;
             if (p.y > this._ymax) this._ymax = p.y;
         });
-        this._width = this._xmax - this._xmin
-        this._height = this._ymax - this._ymin; 
+        this._width = this._xmax - this._xmin;
+        this._height = this._ymax - this._ymin;
     }
 
     rotate(angle: number) {

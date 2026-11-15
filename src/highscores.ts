@@ -1,5 +1,3 @@
-// move to local storage at some point
-
 const defaults = [
     { score: 20140, initials: 'J H'},
     { score: 20050, initials: 'P A'},
@@ -15,13 +13,42 @@ const defaults = [
 
 const SCORE_KEY = 'jph_asteroids_hs';
 
+type ScoreEntry = { score: number, initials: string };
+
+function copyDefaults(): ScoreEntry[] {
+    return defaults.map(entry => ({ score: entry.score, initials: entry.initials }));
+}
+
+function isScoreEntry(value: any): value is ScoreEntry {
+    return !!value
+        && typeof value.score === 'number'
+        && typeof value.initials === 'string';
+}
+
+function loadScores(): ScoreEntry[] {
+    try {
+        const str = window.localStorage.getItem(SCORE_KEY);
+        if (!str) {
+            return copyDefaults();
+        }
+
+        const parsed = JSON.parse(str);
+        if (!Array.isArray(parsed) || parsed.length === 0 || !parsed.every(isScoreEntry)) {
+            return copyDefaults();
+        }
+
+        return parsed;
+    } catch {
+        return copyDefaults();
+    }
+}
+
 class Highscores {
 
-    scores: { score: number, initials: string}[] = [];
+    scores: ScoreEntry[] = [];
 
     constructor() {
-        const str = window.localStorage.getItem(SCORE_KEY);
-        this.scores = str ? JSON.parse(str) || [] : defaults;
+        this.scores = loadScores();
     }
 
     get top() {

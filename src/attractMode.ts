@@ -32,7 +32,7 @@ export class AttractMode extends EventSource implements IGameState {
 
     update(step: number) {
         this.currentMode.update(step);
-        if (Key.isAnyPressed()) {
+        if (Key.wasAnyPressed()) {
             this.trigger('done');
         } else {
             this.updateAttractTimer(step);

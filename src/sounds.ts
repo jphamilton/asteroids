@@ -1,5 +1,3 @@
-import w01 from './assets/getpowerup.wav';
-import w02 from './assets/powerup.wav';
 import w03 from './assets/life.wav';
 import w04 from './assets/thumphi.wav';
 import w05 from './assets/thumplo.wav';
@@ -13,8 +11,6 @@ import w12 from './assets/thrust.wav';
 import w13 from './assets/fire.wav';
 
 // hack for webpack to include sound files
-console.log(w01 || 'loading sound');
-console.log(w02 || 'loading sound');
 console.log(w03 || 'loading sound');
 console.log(w04 || 'loading sound');
 console.log(w05 || 'loading sound');
@@ -76,7 +72,8 @@ export const fire = createSound({
 
 export const thrust = createSound({
     src: ['./assets/thrust.wav'],
-    volume: 0.3
+    volume: 0.3,
+    loop: true
 });
 
 export const alienFire = createSound({
@@ -126,16 +123,6 @@ export const thumpHi = createSound({
 
 export const extraLife = createSound({
     src: ['./assets/life.wav'],
-    volume: .5
-});
-
-export const powerup = createSound({
-    src: ['./assets/powerup.wav'],
-    volume: .5
-});
-
-export const getPowerup = createSound({
-    src: ['./assets/getpowerup.wav'],
     volume: .5
 });
 

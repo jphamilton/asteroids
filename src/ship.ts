@@ -67,12 +67,14 @@ export class Ship extends Object2D {
         }
 
         if (this.trails.length) {
-            this.trails.forEach(trail => {
-                if (trail.alpha > 0) {
-                    screen.draw.shape(trail.points, trail.x, trail.y, `rgba(255,0,255,${trail.alpha})`, true);
-                    screen.draw.shape(trail.points, trail.x - 1, trail.y - 1, `rgba(0,255,255,${trail.alpha})`, true);
-                    trail.alpha -= .1;
+            this.trails = this.trails.filter(trail => {
+                if (trail.alpha <= 0) {
+                    return false;
                 }
+                screen.draw.shape(trail.points, trail.x, trail.y, `rgba(255,0,255,${trail.alpha})`, true);
+                screen.draw.shape(trail.points, trail.x - 1, trail.y - 1, `rgba(0,255,255,${trail.alpha})`, true);
+                trail.alpha -= .1;
+                return trail.alpha > 0;
             });
         }
     }
@@ -82,10 +84,14 @@ export class Ship extends Object2D {
         this.flame.move(dt);
 
         if (Key.isThrust()) {
+            if (!this.moving) {
+                thrust.play();
+            }
             this.moving = true;
             this.thrust();
-        } else {
+        } else if (this.moving) {
             this.moving = false;
+            thrust.stop();
         }
 
         if (Key.wasRotateLeft) {
@@ -104,7 +110,7 @@ export class Ship extends Object2D {
             this.rotate(ROTATION);
         } 
 
-        if (Key.isFire()) {
+        if (Key.wasFire()) {
             this.fire();
         }
 
@@ -118,7 +124,7 @@ export class Ship extends Object2D {
 
         if (this.moving && (Math.abs(this.velocity.x) > 200 || Math.abs(this.velocity.y) > 200)) {
             this.trails.push({
-                points: [...this.points],
+                points: this.points.map(p => ({ x: p.x, y: p.y })),
                 x: this.origin.x,
                 y: this.origin.y,
                 alpha: .5
@@ -146,8 +152,6 @@ export class Ship extends Object2D {
             this.velocity.add(v);
             this.flame.velocity = this.velocity;
         }
-
-        thrust.play();
     }
 
     private fire() {
@@ -205,6 +209,9 @@ export class Ship extends Object2D {
     }
 
     destroy() {
+        if (this.moving) {
+            thrust.stop();
+        }
         this.trigger('expired');
     }
 }
