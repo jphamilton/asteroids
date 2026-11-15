@@ -11,13 +11,28 @@ import alienFireSrc from './assets/sfire.wav';
 import thrustSrc from './assets/thrust.wav';
 import fireSrc from './assets/fire.wav';
 
+interface SoundOptions {
+    src: string[];
+    volume: number;
+    max?: number;
+    loop?: boolean;
+}
+
+interface GameSound {
+    play(): void;
+    stop(): void;
+    volume(volume: number): void;
+    rate(rate: number): void;
+    _origVolume: number;
+}
+
 const VOLUME = .5;
 
 let soundOn: boolean = true;
 
-export const all = [];
+const all: GameSound[] = [];
 
-function createSound(options) {
+function createSound(options: SoundOptions): GameSound {
     let count = 0;
 
     const sound = new Howl(options);
@@ -28,26 +43,35 @@ function createSound(options) {
         }
     });
 
-    const play = sound.play.bind(sound);
+    const gameSound: GameSound = {
+        _origVolume: options.volume,
+        play() {
+            if (!soundOn) {
+                return;
+            }
 
-    sound.play = () => {
-        if (soundOn) {
-            
             if (options.max) {
                 if (count < options.max) {
-                    play();
+                    sound.play();
                     count++;
                 }
             } else {
-                play();
+                sound.play();
             }
+        },
+        stop() {
+            sound.stop();
+        },
+        volume(volume: number) {
+            sound.volume(volume);
+        },
+        rate(rate: number) {
+            sound.rate(rate);
         }
     };
 
-    sound._origVolume = options.volume;
-
-    all.push(sound);
-    return sound;
+    all.push(gameSound);
+    return gameSound;
 }
 
 export const fire = createSound({

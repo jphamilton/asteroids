@@ -11,9 +11,9 @@ import Global from './global';
 export class GameMode extends EventSource implements IGameState {
 
     bounds: Object2D[] = [];
-    thumper: Thumper;
+    thumper?: Thumper;
 
-    private lastCollisions: Collisions;
+    private lastCollisions?: Collisions;
 
     constructor(private world: World) {
         super();
@@ -66,7 +66,7 @@ export class GameMode extends EventSource implements IGameState {
             // check for next level
             if (this.world.shouldCheckForNextLevel()) {  
                 this.world.startLevel();
-                this.thumper.reset();
+                this.thumper?.reset();
             }
 
         }
@@ -147,7 +147,7 @@ export class GameMode extends EventSource implements IGameState {
             screen.draw.text(this.world.ship.velocity.y.toString(), this.world.ship.origin.x + 20, this.world.ship.origin.y + 60, 10);
         }
 
-        const date = new Date(null);
+        const date = new Date(0);
         date.setSeconds(this.world.levelTimer);
 
         screen.draw.text2(date.toISOString().substr(11, 8), screen.font.small, (width) => {

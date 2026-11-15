@@ -1,9 +1,9 @@
 
 /* lookup tables */
 
-const RAD = {};
-const COS = {};
-const SIN = {};
+const RAD: { [index: number]: number } = {};
+const COS: { [index: number]: number } = {};
+const SIN: { [index: number]: number } = {};
 const r = Math.PI / 180;
 
 for(let i = 0; i <= 360; i++) {

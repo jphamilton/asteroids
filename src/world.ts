@@ -23,9 +23,9 @@ export class World {
     score: number = 0;
     lives: number = 3; 
     
-    ship: Ship;
+    ship: Ship | null = null;
     shipBullets: Bullet[] = [];
-    alien: Alien;
+    alien: Alien | null = null;
     alienBullets: Bullet[] = [];
     shockwaves: Shockwave[] = [];
     rocks: Rock[] = [];
@@ -38,7 +38,7 @@ export class World {
     levelTimer: number = 0;
     gameOverTimer: number = 0;
     shakeTimer: number = 0;
-    slowMoTimer: SlowMoTimer = null;
+    slowMoTimer: SlowMoTimer | null = null;
     private activeExplosions = 0;
     private peakExplosions = 0;
     private explosionThreshold = 10;
@@ -51,7 +51,7 @@ export class World {
         this.highscore = highscore;
     }
 
-    get objects(): any {
+    get objects(): Array<{ update(dt?: number): void; render(dt?: number): void } | null | undefined> {
         return [this.ship, this.alien, ...this.shipBullets, ...this.alienBullets, ...this.rocks, ...this.shockwaves, ...this.scenery];
     }
 
@@ -126,9 +126,9 @@ export class World {
         });
     }
 
-    createExplosion(obj: Object2D, size: number = 100, multiplier: number = 1): { explosion: Explosion, shockwave: Shockwave } {
+    createExplosion(obj: Object2D, size: number = 100, multiplier: number = 1): { explosion: Explosion, shockwave: Shockwave } | null {
         if (!obj) {
-            return;
+            return null;
         }
         
         const explosion = new Explosion(obj.origin.x, obj.origin.y, size);
@@ -228,7 +228,9 @@ export class World {
             shockwave.rocks = shockwave.rocks.filter(x => x !== rock);
         });
 
-        boom.shockwave.rocks = debris;
+        if (boom) {
+            boom.shockwave.rocks = debris;
+        }
     }
 
     addAlien() {
@@ -305,7 +307,7 @@ export class World {
         }
     }
 
-    tryPlaceShip(dt) {
+    tryPlaceShip(dt: number) {
         this.shipTimer += dt;
 
         if (this.shipTimer <= 2) {

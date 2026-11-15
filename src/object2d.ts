@@ -16,7 +16,7 @@ export abstract class Object2D extends EventSource implements Rect, IGameState {
     private _ymax: number = 0;
     private _width: number = 0;
     private _height: number = 0;
-    private _points: Point[];
+    private _points: Point[] = [];
     protected _score: number = 0;
 
     abstract update(dt?: number) : void;
@@ -168,9 +168,6 @@ export abstract class Object2D extends EventSource implements Rect, IGameState {
     }
 
     destroy() {
-        for(let event in this.handlers) {
-            this.handlers[event] = null;
-        }
         this.handlers = {};
     }
 }

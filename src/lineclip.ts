@@ -1,4 +1,5 @@
 
+// @ts-nocheck
 // https://github.com/mapbox/lineclip
 
 // intersect a segment against one of the 4 lines that make up the bbox

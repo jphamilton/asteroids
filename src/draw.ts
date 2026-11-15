@@ -214,7 +214,7 @@ export class Draw {
         ctx.restore();
     }
 
-    scorePlayer1(score) {
+    scorePlayer1(score: number) {
         const X_START = 100;
         let text = score.toString();
         while (text.length < 2) { 

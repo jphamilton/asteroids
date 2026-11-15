@@ -21,7 +21,7 @@ export abstract class Alien extends Object2D {
     abstract fire(): void;
     abstract destroy(): void;
     
-    constructor(speed) {
+    constructor(speed: number) {
         super(0, 0);
 
         this.velocity.y = 0;

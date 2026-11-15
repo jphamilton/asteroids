@@ -13,10 +13,10 @@ import Global from './global';
 export class Asteroids {
 
     private lastScore = 0;
-    private attractMode: AttractMode;
-    private gameMode: GameMode;
-    private initialsMode: InitialsMode;
-    private currentMode: IGameState;
+    private attractMode!: AttractMode;
+    private gameMode?: GameMode;
+    private initialsMode?: InitialsMode;
+    private currentMode!: IGameState;
 
     constructor() {
         this.init();
@@ -57,7 +57,7 @@ export class Asteroids {
 
     }
 
-    update(dt) {
+    update(dt: number) {
         Key.beginFrame();
 
         if (Key.wasPressed(Keys.GOD)) {
@@ -89,7 +89,7 @@ export class Asteroids {
         this.currentMode.update(dt);
     }
 
-    render(dt) {
+    render(dt: number) {
         this.currentMode.render(dt);
         Key.update();
     }

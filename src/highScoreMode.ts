@@ -7,11 +7,11 @@ export class HighScoreMode implements IGameState {
     showPushStart: boolean = true;
     highscore: number;
 
-    constructor(private score) {
+    constructor(private score: number) {
         this.highscore = Highscores.top.score;
     }
 
-    update(dt) {
+    update(dt: number) {
         this.blink += dt;
         
         if (this.blink >= .4) {

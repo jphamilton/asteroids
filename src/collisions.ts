@@ -20,27 +20,29 @@ export class Collisions {
     }
 
     // special case for ship bullets
-    bulletCheck<TSource extends Object2D, TTarget extends Object2D>(bullets: TSource[], targets: TTarget[], cb: CollisionCallback<TSource, TTarget>, dcb?: BulletCollisionCallback<TSource, TTarget>) {
-        if (!bullets || !bullets.length || !targets || !targets.length) {
+    bulletCheck<TSource extends Object2D, TTarget extends Object2D>(bullets: Array<TSource | null | undefined>, targets: Array<TTarget | null | undefined>, cb: CollisionCallback<TSource, TTarget>, dcb?: BulletCollisionCallback<TSource, TTarget>) {
+        const liveBullets = this.present(bullets);
+        const liveTargets = this.present(targets);
+        if (!liveBullets.length || !liveTargets.length) {
             return;
         }
 
         let candidates: TTarget[] = [];
-        let results = [];
+        let results: unknown[] = [];
 
         this.tree.clear();
         
-        targets.forEach(target => {
+        liveTargets.forEach(target => {
             this.tree.insert(target);
         });
 
         // check bullet here
-        for(let i = 0; i < bullets.length; i++) {
+        for(let i = 0; i < liveBullets.length; i++) {
 
-            const bullet1 = bullets[i];
+            const bullet1 = liveBullets[i];
             
             candidates.length = 0;
-            candidates.push(...this.tree.retrieve(bullet1) as any);
+            candidates.push(...this.tree.retrieve(bullet1) as TTarget[]);
             
             candidates.forEach(candidate => {
                 if (!candidate || candidate.destroyed) {
@@ -55,8 +57,8 @@ export class Collisions {
                 }
                 
                 // line clip
-                if (i < bullets.length - 1) {
-                    const bullet2 = bullets[i + 1];
+                if (i < liveBullets.length - 1) {
+                    const bullet2 = liveBullets[i + 1];
                     const bbox = [candidate.x, candidate.y, candidate.x + candidate.width, candidate.y + candidate.height ];
 
                     results.length = 0;
@@ -79,20 +81,22 @@ export class Collisions {
     } 
 
 
-    check<TSource extends Object2D, TTarget extends Object2D>(sources: TSource[], targets: TTarget[], deep: boolean, cb: CollisionCallback<TSource, TTarget>, dcb?: CollisionCallback<TSource, TTarget>) {
-        if (!sources || !sources.length || !targets || !targets.length) {
+    check<TSource extends Object2D, TTarget extends Object2D>(sources: Array<TSource | null | undefined>, targets: Array<TTarget | null | undefined>, deep: boolean, cb: CollisionCallback<TSource, TTarget>, dcb?: CollisionCallback<TSource, TTarget>) {
+        const liveSources = this.present(sources);
+        const liveTargets = this.present(targets);
+        if (!liveSources.length || !liveTargets.length) {
             return;
         }
 
         this.tree.clear();
         
-        targets.forEach(target => {
+        liveTargets.forEach(target => {
             this.tree.insert(target);
         });
         
-        sources.forEach(source => {
+        liveSources.forEach(source => {
 
-            const candidates: any[] = this.tree.retrieve(source);
+            const candidates = this.tree.retrieve(source) as TTarget[];
             
             candidates.forEach(candidate => {
                 if (!candidate || candidate.destroyed) {
@@ -115,6 +119,10 @@ export class Collisions {
 
         });
 
+    }
+
+    private present<T extends Object2D>(items: Array<T | null | undefined>): T[] {
+        return items.filter((item): item is T => !!item);
     }
 
     private pointsInPolygon(source: Object2D, candidate: Object2D): boolean {

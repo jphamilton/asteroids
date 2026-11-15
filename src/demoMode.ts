@@ -17,7 +17,7 @@ export class DemoMode implements IGameState {
         }
     }
 
-    update(dt) {
+    update(dt: number) {
         this.checkCollisions();
 
         this.world.updateAlienTimer(dt);

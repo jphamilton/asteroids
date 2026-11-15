@@ -8,9 +8,9 @@ const letters = '_abcdefghijklmnopqrstuvwxyz';
 
 export class InitialsMode extends EventSource implements IGameState {
     index: number = 1;
-    position: number;
+    position = 0;
     score: number;
-    initials: string[];
+    initials: string[] = ['a', '_', '_'];
     
     constructor(score: number) {
         super();
@@ -27,7 +27,7 @@ export class InitialsMode extends EventSource implements IGameState {
         Sound.off();
     }
 
-    update(dt) {
+    update(dt: number) {
         if (Key.wasRotateLeft()) {
             this.index--;
             if (this.index < 0) {
@@ -67,7 +67,7 @@ export class InitialsMode extends EventSource implements IGameState {
 
     render(delta: number) {
         let offset: number = screen.height / 4.5;
-        const text = (t => screen.draw.text(t, 50, offset += screen.font.large + 5, screen.font.large));
+        const text = ((t: string) => screen.draw.text(t, 50, offset += screen.font.large + 5, screen.font.large));
         
         screen.draw.background();
         screen.draw.highscore(Highscores.top.score);

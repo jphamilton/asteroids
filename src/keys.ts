@@ -21,7 +21,7 @@ export class _Key {
 
     keys: KeyPressMap = {}; 
     prev: KeyPressMap = {};
-    mc: any;
+    mc: HammerManager;
     private tapQueued = false;
     private tapEdge = false;
 
@@ -35,18 +35,21 @@ export class _Key {
         }
 
         const stage = document.getElementById('game');
+        if (!stage) {
+            throw new Error('Missing #game element');
+        }
         this.mc = new Hammer.Manager(stage);
         
         const pan = new Hammer.Pan();
-        const tap = new Hammer.Tap();
+        const tap = new Hammer.Tap({
+            interval: 50
+        });
         const pinch = new Hammer.Pinch({
             enable: true
         });
 
         this.mc.add(pan);
-        this.mc.add(tap, {
-            interval: 50
-        });
+        this.mc.add(tap);
         this.mc.add(pinch);
 
         this.mc.on('panup', (e) => {
@@ -88,7 +91,8 @@ export class _Key {
 
     update() {
         Object.keys(this.keys).forEach(key => {
-            this.prev[key] = this.keys[key];
+            const code = Number(key);
+            this.prev[code] = this.keys[code];
         });
     }
 

@@ -146,7 +146,7 @@ export class Quadtree implements IQuadtree {
         const x = Math.round(this.bounds.x);
         const y = Math.round(this.bounds.y);
 
-        const create = (x, y) => {
+        const create = (x: number, y: number) => {
             const bounds: Rect = {
                 x: x,
                 y: y,

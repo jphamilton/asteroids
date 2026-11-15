@@ -3,9 +3,20 @@ declare module '*.wav' {
   export default src;
 }
 
+declare module 'howler' {
+    export class Howl {
+        constructor(options: { src: string[]; volume?: number; loop?: boolean });
+        play(): number;
+        stop(): void;
+        volume(volume?: number): number;
+        on(event: string, fn: () => void): void;
+        rate(rate: number): void;
+    }
+}
+
 interface IGameState {
     update: (step: number) => void;
-    render: (dt?: number) => void;
+    render: (dt: number) => void;
 }
 
 interface Point {

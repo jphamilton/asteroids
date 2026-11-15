@@ -4,8 +4,8 @@ const MIN = .15;
 const BEAT_DECAY_PER_SECOND = 0.0002 * 60;
 
 export class Thumper {
-    thumpBeatTimer: number;
-    thumpBeat: number;
+    thumpBeatTimer = 0;
+    thumpBeat = 1;
     lo: boolean = true;
 
     constructor() {

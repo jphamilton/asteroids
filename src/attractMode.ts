@@ -39,7 +39,7 @@ export class AttractMode extends EventSource implements IGameState {
         }
     }
     
-    render(dt?: number) {
+    render(dt: number = 0) {
         this.currentMode.render(dt);
     }
 

@@ -6,23 +6,31 @@ export class Screen implements Rect {
     ctx: CanvasRenderingContext2D;
     x: number = 0;
     y: number = 0;
-    width: number;
-    height: number;
+    width!: number;
+    height!: number;
     draw: Draw;
-    width2: number;
-    height2: number;
+    width2!: number;
+    height2!: number;
     
-    private _fontXL: number;
-    private _fontL: number;
-    private _fontM: number;
-    private _fontS: number;
-    private _objectScale: number;
-    private _shipRect: Rect;
-    private _pointSize: number;
+    private _fontXL!: number;
+    private _fontL!: number;
+    private _fontM!: number;
+    private _fontS!: number;
+    private _objectScale!: number;
+    private _shipRect!: Rect;
+    private _pointSize!: number;
 
     constructor() {
-        this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
-        this.ctx = this.canvas.getContext('2d');
+        const canvas = document.getElementById('canvas');
+        if (!(canvas instanceof HTMLCanvasElement)) {
+            throw new Error('Missing canvas');
+        }
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            throw new Error('Canvas 2D context unavailable');
+        }
+        this.canvas = canvas;
+        this.ctx = ctx;
         this.draw = new Draw(this.ctx);
         this.init();
 

@@ -4,7 +4,7 @@
         "module": "commonjs",
         "removeComments": true,
         "sourceMap": true,
-        "strict": false,
+        "strict": true,
         "noUncheckedSideEffectImports": false,
         "ignoreDeprecations": "6.0"
     }

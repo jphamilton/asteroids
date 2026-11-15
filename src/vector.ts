@@ -1,4 +1,4 @@
-const VECTOR = {};
+const VECTOR: { [index: number]: { x: number; y: number } } = {};
 const PI2 = 2 * Math.PI;
 
 for(let i = 0; i <= 360; i++) {

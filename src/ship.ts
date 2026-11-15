@@ -43,7 +43,7 @@ export class Ship extends Object2D {
     private bulletTimer: number = 0;
     private flame: Flame;
     public shield: number = 1;
-    public trails = [];
+    public trails: { points: Point[]; x: number; y: number; alpha: number }[] = [];
 
     constructor(x: number, y: number) {
         super(x, y);
@@ -94,7 +94,7 @@ export class Ship extends Object2D {
             thrust.stop();
         }
 
-        if (Key.wasRotateLeft) {
+        if (Key.wasRotateLeft()) {
             this.rotate(-1);
         } 
 
@@ -102,7 +102,7 @@ export class Ship extends Object2D {
             this.rotate(-ROTATION);
         } 
 
-        if (Key.wasRotateRight) {
+        if (Key.wasRotateRight()) {
             this.rotate(1);
         }
 
