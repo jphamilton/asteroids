@@ -1,29 +1,15 @@
-import w03 from './assets/life.wav';
-import w04 from './assets/thumphi.wav';
-import w05 from './assets/thumplo.wav';
-import w06 from './assets/ssaucer.wav';
-import w07 from './assets/lsaucer.wav';
-import w08 from './assets/explode3.wav';
-import w09 from './assets/explode2.wav';
-import w10 from './assets/explode1.wav';
-import w11 from './assets/sfire.wav';
-import w12 from './assets/thrust.wav';
-import w13 from './assets/fire.wav';
-
-// hack for webpack to include sound files
-console.log(w03 || 'loading sound');
-console.log(w04 || 'loading sound');
-console.log(w05 || 'loading sound');
-console.log(w06 || 'loading sound');
-console.log(w07 || 'loading sound');
-console.log(w08 || 'loading sound');
-console.log(w09 || 'loading sound');
-console.log(w10 || 'loading sound');
-console.log(w11 || 'loading sound');
-console.log(w12 || 'loading sound');
-console.log(w13 || 'loading sound');
-
 import { Howl } from 'howler';
+import lifeSrc from './assets/life.wav';
+import thumpHiSrc from './assets/thumphi.wav';
+import thumpLoSrc from './assets/thumplo.wav';
+import smallAlienSrc from './assets/ssaucer.wav';
+import largeAlienSrc from './assets/lsaucer.wav';
+import smallExplosionSrc from './assets/explode3.wav';
+import mediumExplosionSrc from './assets/explode2.wav';
+import largeExplosionSrc from './assets/explode1.wav';
+import alienFireSrc from './assets/sfire.wav';
+import thrustSrc from './assets/thrust.wav';
+import fireSrc from './assets/fire.wav';
 
 const VOLUME = .5;
 
@@ -43,7 +29,6 @@ function createSound(options) {
     });
 
     const play = sound.play.bind(sound);
-    const canPlay = options.max ? count < options.max && soundOn : soundOn;
 
     sound.play = () => {
         if (soundOn) {
@@ -66,63 +51,63 @@ function createSound(options) {
 }
 
 export const fire = createSound({
-    src: ['./assets/fire.wav'],
+    src: [fireSrc],
     volume: .2
 });
 
 export const thrust = createSound({
-    src: ['./assets/thrust.wav'],
+    src: [thrustSrc],
     volume: 0.3,
     loop: true
 });
 
 export const alienFire = createSound({
-    src: ['./assets/sfire.wav'],
+    src: [alienFireSrc],
     volume: VOLUME
 });
 
 export const largeExplosion = createSound({
-    src: ['./assets/explode1.wav'],
+    src: [largeExplosionSrc],
     volume: VOLUME,
     max: 2
 });
 
 export const mediumExplosion = createSound({
-    src: ['./assets/explode2.wav'],
+    src: [mediumExplosionSrc],
     volume: VOLUME,
     max: 2
 });
 
 export const smallExplosion = createSound({
-    src: ['./assets/explode3.wav'],
+    src: [smallExplosionSrc],
     volume: VOLUME,
     max: 2
 });
 
 export const largeAlien = createSound({
-    src: ['./assets/lsaucer.wav'],
+    src: [largeAlienSrc],
     volume: VOLUME,
     loop: true
 });
 
 export const smallAlien = createSound({
-    src: ['./assets/ssaucer.wav'],
+    src: [smallAlienSrc],
     volume: VOLUME,
     loop: true
 });
 
 export const thumpLo = createSound({
-    src: ['./assets/thumplo.wav'],
+    src: [thumpLoSrc],
     volume: .3
 });
 
 export const thumpHi = createSound({
-    src: ['./assets/thumphi.wav'],
+    src: [thumpHiSrc],
     volume: .3
 });
 
 export const extraLife = createSound({
-    src: ['./assets/life.wav'],
+    src: [lifeSrc],
     volume: .5
 });
 

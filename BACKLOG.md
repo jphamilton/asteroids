@@ -22,10 +22,10 @@ One item at a time. For anything still open, agree on the behavior before editin
 - [x] **Chain reactions.** Debris from a recent explosion still breaks rocks it overlaps. The two lists are `debris` and `otherRocks`. The shockwave ring stays visual.
 - [x] **Powerups and dramatic pause.** The unused pause timer, powerup timer, `addPowerup`, powerup sounds, and `src/utils/timers.ts` are removed.
 - [x] **Attract mode after a game.** When a game ends, that world is passed into attract mode, including after initials entry. A key still held from the initials screen does not start a new game. A new game still starts on a fresh world.
+- [x] **Sound URLs.** Each Howl sound uses the URL from its wav import. The console.log side-effect hack and unused `canPlay` are gone.
 
 ## Cleanup
 
-- [ ] **Sound URLs.** Wav imports exist so webpack emits the files, then `console.log` keeps them alive, while Howl loads a hardcoded `./assets/...` path. Pass the imported URL into Howl and delete the logs and the unused `canPlay`.
 - [ ] **Draw helpers.** `text`, `text2`, and `text3` repeat the same burn-offset text. `drawExtraLives` constructs a new `Ship` every frame. Use one text path, and reuse the life icon.
 - [ ] **HTML and README.** `src/index.html` has an unclosed `div` and a `link rel="font"` that the CSS `@font-face` already covers. The README says debug is F1. The key is Z.
 - [ ] **Strictness last.** `tsconfig.json` has `strict` set to false. Turn it on only after the items above, and fix the errors it reports. Leave the vendored line-clip code in `src/lineclip.ts` as-is. `polygonclip` is unused, and it belongs to that file.
