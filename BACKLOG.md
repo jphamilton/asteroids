@@ -23,9 +23,9 @@ One item at a time. For anything still open, agree on the behavior before editin
 - [x] **Powerups and dramatic pause.** The unused pause timer, powerup timer, `addPowerup`, powerup sounds, and `src/utils/timers.ts` are removed.
 - [x] **Attract mode after a game.** When a game ends, that world is passed into attract mode, including after initials entry. A key still held from the initials screen does not start a new game. A new game still starts on a fresh world.
 - [x] **Sound URLs.** Each Howl sound uses the URL from its wav import. The console.log side-effect hack and unused `canPlay` are gone.
+- [x] **Draw helpers.** Stroke and fill text share one burn-offset path. The extra-life icon is created once per object scale instead of every frame.
+- [x] **HTML and README.** The game container in `src/index.html` is closed, and the unused font link is gone. The README debug key is Z.
 
 ## Cleanup
 
-- [ ] **Draw helpers.** `text`, `text2`, and `text3` repeat the same burn-offset text. `drawExtraLives` constructs a new `Ship` every frame. Use one text path, and reuse the life icon.
-- [ ] **HTML and README.** `src/index.html` has an unclosed `div` and a `link rel="font"` that the CSS `@font-face` already covers. The README says debug is F1. The key is Z.
 - [ ] **Strictness last.** `tsconfig.json` has `strict` set to false. Turn it on only after the items above, and fix the errors it reports. Leave the vendored line-clip code in `src/lineclip.ts` as-is. `polygonclip` is unused, and it belongs to that file.

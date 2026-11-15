@@ -33,7 +33,7 @@ Collision detection occurs in 3 stages. First, a quadtree is used to determine p
 Finally, if the ship is involved, a point in polygon routine (credit Lascha Lagidse http://alienryderflex.com/polygon/) is used to determine if an actual collision has taken place. 
 Using point in poly for all collisions didn't "feel right". Bullet collisions (from the ship) also the Cohen-Sutherland line clipping algorithm - the result being that rocks in between 2 bullets
 will be destroyed. This vastly speeds up the game and gives the player the illusion that they are actually better than they are :) Basically, everything in the game is favored to the player. 
-This entire process is visualized in debug mode (hit F1 during game to view).
+This entire process is visualized in debug mode (hit Z during game to view).
 
 I only used two libraries for the game: [howler.js](https://howlerjs.com/) for sound and [hammer.js](http://hammerjs.github.io/) for touch support. I have to say, both of the libraries are amazing. 
 I can't believe how quickly I was able to put them to use. As for the rest of the game, it was important for me to do all the dirty work myself. I had almost zero exposure to the HTML 5 canvas before

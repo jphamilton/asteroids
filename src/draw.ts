@@ -27,7 +27,8 @@ const magenta5 = magenta(.5);
 const cyan5 = cyan(.5);
 
 export class Draw {
-
+    private lifeIcon: Ship | null = null;
+    private lifeIconScale = -1;
 
     constructor(private ctx: CanvasRenderingContext2D) {
 
@@ -166,72 +167,50 @@ export class Draw {
     }
 
     text(text: string, x: number, y: number, size: number, color: string = TextColor) {
-        const { ctx } = this;
-        
-        ctx.save();
-        ctx.font = `${size}pt hyperspace`;
-        ctx.textBaseline = 'middle';
-        ctx.lineWidth = 1;
-        
-        if (Global.burn) {
-            ctx.strokeStyle = magenta5;
-            ctx.strokeText(text, x - 2, y - 2);
-
-            ctx.strokeStyle = cyan5;
-            ctx.strokeText(text, x - 1, y - 1);
-        }
-
-        ctx.strokeStyle = color;
-        ctx.strokeText(text, x, y);
-        
-        ctx.restore();
+        this.paintText(text, x, y, size, color, false);
     }
 
     text2(text: string, size: number, cb: (width: number) => Point) {
+        this.placeText(text, size, false, cb);
+    }
+
+    text3(text: string, size: number, cb: (width: number) => Point) {
+        this.placeText(text, size, true, cb);
+    }
+
+    private placeText(text: string, size: number, fill: boolean, cb: (width: number) => Point) {
         const { ctx } = this;
-        
+        ctx.save();
+        ctx.font = `${size}pt hyperspace`;
+        const width = ctx.measureText(text).width;
+        ctx.restore();
+        const point = cb(width);
+        this.paintText(text, point.x, point.y, size, TextColor, fill);
+    }
+
+    private paintText(text: string, x: number, y: number, size: number, color: string, fill: boolean) {
+        const { ctx } = this;
         ctx.save();
         ctx.font = `${size}pt hyperspace`;
         ctx.textBaseline = 'middle';
         ctx.lineWidth = 1;
-        
-        const width = ctx.measureText(text).width;
-        const point = cb(width);
+
+        const paint = (paintColor: string, dx: number, dy: number) => {
+            if (fill) {
+                ctx.fillStyle = paintColor;
+                ctx.fillText(text, x + dx, y + dy);
+            } else {
+                ctx.strokeStyle = paintColor;
+                ctx.strokeText(text, x + dx, y + dy);
+            }
+        };
 
         if (Global.burn) {
-            ctx.strokeStyle = magenta(.5);
-            ctx.strokeText(text, point.x - 2, point.y - 2);
-            
-            ctx.strokeStyle = cyan(.5);
-            ctx.strokeText(text, point.x - 1, point.y - 1);
+            paint(magenta5, -2, -2);
+            paint(cyan5, -1, -1);
         }
 
-        ctx.strokeStyle = TextColor;
-        ctx.strokeText(text, point.x, point.y);
-        ctx.restore();
-    }
-
-    text3(text: string, size: number, cb: (width: number) => Point) {
-        const { ctx } = this;
-        
-        ctx.save();
-        ctx.font = `${size}pt hyperspace`;
-        ctx.textBaseline = 'middle';
-        
-        const width = ctx.measureText(text).width;
-        const point = cb(width);
-
-        if (Global.burn) {
-            ctx.fillStyle = magenta(.5);
-            ctx.fillText(text, point.x - 2, point.y - 2);
-            
-            ctx.fillStyle = cyan(.5);
-            ctx.fillText(text, point.x - 1, point.y - 1);
-        }
-
-        ctx.fillStyle = TextColor;
-        ctx.fillText(text, point.x, point.y);
-
+        paint(color, 0, 0);
         ctx.restore();
     }
 
@@ -306,12 +285,18 @@ export class Draw {
 
     drawExtraLives(lives: number) {
         lives = Math.min(lives, 10);
-        const life = new Ship(0, 0);
+        if (!this.lifeIcon || this.lifeIconScale !== screen.objectScale) {
+            this.lifeIcon = new Ship(0, 0);
+            this.lifeIconScale = screen.objectScale;
+        }
+
+        const life = this.lifeIcon;
+        life.origin.x = 0;
+        life.origin.y = 0;
         const loc = (life.x + life.width) * 2.3;
-        
         const y = Y_START + screen.font.medium + 10;
 
-        for(let i = 0; i < lives; i++) {
+        for (let i = 0; i < lives; i++) {
             life.origin.x = 80 + (i * loc);
             life.origin.y = y;
             life.render();
